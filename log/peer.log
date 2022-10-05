@@ -1,0 +1,157 @@
+[34m2022-10-05 18:21:26.962 KST [nodeCmd] serve -> INFO 001[0m Starting Mdl peer:
+ Version: 1.0 2022-08-10
+ Commit SHA: 8445c0a9c
+ Go version: go1.19.1
+ OS/Arch: darwin/arm64
+ Base Fabric Version: 2.2.2
+ Chaincode:
+   Base Docker Label: org.hyperledger.fabric
+   Docker Namespace: hyperledger
+[34m2022-10-05 18:21:26.962 KST [peer] getLocalAddress -> INFO 002[0m Auto-detected peer address: 192.168.3.193:7051
+[34m2022-10-05 18:21:26.962 KST [peer] getLocalAddress -> INFO 003[0m Returning peer0.org1.example.com:7051
+[34m2022-10-05 18:21:26.963 KST [nodeCmd] initGrpcSemaphores -> INFO 004[0m concurrency limit for endorser service is 2500
+[34m2022-10-05 18:21:26.963 KST [nodeCmd] initGrpcSemaphores -> INFO 005[0m concurrency limit for deliver service is 2500
+[34m2022-10-05 18:21:26.963 KST [nodeCmd] serve -> INFO 006[0m Starting peer with TLS enabled
+[34m2022-10-05 18:21:27.044 KST [certmonitor] trackCertExpiration -> INFO 007[0m The enrollment certificate will expire on 2023-10-05 09:21:00 +0000 UTC
+[34m2022-10-05 18:21:27.044 KST [certmonitor] trackCertExpiration -> INFO 008[0m The server TLS certificate will expire on 2023-10-05 09:21:00 +0000 UTC
+[34m2022-10-05 18:21:27.045 KST [ledgermgmt] NewLedgerMgr -> INFO 009[0m Initializing LedgerMgr
+[34m2022-10-05 18:21:27.253 KST [leveldbhelper] openDBAndCheckFormat -> INFO 00a[0m DB is empty Setting db format as 2.0
+[34m2022-10-05 18:21:27.271 KST [blkstorage] NewProvider -> INFO 00b[0m Creating new file ledger directory at /Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/ledgersData/chains/chains
+[34m2022-10-05 18:21:27.272 KST [committer.responseblock] NewResponseDataProvider -> INFO 00c[0m NewResponseDataProvider
+[34m2022-10-05 18:21:27.349 KST [leveldbhelper] openDBAndCheckFormat -> INFO 00d[0m DB is empty Setting db format as 2.0
+[34m2022-10-05 18:21:27.485 KST [leveldbhelper] openDBAndCheckFormat -> INFO 00e[0m DB is empty Setting db format as 2.0
+[34m2022-10-05 18:21:27.677 KST [leveldbhelper] openDBAndCheckFormat -> INFO 00f[0m DB is empty Setting db format as 2.0
+[34m2022-10-05 18:21:27.715 KST [ledgermgmt] NewLedgerMgr -> INFO 010[0m Initialized LedgerMgr
+[34m2022-10-05 18:21:27.718 KST [gossip.service] New -> INFO 011[0m Initialize gossip with endpoint peer0.org1.example.com:7051
+[34m2022-10-05 18:21:27.720 KST [gossip.gossip] New -> INFO 012[0m Creating gossip service with self membership of Endpoint: peer0.org1.example.com:7051, InternalEndpoint: peer0.org1.example.com:7051, PKI-ID: 8b15e6977d5a7f3f29c907bf823651cf31f4519b786a64a20e16f43141f043dd, Metadata: 
+[34m2022-10-05 18:21:27.720 KST [lifecycle] InitializeLocalChaincodes -> INFO 013[0m Initialized lifecycle cache with 0 already installed chaincodes
+[34m2022-10-05 18:21:27.721 KST [gossip.gossip] start -> INFO 014[0m Gossip instance peer0.org1.example.com:7051 started
+[34m2022-10-05 18:21:27.721 KST [nodeCmd] computeChaincodeEndpoint -> INFO 015[0m Entering computeChaincodeEndpoint with peerHostname: peer0.org1.example.com
+[34m2022-10-05 18:21:27.721 KST [nodeCmd] computeChaincodeEndpoint -> INFO 016[0m Exit with ccEndpoint: peer0.org1.example.com:7052
+[34m2022-10-05 18:21:27.723 KST [sccapi] DeploySysCC -> INFO 017[0m deploying system chaincode 'lscc'
+[34m2022-10-05 18:21:27.723 KST [sccapi] DeploySysCC -> INFO 018[0m deploying system chaincode 'cscc'
+[34m2022-10-05 18:21:27.723 KST [sccapi] DeploySysCC -> INFO 019[0m deploying system chaincode 'qscc'
+[34m2022-10-05 18:21:27.723 KST [sccapi] DeploySysCC -> INFO 01a[0m deploying system chaincode '_lifecycle'
+[34m2022-10-05 18:21:27.724 KST [nodeCmd] serve -> INFO 01b[0m Deployed system chaincodes
+[34m2022-10-05 18:21:27.724 KST [discovery] NewService -> INFO 01c[0m Created with config TLS: true, authCacheMaxSize: 1000, authCachePurgeRatio: 0.750000
+[34m2022-10-05 18:21:27.724 KST [nodeCmd] registerDiscoveryService -> INFO 01d[0m Discovery service activated
+[34m2022-10-05 18:21:27.724 KST [nodeCmd] serve -> INFO 01e[0m Starting peer with ID=[peer0.org1.example.com], network ID=[dev], address=[peer0.org1.example.com:7051]
+[34m2022-10-05 18:21:27.724 KST [nodeCmd] serve -> INFO 01f[0m Started peer with ID=[peer0.org1.example.com], network ID=[dev], address=[peer0.org1.example.com:7051]
+[34m2022-10-05 18:21:27.724 KST [kvledger] LoadPreResetHeight -> INFO 020[0m Loading prereset height from path [/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/ledgersData/chains]
+[34m2022-10-05 18:21:27.724 KST [blkstorage] preResetHtFiles -> INFO 021[0m No active channels passed
+[34m2022-10-05 18:21:41.370 KST [ledgermgmt] CreateLedger -> INFO 022[0m Creating ledger [mychannel0] with genesis block
+[34m2022-10-05 18:21:41.388 KST [blkstorage] GetRamTxid -> INFO 023[0m Create RamTxid for Channel mychannel0
+[34m2022-10-05 18:21:41.389 KST [committer.responseblock] GetResponseCache -> INFO 024[0m Create ResponseData Cache for Channel mychannel0
+[34m2022-10-05 18:21:41.389 KST [committer.responseblock] NewResponseDataNotification -> INFO 025[0m [mychannel0] NewResponseDataNotification
+[34m2022-10-05 18:21:41.389 KST [committer.responseblock] Run -> INFO 026[0m [mychannel0] Run Response Processor
+[34m2022-10-05 18:21:41.389 KST [blkstorage] newBlockfileMgr -> INFO 027[0m Getting block information from block storage
+[34m2022-10-05 18:21:41.407 KST [blkstorage] runAsyncDB -> INFO 028[0m [mychannel0] Run BlockIndex Processor. BufSize=[10]
+[34m2022-10-05 18:21:41.407 KST [blkstorage] runBlockIndex -> INFO 029[0m [mychannel0] Run Txid Processor. bufSize=[10]
+[34m2022-10-05 18:21:41.408 KST [history] runAsyncDB -> INFO 02a[0m channel : [mychannel0]. Run HistoryDB Processor
+[34m2022-10-05 18:21:41.500 KST [kvledger] CommitLegacy -> INFO 02b[0m [mychannel0] Committed block [0] with 1 transaction(s) in 72ms (state_validation=0ms block_and_pvtdata_commit=18ms state_commit=53ms) commitHash=[]
+[34m2022-10-05 18:21:41.553 KST [ledgermgmt] CreateLedger -> INFO 02c[0m Created ledger [mychannel0] with genesis block
+[33m2022-10-05 18:21:41.555 KST [peer.orderers] Update -> WARN 02d[0m Config defines both orderer org specific endpoints and global endpoints, global endpoints will be ignored channel=mychannel0
+[34m2022-10-05 18:21:41.572 KST [gossip.gossip] JoinChan -> INFO 02e[0m Joining gossip network of channel mychannel0 with 1 organizations
+[34m2022-10-05 18:21:41.572 KST [gossip.gossip] learnAnchorPeers -> INFO 02f[0m No configured anchor peers of Org1MSP for channel mychannel0 to learn about
+[34m2022-10-05 18:21:41.573 KST [gossip.state] NewGossipStateProvider -> INFO 030[0m Updating metadata information for channel mychannel0, current ledger sequence is at = 0, next expected block is = 1
+[34m2022-10-05 18:21:41.573 KST [deliveryClient] StartDeliverForChannel -> INFO 031[0m This peer will retrieve blocks from ordering service and disseminate to other peers in the organization for channel mychannel0
+[34m2022-10-05 18:21:41.573 KST [endorser] callChaincode -> INFO 032[0m finished chaincode: cscc duration: 204ms channel= txID=283cf28b
+[34m2022-10-05 18:21:41.574 KST [comm.grpc.server] 1 -> INFO 033[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54019 grpc.code=OK grpc.call_duration=205.421959ms
+[34m2022-10-05 18:21:42.864 KST [gossip.privdata] PreprocessingCommitEx -> INFO 034[0m [mychannel0] Received block [1] from buffer
+[33m2022-10-05 18:21:42.865 KST [peer.orderers] Update -> WARN 035[0m Config defines both orderer org specific endpoints and global endpoints, global endpoints will be ignored channel=mychannel0
+[34m2022-10-05 18:21:42.865 KST [gossip.gossip] JoinChan -> INFO 036[0m Joining gossip network of channel mychannel0 with 1 organizations
+[34m2022-10-05 18:21:42.865 KST [gossip.gossip] learnAnchorPeers -> INFO 037[0m Learning about the configured anchor peers of Org1MSP for channel mychannel0: [{peer0.org1.example.com 7051}]
+[34m2022-10-05 18:21:42.865 KST [gossip.gossip] learnAnchorPeers -> INFO 038[0m Anchor peer for channel mychannel0 with same endpoint, skipping connecting to myself
+[34m2022-10-05 18:21:42.866 KST [committer.txvalidator] ValidateEx -> INFO 039[0m [mychannel0] Validated block [1] in 1ms
+[34m2022-10-05 18:21:42.937 KST [kvledger] CommitLegacy -> INFO 03a[0m [mychannel0] Committed block [1] with 1 transaction(s) in 70ms (state_validation=0ms block_and_pvtdata_commit=17ms state_commit=53ms) commitHash=[47dc540c94ceb704a23875c11273e16bb0b8a87aed84de911f2133568115f254]
+[34m2022-10-05 18:22:25.497 KST [lifecycle] InstallChaincode -> INFO 03b[0m Successfully installed chaincode with package ID 'token-erc-20_v1:250e89d69a5ef2d69e3a28f552f67bd86249b35e3d56aef758f6a10ed20e7f05'
+[34m2022-10-05 18:22:25.497 KST [endorser] callChaincode -> INFO 03c[0m finished chaincode: _lifecycle duration: 40569ms channel= txID=0317ccca
+[34m2022-10-05 18:22:25.497 KST [comm.grpc.server] 1 -> INFO 03d[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54025 grpc.code=OK grpc.call_duration=40.57321575s
+[34m2022-10-05 18:22:25.521 KST [endorser] callChaincode -> INFO 03e[0m finished chaincode: _lifecycle duration: 0ms channel= txID=fa6e9177
+[34m2022-10-05 18:22:25.521 KST [comm.grpc.server] 1 -> INFO 03f[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54030 grpc.code=OK grpc.call_duration=353.917µs
+[34m2022-10-05 18:22:25.547 KST [lifecycle] ApproveChaincodeDefinitionForOrg -> INFO 040[0m Successfully endorsed chaincode approval with name 'token-erc-20', package ID 'token-erc-20_v1:250e89d69a5ef2d69e3a28f552f67bd86249b35e3d56aef758f6a10ed20e7f05', on channel 'mychannel0' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: ()}
+[34m2022-10-05 18:22:25.547 KST [endorser] callChaincode -> INFO 041[0m finished chaincode: _lifecycle duration: 0ms channel=mychannel0 txID=b6b1a02a
+[34m2022-10-05 18:22:25.566 KST [comm.grpc.server] 1 -> INFO 042[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54034 grpc.code=OK grpc.call_duration=19.446125ms
+[34m2022-10-05 18:22:27.625 KST [gossip.privdata] PreprocessingCommitEx -> INFO 043[0m [mychannel0] Received block [2] from buffer
+[34m2022-10-05 18:22:27.627 KST [committer.txvalidator] ValidateEx -> INFO 044[0m [mychannel0] Validated block [2] in 1ms
+[34m2022-10-05 18:22:27.627 KST [gossip.privdata] RetrievePvtdata -> INFO 045[0m Successfully fetched all 1 eligible collection private write sets for block [2] (0 from local cache, 1 from transient store, 0 from other peers) channel=mychannel0
+[34m2022-10-05 18:22:27.684 KST [kvledger] CommitLegacy -> INFO 046[0m [mychannel0] Committed block [2] with 1 transaction(s) in 56ms (state_validation=0ms block_and_pvtdata_commit=19ms state_commit=36ms) commitHash=[f1ef1e3f28e7ab49dadea3fe2d9cf8b356c7341cb7873325915aed2c403eb115]
+[34m2022-10-05 18:22:27.704 KST [comm.grpc.server] 1 -> INFO 047[0m streaming call completed grpc.service=protos.Deliver grpc.method=DeliverFiltered grpc.request_deadline=2022-10-05T18:22:55.567+09:00 grpc.peer_address=[::1]:54035 error="context finished before block retrieved: context canceled" grpc.code=Unknown grpc.call_duration=2.1373135s
+[34m2022-10-05 18:22:30.785 KST [lifecycle] CheckCommitReadiness -> INFO 048[0m Successfully checked commit readiness of chaincode name 'token-erc-20' on channel 'mychannel0' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: (<nil>)}
+[34m2022-10-05 18:22:30.785 KST [endorser] callChaincode -> INFO 049[0m finished chaincode: _lifecycle duration: 0ms channel=mychannel0 txID=b2699726
+[34m2022-10-05 18:22:30.786 KST [comm.grpc.server] 1 -> INFO 04a[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54039 grpc.code=OK grpc.call_duration=713.042µs
+[34m2022-10-05 18:22:30.827 KST [lifecycle] CheckCommitReadiness -> INFO 04b[0m Successfully checked commit readiness of chaincode name 'token-erc-20' on channel 'mychannel0' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: (<nil>)}
+[34m2022-10-05 18:22:30.827 KST [lifecycle] CommitChaincodeDefinition -> INFO 04c[0m Successfully endorsed commit for chaincode name 'token-erc-20' on channel 'mychannel0' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: (<nil>)}
+[34m2022-10-05 18:22:30.827 KST [endorser] callChaincode -> INFO 04d[0m finished chaincode: _lifecycle duration: 0ms channel=mychannel0 txID=d2dedfd3
+[34m2022-10-05 18:22:30.827 KST [comm.grpc.server] 1 -> INFO 04e[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54043 grpc.code=OK grpc.call_duration=778.5µs
+[34m2022-10-05 18:22:32.888 KST [gossip.privdata] PreprocessingCommitEx -> INFO 04f[0m [mychannel0] Received block [3] from buffer
+[34m2022-10-05 18:22:32.889 KST [committer.txvalidator] ValidateEx -> INFO 050[0m [mychannel0] Validated block [3] in 0ms
+[34m2022-10-05 18:22:32.889 KST [lifecycle] update -> INFO 051[0m Updating cached definition for chaincode 'token-erc-20' on channel 'mychannel0'
+[34m2022-10-05 18:22:32.889 KST [lifecycle] update -> INFO 052[0m Chaincode with package ID 'token-erc-20_v1:250e89d69a5ef2d69e3a28f552f67bd86249b35e3d56aef758f6a10ed20e7f05' now available on channel mychannel0 for chaincode definition token-erc-20:v1
+[34m2022-10-05 18:22:32.975 KST [cceventmgmt] HandleStateUpdates -> INFO 053[0m Channel [mychannel0]: Handling deploy or update of chaincode [token-erc-20]
+[34m2022-10-05 18:22:33.027 KST [kvledger] CommitLegacy -> INFO 054[0m [mychannel0] Committed block [3] with 1 transaction(s) in 138ms (state_validation=86ms block_and_pvtdata_commit=34ms state_commit=17ms) commitHash=[313c08205a425179b975ebf9a7c078bf9c16fe4699c2b7ec8a92d69b2e539efa]
+[34m2022-10-05 18:22:33.047 KST [comm.grpc.server] 1 -> INFO 055[0m streaming call completed grpc.service=protos.Deliver grpc.method=DeliverFiltered grpc.request_deadline=2022-10-05T18:23:00.828+09:00 grpc.peer_address=[::1]:54044 error="context finished before block retrieved: context canceled" grpc.code=Unknown grpc.call_duration=2.218883666s
+[34m2022-10-05 18:22:36.133 KST [lifecycle] QueryChaincodeDefinition -> INFO 056[0m Successfully queried chaincode name 'token-erc-20' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: ()},
+[34m2022-10-05 18:22:36.133 KST [endorser] callChaincode -> INFO 057[0m finished chaincode: _lifecycle duration: 0ms channel=mychannel0 txID=d926d436
+[34m2022-10-05 18:22:36.133 KST [comm.grpc.server] 1 -> INFO 058[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54049 grpc.code=OK grpc.call_duration=677.5µs
+[34m2022-10-05 18:22:50.584 KST [ledgermgmt] CreateLedger -> INFO 059[0m Creating ledger [mychannel1] with genesis block
+[34m2022-10-05 18:22:50.603 KST [blkstorage] GetRamTxid -> INFO 05a[0m Create RamTxid for Channel mychannel1
+[34m2022-10-05 18:22:50.603 KST [committer.responseblock] GetResponseCache -> INFO 05b[0m Create ResponseData Cache for Channel mychannel1
+[34m2022-10-05 18:22:50.603 KST [committer.responseblock] NewResponseDataNotification -> INFO 05c[0m [mychannel1] NewResponseDataNotification
+[34m2022-10-05 18:22:50.603 KST [committer.responseblock] Run -> INFO 05d[0m [mychannel1] Run Response Processor
+[34m2022-10-05 18:22:50.603 KST [blkstorage] newBlockfileMgr -> INFO 05e[0m Getting block information from block storage
+[34m2022-10-05 18:22:50.621 KST [blkstorage] runBlockIndex -> INFO 05f[0m [mychannel1] Run Txid Processor. bufSize=[10]
+[34m2022-10-05 18:22:50.621 KST [blkstorage] runAsyncDB -> INFO 060[0m [mychannel1] Run BlockIndex Processor. BufSize=[10]
+[34m2022-10-05 18:22:50.621 KST [history] runAsyncDB -> INFO 061[0m channel : [mychannel1]. Run HistoryDB Processor
+[34m2022-10-05 18:22:50.747 KST [kvledger] CommitLegacy -> INFO 062[0m [mychannel1] Committed block [0] with 1 transaction(s) in 90ms (state_validation=0ms block_and_pvtdata_commit=19ms state_commit=70ms) commitHash=[]
+[34m2022-10-05 18:22:50.784 KST [ledgermgmt] CreateLedger -> INFO 063[0m Created ledger [mychannel1] with genesis block
+[33m2022-10-05 18:22:50.786 KST [peer.orderers] Update -> WARN 064[0m Config defines both orderer org specific endpoints and global endpoints, global endpoints will be ignored channel=mychannel1
+[34m2022-10-05 18:22:50.786 KST [gossip.gossip] JoinChan -> INFO 065[0m Joining gossip network of channel mychannel1 with 1 organizations
+[34m2022-10-05 18:22:50.786 KST [gossip.gossip] learnAnchorPeers -> INFO 066[0m No configured anchor peers of Org1MSP for channel mychannel1 to learn about
+[34m2022-10-05 18:22:50.787 KST [gossip.state] NewGossipStateProvider -> INFO 067[0m Updating metadata information for channel mychannel1, current ledger sequence is at = 0, next expected block is = 1
+[34m2022-10-05 18:22:50.787 KST [deliveryClient] StartDeliverForChannel -> INFO 068[0m This peer will retrieve blocks from ordering service and disseminate to other peers in the organization for channel mychannel1
+[34m2022-10-05 18:22:50.787 KST [endorser] callChaincode -> INFO 069[0m finished chaincode: cscc duration: 203ms channel= txID=b4b93227
+[34m2022-10-05 18:22:50.787 KST [comm.grpc.server] 1 -> INFO 06a[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54063 grpc.code=OK grpc.call_duration=203.519542ms
+[34m2022-10-05 18:22:52.053 KST [gossip.privdata] PreprocessingCommitEx -> INFO 06b[0m [mychannel1] Received block [1] from buffer
+[33m2022-10-05 18:22:52.054 KST [peer.orderers] Update -> WARN 06c[0m Config defines both orderer org specific endpoints and global endpoints, global endpoints will be ignored channel=mychannel1
+[34m2022-10-05 18:22:52.054 KST [gossip.gossip] JoinChan -> INFO 06d[0m Joining gossip network of channel mychannel1 with 1 organizations
+[34m2022-10-05 18:22:52.054 KST [gossip.gossip] learnAnchorPeers -> INFO 06e[0m Learning about the configured anchor peers of Org1MSP for channel mychannel1: [{peer0.org1.example.com 7051}]
+[34m2022-10-05 18:22:52.054 KST [gossip.gossip] learnAnchorPeers -> INFO 06f[0m Anchor peer for channel mychannel1 with same endpoint, skipping connecting to myself
+[34m2022-10-05 18:22:52.054 KST [committer.txvalidator] ValidateEx -> INFO 070[0m [mychannel1] Validated block [1] in 1ms
+[34m2022-10-05 18:22:52.107 KST [kvledger] CommitLegacy -> INFO 071[0m [mychannel1] Committed block [1] with 1 transaction(s) in 53ms (state_validation=0ms block_and_pvtdata_commit=18ms state_commit=35ms) commitHash=[47dc540c94ceb704a23875c11273e16bb0b8a87aed84de911f2133568115f254]
+[34m2022-10-05 18:23:31.979 KST [lifecycle] InstallChaincode -> INFO 072[0m Successfully installed chaincode with package ID 'coin-erc-20_v1:a4011420175306d701e4971233e434ed41981234d42fcf3fe17afd9cead4add9'
+[34m2022-10-05 18:23:31.979 KST [endorser] callChaincode -> INFO 073[0m finished chaincode: _lifecycle duration: 38041ms channel= txID=7e54f6b9
+[34m2022-10-05 18:23:31.979 KST [comm.grpc.server] 1 -> INFO 074[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54069 grpc.code=OK grpc.call_duration=38.045446459s
+[34m2022-10-05 18:23:32.005 KST [endorser] callChaincode -> INFO 075[0m finished chaincode: _lifecycle duration: 0ms channel= txID=d3e24e0a
+[34m2022-10-05 18:23:32.005 KST [comm.grpc.server] 1 -> INFO 076[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54073 grpc.code=OK grpc.call_duration=385.417µs
+[34m2022-10-05 18:23:32.031 KST [lifecycle] ApproveChaincodeDefinitionForOrg -> INFO 077[0m Successfully endorsed chaincode approval with name 'coin-erc-20', package ID 'coin-erc-20_v1:a4011420175306d701e4971233e434ed41981234d42fcf3fe17afd9cead4add9', on channel 'mychannel1' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: ()}
+[34m2022-10-05 18:23:32.031 KST [endorser] callChaincode -> INFO 078[0m finished chaincode: _lifecycle duration: 0ms channel=mychannel1 txID=1e6d4a67
+[34m2022-10-05 18:23:32.050 KST [comm.grpc.server] 1 -> INFO 079[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54077 grpc.code=OK grpc.call_duration=20.546166ms
+[34m2022-10-05 18:23:34.109 KST [gossip.privdata] PreprocessingCommitEx -> INFO 07a[0m [mychannel1] Received block [2] from buffer
+[34m2022-10-05 18:23:34.111 KST [committer.txvalidator] ValidateEx -> INFO 07b[0m [mychannel1] Validated block [2] in 1ms
+[34m2022-10-05 18:23:34.112 KST [gossip.privdata] RetrievePvtdata -> INFO 07c[0m Successfully fetched all 1 eligible collection private write sets for block [2] (0 from local cache, 1 from transient store, 0 from other peers) channel=mychannel1
+[34m2022-10-05 18:23:34.185 KST [kvledger] CommitLegacy -> INFO 07d[0m [mychannel1] Committed block [2] with 1 transaction(s) in 73ms (state_validation=0ms block_and_pvtdata_commit=18ms state_commit=54ms) commitHash=[a168aa96208c6733bef996b13e61c425071fd91550ce1077aeec0419fe5178f8]
+[34m2022-10-05 18:23:34.206 KST [comm.grpc.server] 1 -> INFO 07e[0m streaming call completed grpc.service=protos.Deliver grpc.method=DeliverFiltered grpc.request_deadline=2022-10-05T18:24:02.051+09:00 grpc.peer_address=[::1]:54078 error="context finished before block retrieved: context canceled" grpc.code=Unknown grpc.call_duration=2.154875708s
+[34m2022-10-05 18:23:37.288 KST [lifecycle] CheckCommitReadiness -> INFO 07f[0m Successfully checked commit readiness of chaincode name 'coin-erc-20' on channel 'mychannel1' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: (<nil>)}
+[34m2022-10-05 18:23:37.288 KST [endorser] callChaincode -> INFO 080[0m finished chaincode: _lifecycle duration: 0ms channel=mychannel1 txID=48364622
+[34m2022-10-05 18:23:37.288 KST [comm.grpc.server] 1 -> INFO 081[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54082 grpc.code=OK grpc.call_duration=810.542µs
+[34m2022-10-05 18:23:37.330 KST [lifecycle] CheckCommitReadiness -> INFO 082[0m Successfully checked commit readiness of chaincode name 'coin-erc-20' on channel 'mychannel1' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: (<nil>)}
+[34m2022-10-05 18:23:37.331 KST [lifecycle] CommitChaincodeDefinition -> INFO 083[0m Successfully endorsed commit for chaincode name 'coin-erc-20' on channel 'mychannel1' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: (<nil>)}
+[34m2022-10-05 18:23:37.331 KST [endorser] callChaincode -> INFO 084[0m finished chaincode: _lifecycle duration: 0ms channel=mychannel1 txID=913d7f89
+[34m2022-10-05 18:23:37.331 KST [comm.grpc.server] 1 -> INFO 085[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54086 grpc.code=OK grpc.call_duration=748.958µs
+[34m2022-10-05 18:23:37.331 KST [lifecycle] CheckCommitReadiness -> INFO 086[0m Successfully checked commit readiness of chaincode name 'coin-erc-20' on channel 'mychannel1' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: (<nil>)}
+[34m2022-10-05 18:23:37.331 KST [lifecycle] CommitChaincodeDefinition -> INFO 087[0m Successfully endorsed commit for chaincode name 'coin-erc-20' on channel 'mychannel1' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: (<nil>)}
+[34m2022-10-05 18:23:37.331 KST [endorser] callChaincode -> INFO 088[0m finished chaincode: _lifecycle duration: 0ms channel=mychannel1 txID=913d7f89
+[34m2022-10-05 18:23:37.331 KST [comm.grpc.server] 1 -> INFO 089[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54088 grpc.code=OK grpc.call_duration=516.917µs
+[34m2022-10-05 18:23:39.391 KST [gossip.privdata] PreprocessingCommitEx -> INFO 08a[0m [mychannel1] Received block [3] from buffer
+[33m2022-10-05 18:23:39.392 KST [policies] SignatureSetToValidIdentities -> WARN 08b[0m De-duplicating identity [Org1MSP73116493772224f95029087d8c880f484a22b57e48ecd853b6508763fac810ea] at index 1 in signature set
+[34m2022-10-05 18:23:39.392 KST [committer.txvalidator] ValidateEx -> INFO 08c[0m [mychannel1] Validated block [3] in 1ms
+[34m2022-10-05 18:23:39.392 KST [lifecycle] update -> INFO 08d[0m Updating cached definition for chaincode 'coin-erc-20' on channel 'mychannel1'
+[34m2022-10-05 18:23:39.392 KST [lifecycle] update -> INFO 08e[0m Chaincode with package ID 'coin-erc-20_v1:a4011420175306d701e4971233e434ed41981234d42fcf3fe17afd9cead4add9' now available on channel mychannel1 for chaincode definition coin-erc-20:v1
+[34m2022-10-05 18:23:39.488 KST [cceventmgmt] HandleStateUpdates -> INFO 08f[0m Channel [mychannel1]: Handling deploy or update of chaincode [coin-erc-20]
+[34m2022-10-05 18:23:39.541 KST [kvledger] CommitLegacy -> INFO 090[0m [mychannel1] Committed block [3] with 1 transaction(s) in 148ms (state_validation=95ms block_and_pvtdata_commit=35ms state_commit=18ms) commitHash=[20d1c7b575351bbcb3c51dc0bf56965c4282c727897e35a9c7430177c08b078b]
+[34m2022-10-05 18:23:39.560 KST [comm.grpc.server] 1 -> INFO 091[0m streaming call completed grpc.service=protos.Deliver grpc.method=DeliverFiltered grpc.request_deadline=2022-10-05T18:24:07.332+09:00 grpc.peer_address=[::1]:54089 error="context finished before block retrieved: context canceled" grpc.code=Unknown grpc.call_duration=2.228511209s
+[34m2022-10-05 18:23:39.560 KST [comm.grpc.server] 1 -> INFO 092[0m streaming call completed grpc.service=protos.Deliver grpc.method=DeliverFiltered grpc.request_deadline=2022-10-05T18:24:07.332+09:00 grpc.peer_address=[::1]:54087 error="context finished before block retrieved: context canceled" grpc.code=Unknown grpc.call_duration=2.228576625s
+[34m2022-10-05 18:23:42.638 KST [lifecycle] QueryChaincodeDefinition -> INFO 093[0m Successfully queried chaincode name 'coin-erc-20' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: ()},
+[34m2022-10-05 18:23:42.638 KST [endorser] callChaincode -> INFO 094[0m finished chaincode: _lifecycle duration: 0ms channel=mychannel1 txID=72591cdd
+[34m2022-10-05 18:23:42.638 KST [comm.grpc.server] 1 -> INFO 095[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54094 grpc.code=OK grpc.call_duration=1.145584ms
