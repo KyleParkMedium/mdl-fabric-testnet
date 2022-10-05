@@ -155,3 +155,57 @@
 [34m2022-10-05 18:23:42.638 KST [lifecycle] QueryChaincodeDefinition -> INFO 093[0m Successfully queried chaincode name 'coin-erc-20' with definition {sequence: 1, endorsement info: (version: 'v1', plugin: 'escc', init required: true), validation info: (plugin: 'vscc', policy: '12202f4368616e6e656c2f4170706c69636174696f6e2f456e646f7273656d656e74'), collections: ()},
 [34m2022-10-05 18:23:42.638 KST [endorser] callChaincode -> INFO 094[0m finished chaincode: _lifecycle duration: 0ms channel=mychannel1 txID=72591cdd
 [34m2022-10-05 18:23:42.638 KST [comm.grpc.server] 1 -> INFO 095[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54094 grpc.code=OK grpc.call_duration=1.145584ms
+[34m2022-10-05 18:42:24.065 KST [endorser] callChaincode -> INFO 096[0m finished chaincode: token-erc-20 duration: 39ms channel=mychannel0 txID=23453663
+[34m2022-10-05 18:42:24.065 KST [comm.grpc.server] 1 -> INFO 097[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54192 grpc.code=OK grpc.call_duration=40.35825ms
+[34m2022-10-05 18:42:26.127 KST [gossip.privdata] PreprocessingCommitEx -> INFO 098[0m [mychannel0] Received block [4] from buffer
+[34m2022-10-05 18:42:26.128 KST [committer.txvalidator] ValidateEx -> INFO 099[0m [mychannel0] Validated block [4] in 1ms
+[34m2022-10-05 18:42:26.184 KST [kvledger] CommitLegacy -> INFO 09a[0m [mychannel0] Committed block [4] with 1 transaction(s) in 55ms (state_validation=0ms block_and_pvtdata_commit=18ms state_commit=37ms) commitHash=[75be4d52057d361bc00a0c2dae36a468a050b944b4b3ea7eb3f1ac1094061dff]
+[34m2022-10-05 18:42:27.146 KST [endorser] callChaincode -> INFO 09b[0m finished chaincode: token-erc-20 duration: 27ms channel=mychannel0 txID=88945dbf
+[34m2022-10-05 18:42:27.146 KST [comm.grpc.server] 1 -> INFO 09c[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54197 grpc.code=OK grpc.call_duration=28.249875ms
+[34m2022-10-05 18:42:29.207 KST [gossip.privdata] PreprocessingCommitEx -> INFO 09d[0m [mychannel0] Received block [5] from buffer
+[34m2022-10-05 18:42:29.208 KST [committer.txvalidator] ValidateEx -> INFO 09e[0m [mychannel0] Validated block [5] in 0ms
+[34m2022-10-05 18:42:29.305 KST [kvledger] CommitLegacy -> INFO 09f[0m [mychannel0] Committed block [5] with 1 transaction(s) in 97ms (state_validation=0ms block_and_pvtdata_commit=26ms state_commit=70ms) commitHash=[8f115cb6b20cfb8242fe00432309e693cd1d0615540d455ef601a8b113d1a1a5]
+[34m2022-10-05 18:42:30.222 KST [endorser] callChaincode -> INFO 0a0[0m finished chaincode: token-erc-20 duration: 22ms channel=mychannel0 txID=d360609b
+[34m2022-10-05 18:42:30.223 KST [comm.grpc.server] 1 -> INFO 0a1[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54203 grpc.code=OK grpc.call_duration=22.976666ms
+[34m2022-10-05 18:42:32.284 KST [gossip.privdata] PreprocessingCommitEx -> INFO 0a2[0m [mychannel0] Received block [6] from buffer
+[34m2022-10-05 18:42:32.285 KST [committer.txvalidator] ValidateEx -> INFO 0a3[0m [mychannel0] Validated block [6] in 0ms
+[34m2022-10-05 18:42:32.357 KST [kvledger] CommitLegacy -> INFO 0a4[0m [mychannel0] Committed block [6] with 1 transaction(s) in 72ms (state_validation=0ms block_and_pvtdata_commit=16ms state_commit=54ms) commitHash=[0aec9c5f413ae3c14c2ed048c87f54a74e54bc9b061dae2018068978342f4fa7]
+[34m2022-10-05 18:42:33.293 KST [endorser] callChaincode -> INFO 0a5[0m finished chaincode: token-erc-20 duration: 14ms channel=mychannel0 txID=8526b40f
+[34m2022-10-05 18:42:33.293 KST [comm.grpc.server] 1 -> INFO 0a6[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54208 grpc.code=OK grpc.call_duration=15.121667ms
+[34m2022-10-05 18:42:35.353 KST [gossip.privdata] PreprocessingCommitEx -> INFO 0a7[0m [mychannel0] Received block [7] from buffer
+[34m2022-10-05 18:42:35.354 KST [committer.txvalidator] ValidateEx -> INFO 0a8[0m [mychannel0] Validated block [7] in 0ms
+[34m2022-10-05 18:42:35.410 KST [kvledger] CommitLegacy -> INFO 0a9[0m [mychannel0] Committed block [7] with 1 transaction(s) in 55ms (state_validation=0ms block_and_pvtdata_commit=19ms state_commit=36ms) commitHash=[af3a4502d177df82789768ea910edc4d479f1187d938574cde749133fde2db5e]
+[34m2022-10-05 18:42:36.370 KST [endorser] callChaincode -> INFO 0aa[0m finished chaincode: token-erc-20 duration: 22ms channel=mychannel0 txID=803d186e
+[34m2022-10-05 18:42:36.370 KST [comm.grpc.server] 1 -> INFO 0ab[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54213 grpc.code=OK grpc.call_duration=23.042334ms
+[34m2022-10-05 18:42:36.419 KST [endorser] callChaincode -> INFO 0ac[0m finished chaincode: token-erc-20 duration: 11ms channel=mychannel0 txID=3636f5d8
+[34m2022-10-05 18:42:36.419 KST [comm.grpc.server] 1 -> INFO 0ad[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54217 grpc.code=OK grpc.call_duration=11.590084ms
+[34m2022-10-05 18:42:38.463 KST [gossip.privdata] PreprocessingCommitEx -> INFO 0ae[0m [mychannel0] Received block [8] from buffer
+[34m2022-10-05 18:42:38.465 KST [committer.txvalidator] ValidateEx -> INFO 0af[0m [mychannel0] Validated block [8] in 1ms
+[34m2022-10-05 18:42:38.538 KST [kvledger] CommitLegacy -> INFO 0b0[0m [mychannel0] Committed block [8] with 1 transaction(s) in 73ms (state_validation=0ms block_and_pvtdata_commit=19ms state_commit=53ms) commitHash=[dc1469220024a9326d572f7157aa453f29994e6e3e56ba43f4404384dd2603c0]
+[34m2022-10-05 18:42:39.473 KST [endorser] callChaincode -> INFO 0b1[0m finished chaincode: token-erc-20 duration: 8ms channel=mychannel0 txID=56d30a9a
+[34m2022-10-05 18:42:39.473 KST [comm.grpc.server] 1 -> INFO 0b2[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54222 grpc.code=OK grpc.call_duration=8.851667ms
+[34m2022-10-05 18:42:39.509 KST [endorser] callChaincode -> INFO 0b3[0m finished chaincode: token-erc-20 duration: 7ms channel=mychannel0 txID=06c63302
+[34m2022-10-05 18:42:39.509 KST [comm.grpc.server] 1 -> INFO 0b4[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54226 grpc.code=OK grpc.call_duration=7.896583ms
+[34m2022-10-05 18:42:39.543 KST [endorser] callChaincode -> INFO 0b5[0m finished chaincode: token-erc-20 duration: 8ms channel=mychannel0 txID=46f62fab
+[34m2022-10-05 18:42:39.543 KST [comm.grpc.server] 1 -> INFO 0b6[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54230 grpc.code=OK grpc.call_duration=9.202333ms
+[34m2022-10-05 18:42:41.586 KST [gossip.privdata] PreprocessingCommitEx -> INFO 0b7[0m [mychannel0] Received block [9] from buffer
+[34m2022-10-05 18:42:41.587 KST [committer.txvalidator] ValidateEx -> INFO 0b8[0m [mychannel0] Validated block [9] in 0ms
+[34m2022-10-05 18:42:41.624 KST [kvledger] CommitLegacy -> INFO 0b9[0m [mychannel0] Committed block [9] with 1 transaction(s) in 36ms (state_validation=0ms block_and_pvtdata_commit=18ms state_commit=17ms) commitHash=[6980fe3f7f7fa6cb169df531d0d6e874be6faad9991f072fc3163e77c45e39b4]
+[34m2022-10-05 18:42:42.612 KST [endorser] callChaincode -> INFO 0ba[0m finished chaincode: token-erc-20 duration: 14ms channel=mychannel0 txID=80f07e86
+[34m2022-10-05 18:42:42.612 KST [comm.grpc.server] 1 -> INFO 0bb[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54235 grpc.code=OK grpc.call_duration=14.498166ms
+[34m2022-10-05 18:42:44.668 KST [gossip.privdata] PreprocessingCommitEx -> INFO 0bc[0m [mychannel0] Received block [10] from buffer
+[34m2022-10-05 18:42:44.668 KST [committer.txvalidator] ValidateEx -> INFO 0bd[0m [mychannel0] Validated block [10] in 0ms
+[34m2022-10-05 18:42:44.703 KST [kvledger] CommitLegacy -> INFO 0be[0m [mychannel0] Committed block [10] with 1 transaction(s) in 34ms (state_validation=0ms block_and_pvtdata_commit=17ms state_commit=16ms) commitHash=[e5b97e06fada3510982e1b175729a1fec40d58d82b7ff546579ac2a2a5e3affc]
+[34m2022-10-05 18:42:45.656 KST [endorser] callChaincode -> INFO 0bf[0m finished chaincode: token-erc-20 duration: 7ms channel=mychannel0 txID=b925b80c
+[34m2022-10-05 18:42:45.656 KST [comm.grpc.server] 1 -> INFO 0c0[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54240 grpc.code=OK grpc.call_duration=8.336875ms
+[34m2022-10-05 18:42:45.695 KST [endorser] callChaincode -> INFO 0c1[0m finished chaincode: token-erc-20 duration: 11ms channel=mychannel0 txID=d66d6588
+[34m2022-10-05 18:42:45.695 KST [comm.grpc.server] 1 -> INFO 0c2[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54244 grpc.code=OK grpc.call_duration=11.87375ms
+[34m2022-10-05 18:42:45.736 KST [endorser] callChaincode -> INFO 0c3[0m finished chaincode: token-erc-20 duration: 12ms channel=mychannel0 txID=58bf173b
+[34m2022-10-05 18:42:45.737 KST [comm.grpc.server] 1 -> INFO 0c4[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54248 grpc.code=OK grpc.call_duration=13.379292ms
+[34m2022-10-05 18:42:45.788 KST [endorser] callChaincode -> INFO 0c5[0m finished chaincode: token-erc-20 duration: 24ms channel=mychannel0 txID=99006f3b
+[34m2022-10-05 18:42:45.788 KST [comm.grpc.server] 1 -> INFO 0c6[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54252 grpc.code=OK grpc.call_duration=24.863541ms
+[34m2022-10-05 18:42:47.844 KST [gossip.privdata] PreprocessingCommitEx -> INFO 0c7[0m [mychannel0] Received block [11] from buffer
+[34m2022-10-05 18:42:47.845 KST [committer.txvalidator] ValidateEx -> INFO 0c8[0m [mychannel0] Validated block [11] in 0ms
+[34m2022-10-05 18:42:47.898 KST [kvledger] CommitLegacy -> INFO 0c9[0m [mychannel0] Committed block [11] with 1 transaction(s) in 52ms (state_validation=0ms block_and_pvtdata_commit=18ms state_commit=34ms) commitHash=[4970f56694f5d3a1cdb1c43dd6f3bdf3f9a1a2d96ffe947fb8ed16d9ac0fae48]
+[34m2022-10-05 18:42:48.854 KST [endorser] callChaincode -> INFO 0ca[0m finished chaincode: token-erc-20 duration: 9ms channel=mychannel0 txID=7f6cd3ca
+[34m2022-10-05 18:42:48.854 KST [comm.grpc.server] 1 -> INFO 0cb[0m unary call completed grpc.service=protos.Endorser grpc.method=ProcessProposal grpc.peer_address=[::1]:54272 grpc.code=OK grpc.call_duration=9.661208ms

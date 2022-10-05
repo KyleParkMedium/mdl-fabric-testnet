@@ -250,3 +250,34 @@
 [34m2022-10-05 18:23:39.352 KST [orderer.consensus.etcdraft] writeBlock -> INFO 093[0m Writing block [3] (Raft index: 5) to ledger channel=mychannel1 node=1
 [33m2022-10-05 18:23:39.560 KST [orderer.common.broadcast] Handle -> WARN 094[0m Error reading from [::1]:54090: rpc error: code = Canceled desc = context canceled
 [34m2022-10-05 18:23:39.577 KST [comm.grpc.server] 1 -> INFO 095[0m streaming call completed grpc.service=orderer.AtomicBroadcast grpc.method=Broadcast grpc.peer_address=[::1]:54090 error="rpc error: code = Canceled desc = context canceled" grpc.code=Canceled grpc.call_duration=2.247220584s
+[33m2022-10-05 18:42:24.067 KST [orderer.common.broadcast] Handle -> WARN 096[0m Error reading from [::1]:54194: rpc error: code = Canceled desc = context canceled
+[34m2022-10-05 18:42:24.067 KST [comm.grpc.server] 1 -> INFO 097[0m streaming call completed grpc.service=orderer.AtomicBroadcast grpc.method=Broadcast grpc.peer_address=[::1]:54194 error="rpc error: code = Canceled desc = context canceled" grpc.code=Canceled grpc.call_duration=42.828125ms
+[34m2022-10-05 18:42:26.068 KST [orderer.consensus.etcdraft] propose -> INFO 098[0m Created block [4], there are 0 blocks in flight channel=mychannel0 node=1
+[34m2022-10-05 18:42:26.087 KST [orderer.consensus.etcdraft] writeBlock -> INFO 099[0m Writing block [4] (Raft index: 6) to ledger channel=mychannel0 node=1
+[34m2022-10-05 18:42:27.148 KST [comm.grpc.server] 1 -> INFO 09a[0m streaming call completed grpc.service=orderer.AtomicBroadcast grpc.method=Broadcast grpc.peer_address=[::1]:54199 grpc.code=OK grpc.call_duration=29.783833ms
+[34m2022-10-05 18:42:29.149 KST [orderer.consensus.etcdraft] propose -> INFO 09b[0m Created block [5], there are 0 blocks in flight channel=mychannel0 node=1
+[34m2022-10-05 18:42:29.169 KST [orderer.consensus.etcdraft] writeBlock -> INFO 09c[0m Writing block [5] (Raft index: 7) to ledger channel=mychannel0 node=1
+[33m2022-10-05 18:42:30.225 KST [orderer.common.broadcast] Handle -> WARN 09d[0m Error reading from [::1]:54205: rpc error: code = Canceled desc = context canceled
+[34m2022-10-05 18:42:30.225 KST [comm.grpc.server] 1 -> INFO 09e[0m streaming call completed grpc.service=orderer.AtomicBroadcast grpc.method=Broadcast grpc.peer_address=[::1]:54205 error="rpc error: code = Canceled desc = context canceled" grpc.code=Canceled grpc.call_duration=25.877542ms
+[34m2022-10-05 18:42:32.225 KST [orderer.consensus.etcdraft] propose -> INFO 09f[0m Created block [6], there are 0 blocks in flight channel=mychannel0 node=1
+[34m2022-10-05 18:42:32.245 KST [orderer.consensus.etcdraft] writeBlock -> INFO 0a0[0m Writing block [6] (Raft index: 8) to ledger channel=mychannel0 node=1
+[33m2022-10-05 18:42:33.296 KST [orderer.common.broadcast] Handle -> WARN 0a1[0m Error reading from [::1]:54210: rpc error: code = Canceled desc = context canceled
+[34m2022-10-05 18:42:33.296 KST [comm.grpc.server] 1 -> INFO 0a2[0m streaming call completed grpc.service=orderer.AtomicBroadcast grpc.method=Broadcast grpc.peer_address=[::1]:54210 error="rpc error: code = Canceled desc = context canceled" grpc.code=Canceled grpc.call_duration=18.140875ms
+[34m2022-10-05 18:42:35.296 KST [orderer.consensus.etcdraft] propose -> INFO 0a3[0m Created block [7], there are 0 blocks in flight channel=mychannel0 node=1
+[34m2022-10-05 18:42:35.316 KST [orderer.consensus.etcdraft] writeBlock -> INFO 0a4[0m Writing block [7] (Raft index: 9) to ledger channel=mychannel0 node=1
+[33m2022-10-05 18:42:36.422 KST [orderer.common.broadcast] Handle -> WARN 0a5[0m Error reading from [::1]:54219: rpc error: code = Canceled desc = context canceled
+[34m2022-10-05 18:42:36.422 KST [comm.grpc.server] 1 -> INFO 0a6[0m streaming call completed grpc.service=orderer.AtomicBroadcast grpc.method=Broadcast grpc.peer_address=[::1]:54219 error="rpc error: code = Canceled desc = context canceled" grpc.code=Canceled grpc.call_duration=14.198583ms
+[34m2022-10-05 18:42:38.422 KST [orderer.consensus.etcdraft] propose -> INFO 0a7[0m Created block [8], there are 0 blocks in flight channel=mychannel0 node=1
+[34m2022-10-05 18:42:38.441 KST [orderer.consensus.etcdraft] writeBlock -> INFO 0a8[0m Writing block [8] (Raft index: 10) to ledger channel=mychannel0 node=1
+[33m2022-10-05 18:42:39.545 KST [orderer.common.broadcast] Handle -> WARN 0a9[0m Error reading from [::1]:54232: rpc error: code = Canceled desc = context canceled
+[34m2022-10-05 18:42:39.545 KST [comm.grpc.server] 1 -> INFO 0aa[0m streaming call completed grpc.service=orderer.AtomicBroadcast grpc.method=Broadcast grpc.peer_address=[::1]:54232 error="rpc error: code = Canceled desc = context canceled" grpc.code=Canceled grpc.call_duration=11.517292ms
+[34m2022-10-05 18:42:41.545 KST [orderer.consensus.etcdraft] propose -> INFO 0ab[0m Created block [9], there are 0 blocks in flight channel=mychannel0 node=1
+[34m2022-10-05 18:42:41.564 KST [orderer.consensus.etcdraft] writeBlock -> INFO 0ac[0m Writing block [9] (Raft index: 11) to ledger channel=mychannel0 node=1
+[33m2022-10-05 18:42:42.614 KST [orderer.common.broadcast] Handle -> WARN 0ad[0m Error reading from [::1]:54237: rpc error: code = Canceled desc = context canceled
+[34m2022-10-05 18:42:42.614 KST [comm.grpc.server] 1 -> INFO 0ae[0m streaming call completed grpc.service=orderer.AtomicBroadcast grpc.method=Broadcast grpc.peer_address=[::1]:54237 error="rpc error: code = Canceled desc = context canceled" grpc.code=Canceled grpc.call_duration=17.296583ms
+[34m2022-10-05 18:42:44.614 KST [orderer.consensus.etcdraft] propose -> INFO 0af[0m Created block [10], there are 0 blocks in flight channel=mychannel0 node=1
+[34m2022-10-05 18:42:44.634 KST [orderer.consensus.etcdraft] writeBlock -> INFO 0b0[0m Writing block [10] (Raft index: 12) to ledger channel=mychannel0 node=1
+[33m2022-10-05 18:42:45.790 KST [orderer.common.broadcast] Handle -> WARN 0b1[0m Error reading from [::1]:54254: rpc error: code = Canceled desc = context canceled
+[34m2022-10-05 18:42:45.790 KST [comm.grpc.server] 1 -> INFO 0b2[0m streaming call completed grpc.service=orderer.AtomicBroadcast grpc.method=Broadcast grpc.peer_address=[::1]:54254 error="rpc error: code = Canceled desc = context canceled" grpc.code=Canceled grpc.call_duration=26.928042ms
+[34m2022-10-05 18:42:47.789 KST [orderer.consensus.etcdraft] propose -> INFO 0b3[0m Created block [11], there are 0 blocks in flight channel=mychannel0 node=1
+[34m2022-10-05 18:42:47.807 KST [orderer.consensus.etcdraft] writeBlock -> INFO 0b4[0m Writing block [11] (Raft index: 13) to ledger channel=mychannel0 node=1
