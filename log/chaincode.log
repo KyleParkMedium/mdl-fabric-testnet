@@ -1,2 +1,0 @@
-Committed chaincode definition for chaincode 'coin-erc-20' on channel 'mychannel1':
-Version: v1, Sequence: 1, Endorsement Plugin: escc, Validation Plugin: vscc, Approvals: [Org1MSP: true]
