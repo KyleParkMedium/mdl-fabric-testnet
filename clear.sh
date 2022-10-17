@@ -18,6 +18,7 @@ if [ -d ${TEST_NETWORK_HOME}/packages ]; then
 fi
 docker rm -f $(docker ps -aq) 
 docker rmi $(docker images -q --filter "reference=dev-*")
+# docker volume prune 
 
 ############ Process initialization ############
 PROCESS=`pgrep fabric-ca-server`
