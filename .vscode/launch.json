@@ -1,0 +1,54 @@
+{
+    // IntelliSense를 사용하여 가능한 특성에 대해 알아보세요.
+    // 기존 특성에 대한 설명을 보려면 가리킵니다.
+    // 자세한 내용을 보려면 https://go.microsoft.com/fwlink/?linkid=830387을(를) 방문하세요.
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Package",
+            "type": "go",
+            "request": "launch",
+            "debugAdapter": "legacy",
+            "dlvFlags": ["--check-go-version=false"],
+            "mode": "auto",
+            "host":"peer0.org1.example.com",
+            "port":7051,
+            "program": "${fileDirname}",
+            "env": {
+                "FABRIC_CFG_PATH":"/Users/yssa/go/src/github.com/the-medium/mdl-caliper-1.4/scripts/generated",
+                "GRPC_VERBOSITY":"error",
+                "GRPC_LOG_SEVERITY_LEVEL":"error",
+                "GRPC_GO_GRPC_VERBOSITY":"error",
+                "GRPC_GO_LOG_SEVERITY_LEVEL":"error",
+                "CORE_MDL_MXP":"true",
+                "CORE_LEDGER_STATE_LEVELDBCONFIG_BLOCKCACHECAPACITY":"128",
+                "CORE_LEDGER_STATE_LEVELDBCONFIG_WRITEBUFFER":"64",
+                "CORE_LEDGER_STATE_LEVELDBCONFIG_BLOCKSIZE":"",
+                "CORE_LEDGER_STATE_LEVELDBCONFIG_OPENFILESCACHECAPACITY":"",
+                "CORE_LEDGER_STORAGE_MAXBLOCKFILESIZE":"64",
+                "FABRIC_LOGGING_SPEC":"info",
+                "CORE_LOGGING_PEER":"info",
+                "CORE_CHAINCODE_LOGGING_LEVEL":"debug",
+                "CORE_CHAINCODE_EXECUTETIMEOUT":"60s",
+                "CORE_PEER_ID":"peer0.org1.example.com",
+                "CORE_PEER_ENDORSER_ENABLED":"true",
+                "CORE_PEER_ADDRESS":"peer0.org1.example.com:7051",
+                "CORE_PEER_LOCALMSPID":"Org1MSP",
+                "CORE_PEER_MSPCONFIGPATH":"configtx/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp",
+                "CORE_PEER_GOSSIP_USELEADERELECTION":"true",
+                "CORE_PEER_GOSSIP_ORGLEADER":"false",
+                "CORE_PEER_GOSSIP_EXTERNALENDPOINT":"peer0.org1.example.com:7051",
+                "CORE_PEER_GOSSIP_PULLPEERNUM":"3",
+                "CORE_PEER_TLS_ENABLED":"false",
+                "CORE_PEER_TLS_CERT_FILE":"configtx/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt",
+                "CORE_PEER_TLS_KEY_FILE":"configtx/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key",
+                "CORE_PEER_TLS_ROOTCERT_FILE":"configtx/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt",
+                "CORE_PEER_TLS_CLIENTAUTHREQUIRED":"false",
+                "CORE_PEER_TLS_CLIENTROOTCAS_FILES":"",
+                "CORE_PEER_TLS_CLIENTCERT_FILE":"",
+                "CORE_PEER_TLS_CLIENTKEY_FILE":""
+            },
+            "args": ["node", "start"]
+        }
+    ]
+}
