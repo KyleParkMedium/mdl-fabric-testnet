@@ -35,17 +35,17 @@ function createOrg1() {
 
     echo "Registering user1"
     set -x
-    ${CA_BIN_DIR}/fabric-ca-client register --caname ca-org1 --id.name user1 --id.secret user1pw --id.type client --id.attrs '"hf.Registrar.Roles=client"' --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org1_address}
+    ${CA_BIN_DIR}/fabric-ca-client register --caname ca-org1 --id.name org1user1 --id.secret org1user1pw --id.type client --id.attrs '"hf.Registrar.Roles=client"' --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org1_address}
     { set +x; } 2>/dev/null
 
     echo "Registering user2"
     set -x
-    ${CA_BIN_DIR}/fabric-ca-client register --caname ca-org1 --id.name user2 --id.secret user2pw --id.type client --id.attrs '"hf.Registrar.Roles=client"' --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org1_address}
+    ${CA_BIN_DIR}/fabric-ca-client register --caname ca-org1 --id.name org1user2 --id.secret org1user2pw --id.type client --id.attrs '"hf.Registrar.Roles=client"' --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org1_address}
     { set +x; } 2>/dev/null
 
     echo "Registering user3"
     set -x
-    ${CA_BIN_DIR}/fabric-ca-client register --caname ca-org1 --id.name user3 --id.secret user3pw --id.type client --id.attrs '"hf.Registrar.Roles=client"' --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org1_address}
+    ${CA_BIN_DIR}/fabric-ca-client register --caname ca-org1 --id.name org1user3 --id.secret org1user3pw --id.type client --id.attrs '"hf.Registrar.Roles=client"' --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org1_address}
     { set +x; } 2>/dev/null
 
     echo "Registering the org admin"
@@ -78,26 +78,27 @@ function createOrg1() {
     mkdir -p ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/ca
     cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/cacerts/* ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem
 
+    ## create client
     echo "Generating the user1 msp"
     set -x
-    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://user1:user1pw@localhost:7054 --caname ca-org1 -M ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org1_address}
+    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://org1user1:org1user1pw@localhost:7054 --caname ca-org1 -M ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Org1User1@org1.example.com/msp --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org1_address}
     { set +x; } 2>/dev/null
 
-    cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/msp/config.yaml ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/config.yaml
+    cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/msp/config.yaml ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Org1User1@org1.example.com/msp/config.yaml
 
     echo "Generating the user2 msp"
     set -x
-    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://user2:user2pw@localhost:7054 --caname ca-org1 -M ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/User2@org1.example.com/msp --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org1_address}
+    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://org1user2:org1user2pw@localhost:7054 --caname ca-org1 -M ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Org1User2@org1.example.com/msp --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org1_address}
     { set +x; } 2>/dev/null
 
-    cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/msp/config.yaml ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/User2@org1.example.com/msp/config.yaml
+    cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/msp/config.yaml ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Org1User2@org1.example.com/msp/config.yaml
 
     echo "Generating the user3 msp"
     set -x
-    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://user3:user3pw@localhost:7054 --caname ca-org1 -M ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/User3@org1.example.com/msp --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org1_address}
+    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://org1user3:org1user3pw@localhost:7054 --caname ca-org1 -M ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Org1User3@org1.example.com/msp --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org1_address}
     { set +x; } 2>/dev/null
 
-    cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/msp/config.yaml ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/User3@org1.example.com/msp/config.yaml
+    cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/msp/config.yaml ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Org1User3@org1.example.com/msp/config.yaml
 
     echo "Generating the org admin msp"
     set -x
@@ -142,17 +143,17 @@ function createOrg2() {
 
     echo "Registering user1"
     set -x
-    ${CA_BIN_DIR}/fabric-ca-client register --caname ca-org2 --id.name user1 --id.secret user1pw --id.type client --id.attrs '"hf.Registrar.Roles=client"' --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org2_address}
+    ${CA_BIN_DIR}/fabric-ca-client register --caname ca-org2 --id.name org2user1 --id.secret org2user1pw --id.type client --id.attrs '"hf.Registrar.Roles=client"' --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org2_address}
     { set +x; } 2>/dev/null
 
     echo "Registering user2"
     set -x
-    ${CA_BIN_DIR}/fabric-ca-client register --caname ca-org2 --id.name user2 --id.secret user2pw --id.type client --id.attrs '"hf.Registrar.Roles=client"' --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org2_address}
+    ${CA_BIN_DIR}/fabric-ca-client register --caname ca-org2 --id.name org2user2 --id.secret org2user2pw --id.type client --id.attrs '"hf.Registrar.Roles=client"' --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org2_address}
     { set +x; } 2>/dev/null
 
     echo "Registering user3"
     set -x
-    ${CA_BIN_DIR}/fabric-ca-client register --caname ca-org2 --id.name user3 --id.secret user3pw --id.type client --id.attrs '"hf.Registrar.Roles=client"' --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org2_address}
+    ${CA_BIN_DIR}/fabric-ca-client register --caname ca-org2 --id.name org2user3 --id.secret org2user3pw --id.type client --id.attrs '"hf.Registrar.Roles=client"' --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org2_address}
     { set +x; } 2>/dev/null
 
     echo "Registering the org admin"
@@ -187,24 +188,24 @@ function createOrg2() {
 
     echo "Generating the user1 msp"
     set -x
-    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://user1:user1pw@localhost:8054 --caname ca-org2 -M ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/User1@org2.example.com/msp --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org2_address}
+    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://org2user1:org2user1pw@localhost:8054 --caname ca-org2 -M ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Org2User1@org2.example.com/msp --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org2_address}
     { set +x; } 2>/dev/null
 
-    cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/msp/config.yaml ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/User1@org2.example.com/msp/config.yaml
+    cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/msp/config.yaml ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Org2User1@org2.example.com/msp/config.yaml
 
     echo "Generating the user2 msp"
     set -x
-    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://user2:user2pw@localhost:8054 --caname ca-org2 -M ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/User2@org2.example.com/msp --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org2_address}
+    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://org2user2:org2user2pw@localhost:8054 --caname ca-org2 -M ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Org2User2@org2.example.com/msp --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org2_address}
     { set +x; } 2>/dev/null
 
-    cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/msp/config.yaml ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/User2@org2.example.com/msp/config.yaml
+    cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/msp/config.yaml ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Org2User2@org2.example.com/msp/config.yaml
 
     echo "Generating the user3 msp"
     set -x
-    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://user3:user3pw@localhost:8054 --caname ca-org2 -M ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/User3@org2.example.com/msp --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org2_address}
+    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://org2user3:org2user3pw@localhost:8054 --caname ca-org2 -M ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Org2User3@org2.example.com/msp --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org2_address}
     { set +x; } 2>/dev/null
 
-    cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/msp/config.yaml ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/User3@org2.example.com/msp/config.yaml
+    cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/msp/config.yaml ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Org2User3@org2.example.com/msp/config.yaml
 
     echo "Generating the org admin msp"
     set -x
@@ -284,7 +285,7 @@ function createOrderer() {
 
 function main() {
 
- while :
+  while :
     do
       if [ ! -f "organizations/fabric-ca/org1/tls-cert.pem" ]; then
         sleep 1
@@ -295,7 +296,7 @@ function main() {
     
   createOrg1
   
-   while :
+  while :
     do
       if [ ! -f "organizations/fabric-ca/org2/tls-cert.pem" ]; then
         sleep 1

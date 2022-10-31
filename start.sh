@@ -76,6 +76,7 @@ function createChannelTx() {
     verifyResult $res "Failed to generate channel configuration transaction..."
 }
 
+## org1 create channel mychannel0
 function createChannel() {
     export CORE_PEER_TLS_ENABLED=true
     export ORDERER_CA="${TEST_NETWORK_HOME}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
