@@ -492,7 +492,7 @@ function main() {
     org1
     clientAccountBalance Org1User2
     sleep 3
-    # org1
+    org1
     # allowance Org1User2 Org1User1 Org2User1
     ### increase, decrease allowance test
     # increaseAllowance Org1User2 Org1User1 7000

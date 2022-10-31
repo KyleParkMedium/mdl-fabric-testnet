@@ -478,32 +478,32 @@ function main() {
     sleep 3
     totalSupply
     sleep 5
-    # org1
-    # clientAccountID Org1User1
-    # sleep 3
-    # clientAccountID Org1User2
-    # sleep 3
-    # clientAccountBalance Org1User1
-    # sleep 3
-    # clientAccountBalance Org1User2
-    # sleep 5
-    # org2
-    # allowance Org2User2 Org2User1 Org1User1
-    # sleep 5
-    # org1
-    # approve Org1User1 Org2User1 500
-    # sleep 3
-    # org2
-    # allowance Org2User1 Org1User1 Org2User1
-    # sleep 5
-    # org2
-    # transferFrom Org2User1 Org1User1 Org1User2 200
-    # sleep 5
-    # org1
-    # clientAccountBalance Org1User2
-    # sleep 3
-    # org1
-    # allowance Org1User2 Org1User1 Org2User1
+    org1
+    clientAccountID Org1User1
+    sleep 3
+    clientAccountID Org1User2
+    sleep 3
+    clientAccountBalance Org1User1
+    sleep 3
+    clientAccountBalance Org1User2
+    sleep 5
+    org2
+    allowance Org2User2 Org2User1 Org1User1
+    sleep 5
+    org1
+    approve Org1User1 Org2User1 500
+    sleep 3
+    org2
+    allowance Org2User1 Org1User1 Org2User1
+    sleep 5
+    org2
+    transferFrom Org2User1 Org1User1 Org1User2 200
+    sleep 5
+    org1
+    clientAccountBalance Org1User2
+    sleep 3
+    org1
+    allowance Org1User2 Org1User1 Org2User1
 
     ### increase, decrease allowance test
     # increaseAllowance Org1User2 Org1User1 7000
