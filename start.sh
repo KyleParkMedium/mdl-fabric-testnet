@@ -26,7 +26,6 @@ export CA_BIN_DIR="${TEST_NETWORK_HOME}/ca-bin"
 export LOG_DIR="${TEST_NETWORK_HOME}/log"
 export FABRIC_CFG_PATH=${TEST_NETWORK_HOME}/config
 
-
 function startCA() {
 
     export FABRIC_CA_HOME=${TEST_NETWORK_HOME}/organizations/fabric-ca-server
@@ -35,8 +34,8 @@ function startCA() {
     export FABRIC_CA_SERVER_PORT="9999"
     export FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS="0.0.0.0:7443"
 
-    nohup sh -c '${CA_BIN_DIR}/fabric-ca-server start -b admin:adminpw -d' > ${LOG_DIR}/fabric-ca-server.log 2>&1 &
-    echo $! 
+    nohup sh -c '${CA_BIN_DIR}/fabric-ca-server start -b admin:adminpw -d' >${LOG_DIR}/fabric-ca-server.log 2>&1 &
+    echo $!
 }
 
 COMPOSE_FILE_CA=docker/docker-compose-ca.yaml
@@ -64,15 +63,15 @@ function createGenesisBlock() {
 function startNode() {
     # start Orderer, Peer Node
     # docker-compose $COMPOSE_FILE_BASE -f $COMPOSE_FILE_COUCH up -d 2>&1
-    docker-compose -f $COMPOSE_FILE_BASE up -d 2>&1
+    docker-compose -f $COMPOSE_FILE_COUCH -f $COMPOSE_FILE_BASE up -d 2>&1
 }
 
 function createChannelTx() {
     CHANNEL_NAME=$1
-	set -x
-	${BIN_DIR}/configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.tx -channelID $CHANNEL_NAME
-	res=$?
-	{ set +x; } 2>/dev/null
+    set -x
+    ${BIN_DIR}/configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.tx -channelID $CHANNEL_NAME
+    res=$?
+    { set +x; } 2>/dev/null
     verifyResult $res "Failed to generate channel configuration transaction..."
 }
 
@@ -85,20 +84,20 @@ function createChannel() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     export CORE_PEER_ADDRESS="localhost:7050"
     CHANNEL_NAME=$1
-	# Poll in case the raft leader is not set yet
-	local rc=1
-	local COUNTER=1
-	while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ] ; do
-		sleep $DELAY
-		set -x
-		${BIN_DIR}/peer channel create -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL_NAME -f ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.tx --outputBlock ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.block --tls --cafile $ORDERER_CA >&${LOG_DIR}/${CHANNEL_NAME}.log
-		res=$?
-		{ set +x; } 2>/dev/null
-		let rc=$res
-		COUNTER=$(expr $COUNTER + 1)
-	done
-	cat ${LOG_DIR}/${CHANNEL_NAME}.log
-	verifyResult $res "Channel creation failed"
+    # Poll in case the raft leader is not set yet
+    local rc=1
+    local COUNTER=1
+    while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ]; do
+        sleep $DELAY
+        set -x
+        ${BIN_DIR}/peer channel create -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL_NAME -f ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.tx --outputBlock ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.block --tls --cafile $ORDERER_CA >&${LOG_DIR}/${CHANNEL_NAME}.log
+        res=$?
+        { set +x; } 2>/dev/null
+        let rc=$res
+        COUNTER=$(expr $COUNTER + 1)
+    done
+    cat ${LOG_DIR}/${CHANNEL_NAME}.log
+    verifyResult $res "Channel creation failed"
 }
 
 ## 조인 채널에서 config 바뀜
@@ -111,20 +110,20 @@ function joinChannel1() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     export CORE_PEER_ADDRESS="localhost:7050"
     CHANNEL_NAME=$1
-	local rc=1
-	local COUNTER=1
-	## Sometimes Join takes time, hence retry
-	while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ] ; do
-    sleep $DELAY
-    set -x
-    ${BIN_DIR}/peer channel join -b ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.block >&${LOG_DIR}/${CHANNEL_NAME}.log
-    res=$?
-    { set +x; } 2>/dev/null
-		let rc=$res
-		COUNTER=$(expr $COUNTER + 1)
-	done
-	cat ${LOG_DIR}/${CHANNEL_NAME}.log
-	verifyResult $res "After $MAX_RETRY attempts, peer0.org${ORG} has failed to join channel '$CHANNEL_NAME' "
+    local rc=1
+    local COUNTER=1
+    ## Sometimes Join takes time, hence retry
+    while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ]; do
+        sleep $DELAY
+        set -x
+        ${BIN_DIR}/peer channel join -b ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.block >&${LOG_DIR}/${CHANNEL_NAME}.log
+        res=$?
+        { set +x; } 2>/dev/null
+        let rc=$res
+        COUNTER=$(expr $COUNTER + 1)
+    done
+    cat ${LOG_DIR}/${CHANNEL_NAME}.log
+    verifyResult $res "After $MAX_RETRY attempts, peer0.org${ORG} has failed to join channel '$CHANNEL_NAME' "
 }
 
 function joinChannel2() {
@@ -136,20 +135,20 @@ function joinChannel2() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp"
     export CORE_PEER_ADDRESS="localhost:8050"
     CHANNEL_NAME=$1
-	local rc=1
-	local COUNTER=1
-	## Sometimes Join takes time, hence retry
-	while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ] ; do
-    sleep $DELAY
-    set -x
-    ${BIN_DIR}/peer channel join -b ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.block >&${LOG_DIR}/${CHANNEL_NAME}.log
-    res=$?
-    { set +x; } 2>/dev/null
-		let rc=$res
-		COUNTER=$(expr $COUNTER + 1)
-	done
-	cat ${LOG_DIR}/${CHANNEL_NAME}.log
-	verifyResult $res "After $MAX_RETRY attempts, peer0.org${ORG} has failed to join channel '$CHANNEL_NAME' "
+    local rc=1
+    local COUNTER=1
+    ## Sometimes Join takes time, hence retry
+    while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ]; do
+        sleep $DELAY
+        set -x
+        ${BIN_DIR}/peer channel join -b ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.block >&${LOG_DIR}/${CHANNEL_NAME}.log
+        res=$?
+        { set +x; } 2>/dev/null
+        let rc=$res
+        COUNTER=$(expr $COUNTER + 1)
+    done
+    cat ${LOG_DIR}/${CHANNEL_NAME}.log
+    verifyResult $res "After $MAX_RETRY attempts, peer0.org${ORG} has failed to join channel '$CHANNEL_NAME' "
 }
 
 function setAnchorPeer1() {
@@ -174,8 +173,8 @@ function setAnchorPeer1() {
     echo "Decoding config block to JSON and isolating config to Org1MSP"
     set -x
     ${BIN_DIR}/configtxlator proto_decode --input ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/config_block.pb --type common.Block --output "${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/Org1MSP.json"
-    { set +x; } 2>/dev/null 
- 
+    { set +x; } 2>/dev/null
+
     cat "${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/Org1MSP.json" | jq .data.data[0].payload.data.config >"${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/Org1MSPconfig.json"
     set -x
 
@@ -185,8 +184,8 @@ function setAnchorPeer1() {
     PORT=7050
 
     set -x
-    # Modify the configuration to append the anchor peer 
-    jq '.channel_group.groups.Application.groups.'${CORE_PEER_LOCALMSPID}'.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "'$HOST'","port": '$PORT'}]},"version": "0"}}' ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CORE_PEER_LOCALMSPID}config.json > ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CORE_PEER_LOCALMSPID}modified_config.json
+    # Modify the configuration to append the anchor peer
+    jq '.channel_group.groups.Application.groups.'${CORE_PEER_LOCALMSPID}'.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "'$HOST'","port": '$PORT'}]},"version": "0"}}' ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CORE_PEER_LOCALMSPID}config.json >${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CORE_PEER_LOCALMSPID}modified_config.json
     { set +x; } 2>/dev/null
 
     set -x
@@ -226,8 +225,8 @@ function setAnchorPeer2() {
     echo "Decoding config block to JSON and isolating config to Org2MSP"
     set -x
     ${BIN_DIR}/configtxlator proto_decode --input ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/config_block.pb --type common.Block --output "${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/Org2MSP.json"
-    { set +x; } 2>/dev/null 
- 
+    { set +x; } 2>/dev/null
+
     cat "${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/Org2MSP.json" | jq .data.data[0].payload.data.config >"${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/Org2MSPconfig.json"
     set -x
 
@@ -237,8 +236,8 @@ function setAnchorPeer2() {
     PORT=8050
 
     set -x
-    # Modify the configuration to append the anchor peer 
-    jq '.channel_group.groups.Application.groups.'${CORE_PEER_LOCALMSPID}'.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "'$HOST'","port": '$PORT'}]},"version": "0"}}' ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CORE_PEER_LOCALMSPID}config.json > ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CORE_PEER_LOCALMSPID}modified_config.json
+    # Modify the configuration to append the anchor peer
+    jq '.channel_group.groups.Application.groups.'${CORE_PEER_LOCALMSPID}'.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "'$HOST'","port": '$PORT'}]},"version": "0"}}' ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CORE_PEER_LOCALMSPID}config.json >${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CORE_PEER_LOCALMSPID}modified_config.json
     { set +x; } 2>/dev/null
 
     set -x
@@ -279,7 +278,7 @@ function deployChaincode() {
     export CORE_PEER_TLS_ROOTCERT_FILE="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt"
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     export CORE_PEER_ADDRESS="localhost:7050"
-    
+
     set -x
     ${BIN_DIR}/peer lifecycle chaincode install ${TEST_NETWORK_HOME}/packages/${CHAINCODE_NAME}.tar.gz >&${LOG_DIR}/chaincode.log
     res=$?
@@ -335,7 +334,6 @@ function deployChaincode() {
     verifyResult $res "Chaincode definition approved on peer0.org2 on channel '${CHANNEL_NAME}' failed"
     echo "Chaincode definition approved on peer0.org2 on channel '${CHANNEL_NAME}'"
 
-
     # ORG1
     export CORE_PEER_LOCALMSPID="Org1MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt"
@@ -354,7 +352,7 @@ function deployChaincode() {
         { set +x; } 2>/dev/null
         let rc=0
         for var in "$@"; do
-        grep "$var" ${LOG_DIR}/chaincode.log &>/dev/null || let rc=1
+            grep "$var" ${LOG_DIR}/chaincode.log &>/dev/null || let rc=1
         done
         COUNTER=$(expr $COUNTER + 1)
     done
@@ -384,7 +382,7 @@ function deployChaincode() {
         { set +x; } 2>/dev/null
         let rc=0
         for var in "$@"; do
-        grep "$var" ${LOG_DIR}/chaincode.log &>/dev/null || let rc=1
+            grep "$var" ${LOG_DIR}/chaincode.log &>/dev/null || let rc=1
         done
         COUNTER=$(expr $COUNTER + 1)
     done
@@ -396,14 +394,13 @@ function deployChaincode() {
         exit 1
     fi
 
-
     # ORG1
     export CORE_PEER_LOCALMSPID="Org1MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt"
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     export CORE_PEER_ADDRESS="localhost:7050"
 
-    PEER_CONN_PARMS="${PEER_CONN_PARMS} --peerAddresses ${CORE_PEER_ADDRESS}" 
+    PEER_CONN_PARMS="${PEER_CONN_PARMS} --peerAddresses ${CORE_PEER_ADDRESS}"
     TLSINFO=$(eval echo "--tlsRootCertFiles \$CORE_PEER_TLS_ROOTCERT_FILE")
     PEER_CONN_PARMS="${PEER_CONN_PARMS} ${TLSINFO} --peerAddresses localhost:8050 --tlsRootCertFiles /Users/park/code/purefabric/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
     # while 'peer chaincode' command can get the orderer endpoint from the

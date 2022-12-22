@@ -1,0 +1,11 @@
+{
+  "index": {
+    "fields": [
+      "docType",
+      "tokenWalletId"
+    ]
+  },
+  "ddoc": "GetTokenWalletListDoc",
+  "name": "GetTokenWalletList",
+  "type": "json"
+}
