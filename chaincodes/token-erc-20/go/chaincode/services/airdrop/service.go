@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/ccutils"
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/ledgermanager"
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/services/token"
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/services/wallet"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ledgermanager"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/token"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/wallet"
 )
 
 func AirDrop(ctx contractapi.TransactionContextInterface, airDrop AirDropStruct, errChan chan error, wg *sync.WaitGroup) {

@@ -3,11 +3,12 @@ package controller
 import (
 	"fmt"
 
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/ccutils"
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/ledgermanager"
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/services/token"
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/services/wallet"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ledgermanager"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/token"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/wallet"
 )
 
 func (s *SmartContract) CreateWallet(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {

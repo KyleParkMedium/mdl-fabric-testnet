@@ -1,6 +1,6 @@
 package airdrop
 
-import "github.com/KyleParkMedium/mdl-chaincode/chaincode/services/token"
+import "github.com/the-medium-tech/mdl-chaincodes/chaincode/services/token"
 
 type AirDropStruct struct {
 	DocType string `json:"docType"`

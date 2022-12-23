@@ -862,64 +862,64 @@ function GetTokenWalletList() {
 
 function main() {
 
-    IsInit
-    sleep 3
-    Init
-    sleep 3
-    org1
-    sleep 3
-    IssuanceAsset -u Org1User1 -p mediumToken
-    sleep 3
-    sleep 3
-    CreateWallet -u Org1User1 -p mediumToken -a 50
-    sleep 3
-    CreateWallet -u Org1User2 -p mediumToken -a 50
-    sleep 3
-
-    MintByPartition -u Org1User1 -p mediumToken -a 50
-    sleep 3
-
-    # TotalSupplyByPartition -p mediumToken
+    # IsInit
+    # sleep 3
+    # Init
+    # sleep 3
+    # org1
+    # sleep 3
+    # IssuanceAsset -u Org1User1 -p mediumToken
+    # sleep 3
+    # sleep 3
+    # CreateWallet -u Org1User1 -p mediumToken -a 50
+    # sleep 3
+    # CreateWallet -u Org1User2 -p mediumToken -a 50
     # sleep 3
 
     # MintByPartition -u Org1User1 -p mediumToken -a 50
     # sleep 3
-    # MintByPartition -u Org1User1 -p mediumToken -a 50
-    # sleep 3
-    # MintByPartition -u Org1User1 -p mediumToken -a 50
-    # sleep 3
-    # MintByPartition -u Org1User1 -p mediumToken -a 50
-    # sleep 3
-    # MintByPartition -u Org1User1 -p mediumToken -a 50
-    # sleep 3
-    # MintByPartition -u Org1User1 -p mediumToken -a 50
-    # sleep 3
-    # BalanceOfByPartition -u Org2User1 -p mediumToken
-    # sleep 3
-    # BalanceOfByPartition -u Org1User1 -p mediumToken
-    # sleep 3
+
+    # # TotalSupplyByPartition -p mediumToken
+    # # sleep 3
+
+    # # MintByPartition -u Org1User1 -p mediumToken -a 50
+    # # sleep 3
+    # # MintByPartition -u Org1User1 -p mediumToken -a 50
+    # # sleep 3
+    # # MintByPartition -u Org1User1 -p mediumToken -a 50
+    # # sleep 3
+    # # MintByPartition -u Org1User1 -p mediumToken -a 50
+    # # sleep 3
+    # # MintByPartition -u Org1User1 -p mediumToken -a 50
+    # # sleep 3
+    # # MintByPartition -u Org1User1 -p mediumToken -a 50
+    # # sleep 3
+    # # BalanceOfByPartition -u Org2User1 -p mediumToken
+    # # sleep 3
+    # # BalanceOfByPartition -u Org1User1 -p mediumToken
+    # # sleep 3
 
     # org2
     # sleep 3
     # GetTokenWalletList -u Org2User1 -b "" -p 10
 
-    # # BalanceOfByPartition -u Org1User1 -p mediumToken
-    # # sleep 3
+    # BalanceOfByPartition -u Org1User1 -p mediumToken
+    # sleep 3
     # # BalanceOfByPartition -u Org1User2 -p mediumToken
     # # sleep 3
 
-    # org2
-    # sleep 3
-    # CreateWallet -u Org2User1 -p mediumToken -a 50
-    # sleep 3
-    # CreateWallet -u Org2User2 -p mediumToken -a 50
-    # sleep 3
+    org2
+    sleep 3
+    CreateWallet -u Org2User1 -p mediumToken -a 50
+    sleep 3
+    CreateWallet -u Org2User2 -p mediumToken -a 50
+    sleep 3
     # MintByPartition -u Org2User1 -p mediumToken -a 50
     # sleep 3
 
-    # # #  -p mediumToken
-    # AirDrop -u Org2User2 -p mediumToken -r Org1User1 -r Org1User2 -r Org2User1
-    # sleep 3
+    # #  -p mediumToken
+    AirDrop -u Org2User2 -p mediumToken -r Org1User1 -r Org1User2 -r Org2User1
+    sleep 3
 
     # BurnByPartition -u Org1User1 -p mediumToken -a 50
     # sleep 3
@@ -928,10 +928,12 @@ function main() {
     # sleep 3
     # TotalSupplyByPartition -p mediumToken
     # sleep 3
-    TransferByPartition -u Org1User1 -r Org1User2 -p mediumToken -a 20
-    sleep 3
-    BalanceOfByPartition -u Org1User1 -p mediumToken
-    sleep 3
+    # org1
+    # sleep 3
+    # TransferByPartition -u Org1User1 -r Org1User2 -p mediumToken -a 20
+    # sleep 3
+    # BalanceOfByPartition -u Org1User1 -p mediumToken
+    # sleep 3
 
     # ApproveByPartition -u Org1User1 -s Org1User2 -p mediumToken -a 10
     # sleep 3

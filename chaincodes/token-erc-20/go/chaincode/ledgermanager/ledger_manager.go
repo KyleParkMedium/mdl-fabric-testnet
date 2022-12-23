@@ -7,10 +7,10 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/ccutils"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/op/go-logging"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
 )
 
 var logger = logging.MustGetLogger("ledgermanager")

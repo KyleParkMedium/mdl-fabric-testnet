@@ -259,13 +259,13 @@ function IssuanceAsset() {
     fcn_call='{"Function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "invoke fcn call:${fcn_call}"
     echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode invoke -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} ${PEER_CONN_PARMS[@]} -c ${fcn_call} >&${LOG_DIR}/imsyJuso.log
+    ${BIN_DIR}/peer chaincode invoke -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} ${PEER_CONN_PARMS[@]} -c ${fcn_call} >&${LOG_DIR}/temp_token_address.log
     { set +x; } 2>/dev/null
-    cat ${LOG_DIR}/imsyJuso.log
+    cat ${LOG_DIR}/temp_token_address.log
     echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
 }
 
-export imsyJuso="0xb202b4d57167fe275b82ae93e3f28ee684e4c639"
+export temp_token_address="0xb202b4d57167fe275b82ae93e3f28ee684e4c639"
 
 function client() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$1@org${ORG_NUM}.example.com/msp"
@@ -273,7 +273,7 @@ function client() {
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
     CC_INIT_FCN="ClientByPartition"
-    CC_ARGS="\"$imsyJuso\""
+    CC_ARGS="\"$temp_token_address\""
     set -x
 
     fcn_call='{"Function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
@@ -292,7 +292,7 @@ function mint() {
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
     CC_INIT_FCN="MintByPartition"
-    CC_ARGS="\"$imsyJuso\",\"10000\""
+    CC_ARGS="\"$temp_token_address\",\"10000\""
     set -x
 
     fcn_call='{"Function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
@@ -310,7 +310,7 @@ function clientAccountBalance() {
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
     CC_INIT_FCN="ClientAccountBalanceByPartition"
-    CC_ARGS="\"$imsyJuso\""
+    CC_ARGS="\"$temp_token_address\""
     set -x
 
     fcn_call='{"Function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
@@ -347,7 +347,7 @@ function totalSupplyByPartition() {
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
     CC_INIT_FCN="TotalSupplyByPartition"
-    CC_ARGS="\"$imsyJuso\""
+    CC_ARGS="\"$temp_token_address\""
     set -x
 
     fcn_call='{"Function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
@@ -369,7 +369,7 @@ function balanceOfByPartition() {
     # $2
     Address=$(cat ./log/$2_Address.log)
     CC_INIT_FCN="BalanceOfByPartition"
-    CC_ARGS="\"$Address\",\"$imsyJuso\""
+    CC_ARGS="\"$Address\",\"$temp_token_address\""
     set -x
 
     fcn_call='{"Function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
@@ -392,7 +392,7 @@ function allowanceByPartition() {
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
     CC_INIT_FCN="AllowanceByPartition"
-    CC_ARGS="\"$firstAddress\",\"$secondAddress\",\"$imsyJuso\""
+    CC_ARGS="\"$firstAddress\",\"$secondAddress\",\"$temp_token_address\""
     set -x
 
     fcn_call='{"Function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
@@ -414,7 +414,7 @@ function approveByPartition() {
     Address=$(cat ./log/$2_Address.log)
 
     CC_INIT_FCN="ApproveByPartition"
-    CC_ARGS="\"$Address\",\"$imsyJuso\",\"$3\""
+    CC_ARGS="\"$Address\",\"$temp_token_address\",\"$3\""
     set -x
 
     fcn_call='{"Function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
@@ -436,7 +436,7 @@ function transferFromByPartition() {
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
     CC_INIT_FCN="TransferFromByPartition"
-    CC_ARGS="\"$firstAddress\",\"$secondAddress\",\"$imsyJuso\",\"$4\""
+    CC_ARGS="\"$firstAddress\",\"$secondAddress\",\"$temp_token_address\",\"$4\""
     set -x
 
     fcn_call='{"Function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
@@ -592,7 +592,7 @@ function MintByPartition() {
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
     CC_INIT_FCN="MintByPartition"
-    CC_ARGS="\"$imsyJuso\",\"10000\""
+    CC_ARGS="\"$temp_token_address\",\"10000\""
     set -x
 
     fcn_call='{"Function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'

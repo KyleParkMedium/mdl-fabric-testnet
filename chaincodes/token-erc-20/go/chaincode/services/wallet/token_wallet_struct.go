@@ -1,6 +1,6 @@
 package wallet
 
-import "github.com/KyleParkMedium/mdl-chaincode/chaincode/services/token"
+import "github.com/the-medium-tech/mdl-chaincodes/chaincode/services/token"
 
 const (
 	DocType_TokenWallet = "DOCTYPE_TOKEN_WALLET"

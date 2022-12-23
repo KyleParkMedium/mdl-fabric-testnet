@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/ccutils"
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/services/token"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/token"
 )
 
 // SmartContract provides functions for transferring tokens between accounts

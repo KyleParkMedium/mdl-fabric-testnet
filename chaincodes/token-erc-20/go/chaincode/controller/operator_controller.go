@@ -3,10 +3,11 @@ package controller
 import (
 	"sync"
 
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/ccutils"
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/services/airdrop"
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode/services/operator"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/airdrop"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/operator"
 )
 
 func (s *SmartContract) IsOperator(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (bool, error) {

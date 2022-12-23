@@ -7,8 +7,9 @@ package main
 import (
 	"log"
 
-	"github.com/KyleParkMedium/mdl-chaincode/chaincode"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
+
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode"
 )
 
 type SmartContract struct {
