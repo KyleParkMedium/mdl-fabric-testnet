@@ -6,6 +6,7 @@ const (
 	DocType_TotalSupplyByPartition = "DOCTYPE_TOTALSUPPLYBYPARTITION"
 	DocType_Allowance              = "DOCTYPE_ALLOWANCE"
 	DocType_Test                   = "DOCTYPE_TEST"
+	DocType_TokenHolderList        = "DOCTYPE_TOKENHOLDERLIST"
 
 	// Prefix
 	BalanceOfByPartitionPrefix = "balancePrefix"
@@ -69,4 +70,23 @@ type PartitionToken struct {
 	ExpiredDate string `json:"expiredDate"`
 
 	Amount int64 `json:"amount"`
+}
+
+// 분배 받을 사람 배열
+type TokenHolderList struct {
+	DocType string `json:"docType"`
+
+	IsLocked bool `json:"isLocked`
+
+	PartitionToken string `json:"partitionToken"`
+	// recipient의 변동을 생각해 이도 map으로 짜는게 낫긴 함.
+	Recipients map[string]PartitionToken `json:"recipients"`
+}
+
+// 토큰 상환
+type RedeemTokenStruct struct {
+	DocType string `json:"docType"`
+
+	Holder    string `json:"holder"`
+	Partition string `json:"partition"`
 }

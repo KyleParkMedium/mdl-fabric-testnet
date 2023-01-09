@@ -4,6 +4,7 @@ import "github.com/the-medium-tech/mdl-chaincodes/chaincode/services/token"
 
 const (
 	DocType_TokenWallet = "DOCTYPE_TOKEN_WALLET"
+	DocType_AdminWallet = "DOCTYPE_ADMIN_WALLET"
 )
 
 type TokenWallet struct {
@@ -27,6 +28,12 @@ type TokenWallet struct {
 
 	// PartitionTokens map[string][]interface{}
 	PartitionTokens map[string][]token.PartitionToken `json:"partitionTokens"`
+}
+
+type AdminWallet struct {
+	DocType string `json:"docType"`
+
+	PartitionTokens map[string]map[string]token.PartitionToken `json:"partitionTokens"`
 }
 
 // 리시버 훅은 한번 만들어볼지 고민 중

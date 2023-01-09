@@ -1,13 +1,17 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ledgermanager"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/operator"
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/token"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/wallet"
 )
 
 // SmartContract provides functions for transferring tokens between accounts
@@ -339,7 +343,7 @@ func _approveByPartition(ctx contractapi.TransactionContextInterface, owner stri
 	return nil
 }
 
-func (s *SmartContract) IssuanceAsset(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
+func (s *SmartContract) IssueToken(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
 
 	// Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
 	err := ccutils.GetMSPID(ctx)
@@ -374,9 +378,55 @@ func (s *SmartContract) IssuanceAsset(ctx contractapi.TransactionContextInterfac
 
 	newToken := token.PartitionToken{Publisher: address, TokenID: partition}
 
-	asset, err := token.IssuanceAsset(ctx, newToken)
+	asset, err := token.IssueToken(ctx, newToken)
 	if err != nil {
 		return ccutils.GenerateErrorResponse(err)
+	}
+
+	// 임시 admin wallet
+	adminBytes, err := ledgermanager.GetState(wallet.DocType_AdminWallet, "AdminWallet", ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	adminStruct := wallet.AdminWallet{}
+	err = json.Unmarshal(adminBytes, &adminStruct)
+	if err != nil {
+		return nil, err
+	}
+	adminStruct.PartitionTokens[partition] = make(map[string]token.PartitionToken)
+
+	adminToMap, err := ccutils.StructToMap(adminStruct)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ledgermanager.UpdateState(wallet.DocType_AdminWallet, "AdminWallet", adminToMap, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// operator
+	operatorBytes, err := ledgermanager.GetState(operator.DocType_Operator, "Operator", ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	operatorsStruct := operator.OperatorsStruct{}
+	err = json.Unmarshal(operatorBytes, &operatorsStruct)
+	if err != nil {
+		return nil, err
+	}
+	operatorsStruct.Operator[partition] = make(map[string]operator.OperatorStruct)
+
+	operatorsToMap, err := ccutils.StructToMap(operatorsStruct)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ledgermanager.UpdateState(operator.DocType_Operator, "Operator", operatorsToMap, ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "Issue", address, "", partition, 0}
@@ -386,6 +436,158 @@ func (s *SmartContract) IssuanceAsset(ctx contractapi.TransactionContextInterfac
 	}
 
 	retData, err := ccutils.StructToMap(asset)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], retData)
+}
+
+func (s *SmartContract) UndoIssueToken(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
+
+	// Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
+	err := ccutils.GetMSPID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	id, err := ccutils.GetID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// owner Address
+	address := ccutils.GetAddress([]byte(id))
+
+	// Asset.Name, Asset.Partition
+	requireParameterFields := []string{token.FieldPartition}
+
+	// codename.FieldCode
+	err = ccutils.CheckRequireParameter(requireParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	stringParameterFields := []string{token.FieldPartition}
+	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	partition := args[token.FieldPartition].(string)
+
+	tokenStruct := token.PartitionToken{Publisher: address, TokenID: partition}
+
+	asset, err := token.UndoIssueToken(ctx, tokenStruct)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "UndoIssue", address, "", partition, 0}
+	err = transferEvent.EmitTransferEvent(ctx)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	retData, err := ccutils.StructToMap(asset)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], retData)
+}
+
+func (s *SmartContract) RedeemToken(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
+
+	// Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
+	err := ccutils.GetMSPID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	id, err := ccutils.GetID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	requireParameterFields := []string{token.FieldPartition}
+	err = ccutils.CheckRequireParameter(requireParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	stringParameterFields := []string{token.FieldPartition}
+	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	// args Data
+	holder := ccutils.GetAddress([]byte(id))
+	partition := args[token.FieldPartition].(string)
+
+	redeemStruct := token.RedeemTokenStruct{Holder: holder, Partition: partition}
+
+	asset, err := wallet.RedeemToken(ctx, redeemStruct)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "Redeem", holder, "", partition, 0}
+	err = transferEvent.EmitTransferEvent(ctx)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	retData, err := ccutils.StructToMap(asset)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], retData)
+
+}
+
+func (s *SmartContract) IsIssuable(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
+
+	// Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
+	err := ccutils.GetMSPID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ccutils.GetID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	requireParameterFields := []string{token.FieldPartition}
+	err = ccutils.CheckRequireParameter(requireParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	stringParameterFields := []string{token.FieldPartition}
+	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	// args Data
+	partition := args[token.FieldPartition].(string)
+
+	err = token.IsIssuable(ctx, partition)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "IsIssuable", "", "", partition, 0}
+	err = transferEvent.EmitTransferEvent(ctx)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	retData, err := ccutils.StructToMap("true")
 	if err != nil {
 		return ccutils.GenerateErrorResponse(err)
 	}

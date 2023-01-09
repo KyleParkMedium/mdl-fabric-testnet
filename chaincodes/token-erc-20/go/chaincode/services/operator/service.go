@@ -5,10 +5,11 @@ import (
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ledgermanager"
 )
 
-func IsOperator(ctx contractapi.TransactionContextInterface, operator string) (bool, error) {
+func IsOperatorByPartition(ctx contractapi.TransactionContextInterface, operator string, partition string) (bool, error) {
 
 	operatorBytes, err := ledgermanager.GetState(DocType_Operator, "Operator", ctx)
 	if err != nil {
@@ -21,9 +22,71 @@ func IsOperator(ctx contractapi.TransactionContextInterface, operator string) (b
 		return false, err
 	}
 
-	if operatorStruct.Operator[operator].Role != "Operator" {
+	if operatorStruct.Operator[partition][operator].Role != "Operator" {
 		return false, nil
 	}
 
 	return true, nil
+}
+
+func AuthorizeOperatorByPartition(ctx contractapi.TransactionContextInterface, operator string, partition string) error {
+
+	operatorBytes, err := ledgermanager.GetState(DocType_Operator, "Operator", ctx)
+	if err != nil {
+		return err
+	}
+
+	operatorStruct := OperatorsStruct{}
+	err = json.Unmarshal(operatorBytes, &operator)
+	if err != nil {
+		return err
+	}
+
+	// 여기도 다시 수정해야함.덮어쓰기임 지금
+	test := OperatorStruct{}
+	test.Role = "Operator"
+	operatorStruct.Operator[partition][operator] = test
+
+	operatorToMap, err := ccutils.StructToMap(operatorStruct)
+	if err != nil {
+		return err
+	}
+
+	err = ledgermanager.UpdateState(DocType_Operator, "Operator", operatorToMap, ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func RevokeOperatorByPartition(ctx contractapi.TransactionContextInterface, operator string, partition string) error {
+
+	operatorBytes, err := ledgermanager.GetState(DocType_Operator, "Operator", ctx)
+	if err != nil {
+		return err
+	}
+
+	operatorStruct := OperatorsStruct{}
+	err = json.Unmarshal(operatorBytes, &operator)
+	if err != nil {
+		return err
+	}
+
+	// 여기도 다시 수정해야함.덮어쓰기임 지금
+	test := OperatorStruct{}
+	test.Role = ""
+	operatorStruct.Operator[partition][operator] = test
+
+	operatorToMap, err := ccutils.StructToMap(operatorStruct)
+	if err != nil {
+		return err
+	}
+
+	err = ledgermanager.UpdateState(DocType_Operator, "Operator", operatorToMap, ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

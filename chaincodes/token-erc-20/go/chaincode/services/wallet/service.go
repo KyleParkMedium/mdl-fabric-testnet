@@ -164,6 +164,24 @@ func MintByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 		return err
 	}
 
+	// Create allowanceKey
+	comKey, err := ctx.GetStub().CreateCompositeKey(token.DocType_TokenHolderList, []string{mintByPartition.Partition})
+	if err != nil {
+		return fmt.Errorf("failed to create the composite key for prefix %s: %v", token.DocType_TokenHolderList, err)
+	}
+
+	// Distribute List
+	listBytes, err := ledgermanager.GetState(token.DocType_TokenHolderList, comKey, ctx)
+	if err != nil {
+		return err
+	}
+
+	list := token.TokenHolderList{}
+	err = json.Unmarshal(listBytes, &list)
+	if err != nil {
+		return err
+	}
+
 	if exist {
 		wallet.PartitionTokens[mintByPartition.Partition][0].Amount += mintByPartition.Amount
 
@@ -185,6 +203,19 @@ func MintByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 		}
 
 		err = ledgermanager.UpdateState(token.DocType_Token, balanceKey, balanceOfByPartitionToMap, ctx)
+		if err != nil {
+			return err
+		}
+
+		test := list.Recipients[mintByPartition.Minter]
+		test.Amount += mintByPartition.Amount
+		list.Recipients[mintByPartition.Minter] = test
+		listToMap, err := ccutils.StructToMap(test)
+		if err != nil {
+			return err
+		}
+
+		err = ledgermanager.UpdateState(token.DocType_TokenHolderList, comKey, listToMap, ctx)
 		if err != nil {
 			return err
 		}
@@ -217,6 +248,17 @@ func MintByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 		}
 
 		err = ctx.GetStub().PutState(balanceKey, partitionTokenBytes)
+		if err != nil {
+			return err
+		}
+
+		list.Recipients[mintByPartition.Minter] = partitionToken
+		listToMap, err := ccutils.StructToMap(list)
+		if err != nil {
+			return err
+		}
+
+		err = ledgermanager.UpdateState(token.DocType_TokenHolderList, comKey, listToMap, ctx)
 		if err != nil {
 			return err
 		}
@@ -299,6 +341,32 @@ func BurnByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 	}
 
 	err = ledgermanager.UpdateState(DocType_TokenWallet, mintByPartition.Minter, mintByPartitionToMap, ctx)
+	if err != nil {
+		return err
+	}
+
+	// Distribute List
+	listBytes, err := ledgermanager.GetState(token.DocType_TokenHolderList, mintByPartition.Partition, ctx)
+	if err != nil {
+		return err
+	}
+
+	list := token.TokenHolderList{}
+	err = json.Unmarshal(listBytes, &list)
+	if err != nil {
+		return err
+	}
+
+	test := list.Recipients[mintByPartition.Minter]
+	test.Amount -= mintByPartition.Amount
+	list.Recipients[mintByPartition.Minter] = test
+
+	listToMap, err := ccutils.StructToMap(list)
+	if err != nil {
+		return err
+	}
+
+	err = ledgermanager.UpdateState(token.DocType_TokenHolderList, mintByPartition.Partition, listToMap, ctx)
 	if err != nil {
 		return err
 	}
@@ -396,4 +464,118 @@ func GetTokenWalletList(args map[string]interface{}, pageSize int32, bookmark st
 	}
 
 	return bytes, nil
+}
+
+func RedeemToken(ctx contractapi.TransactionContextInterface, redeemToken token.RedeemTokenStruct) (*token.PartitionToken, error) {
+
+	// Create allowanceKey
+	listKey, err := ctx.GetStub().CreateCompositeKey(token.DocType_TokenHolderList, []string{redeemToken.Partition})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create the composite key for prefix %s: %v", token.DocType_TokenHolderList, err)
+	}
+
+	listBytes, err := ledgermanager.GetState(token.DocType_TokenHolderList, listKey, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	listStruct := token.TokenHolderList{}
+	err = json.Unmarshal(listBytes, &listStruct)
+	if err != nil {
+		return nil, err
+	}
+
+	adminBytes, err := ledgermanager.GetState(DocType_AdminWallet, "AdminWallet", ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	adminStruct := AdminWallet{}
+	err = json.Unmarshal(adminBytes, &adminStruct)
+	if err != nil {
+		return nil, err
+	}
+
+	test := listStruct.Recipients[redeemToken.Holder]
+
+	if test.IsLocked == true {
+		return nil, fmt.Errorf("already redeemed")
+	}
+
+	aaa := token.PartitionToken{}
+	aaa.Amount = test.Amount
+
+	// adminStruct.PartitionTokens = make(map[string]map[string]token.PartitionToken)
+	adminStruct.PartitionTokens[redeemToken.Partition][redeemToken.Holder] = aaa
+
+	// a to admin
+	test.Amount = 0 // or
+	test.IsLocked = true
+	listStruct.Recipients[redeemToken.Holder] = test
+
+	listToMap, err := ccutils.StructToMap(listStruct)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ledgermanager.UpdateState(token.DocType_TokenHolderList, listKey, listToMap, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	adminToMap, err := ccutils.StructToMap(adminStruct)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ledgermanager.UpdateState(DocType_AdminWallet, "AdminWallet", adminToMap, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 월렛 업데이트도 필요함.
+	// token lock이라는 함수를 하나 만들까?
+	walletBytes, err := ledgermanager.GetState(DocType_TokenWallet, redeemToken.Holder, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	wallet := TokenWallet{}
+	err = json.Unmarshal(walletBytes, &wallet)
+	if err != nil {
+		return nil, err
+	}
+
+	// BalanceOf
+	var afterBalance int64
+	balanceKey, err := ctx.GetStub().CreateCompositeKey(token.BalanceOfByPartitionPrefix, []string{redeemToken.Holder, redeemToken.Partition})
+	if err != nil {
+		return nil, err
+	}
+
+	wallet.PartitionTokens[redeemToken.Partition][0].Amount = 0
+
+	mintByPartitionToMap, err := ccutils.StructToMap(wallet)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ledgermanager.UpdateState(DocType_TokenWallet, redeemToken.Holder, mintByPartitionToMap, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	afterBalance = 0
+	partitionToken := token.PartitionToken{Amount: afterBalance}
+	balanceOfByPartitionToMap, err := ccutils.StructToMap(partitionToken)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ledgermanager.UpdateState(token.DocType_Token, balanceKey, balanceOfByPartitionToMap, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }

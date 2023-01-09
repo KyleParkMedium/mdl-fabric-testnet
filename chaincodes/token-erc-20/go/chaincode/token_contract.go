@@ -9,7 +9,9 @@ import (
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/controller"
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ledgermanager"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/operator"
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/token"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/wallet"
 )
 
 // Changelog
@@ -53,9 +55,27 @@ func (s *SmartContract) IsInit(ctx contractapi.TransactionContextInterface) erro
 	// Init totalSupply
 	_, err = ledgermanager.PutState(token.DocType_TotalSupply, "TotalSupply", token.TotalSupplyStruct{TotalSupply: 0}, ctx)
 	if err != nil {
-		// return ccutils.GenerateErrorResponse(err)
 		return err
+	}
 
+	// Init Admin Wallet
+	walletStruct := wallet.AdminWallet{}
+	partitionTokenMap := make(map[string]map[string]token.PartitionToken)
+	walletStruct.PartitionTokens = partitionTokenMap
+
+	_, err = ledgermanager.PutState(wallet.DocType_AdminWallet, "AdminWallet", walletStruct, ctx)
+	if err != nil {
+		return err
+	}
+
+	// Init Operator
+	operatorsStruct := operator.OperatorsStruct{}
+	operatorMap := make(map[string]map[string]operator.OperatorStruct)
+	operatorsStruct.Operator = operatorMap
+
+	_, err = ledgermanager.PutState(operator.DocType_Operator, "Operator", operatorsStruct, ctx)
+	if err != nil {
+		return err
 	}
 
 	return nil

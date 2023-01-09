@@ -7,7 +7,7 @@ const (
 type OperatorsStruct struct {
 	DocType string `json:"docType"`
 
-	Operator map[string]OperatorStruct `json:"operator"`
+	Operator map[string]map[string]OperatorStruct `json:"operator"`
 }
 
 type OperatorStruct struct {

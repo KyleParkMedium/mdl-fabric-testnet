@@ -11,7 +11,7 @@
 - Upload example bash code
 
 ## Docs
-- [STO Token API Specification](https://docs.google.com/spreadsheets/d/1_0UDllBSuUJBgTALI0Gwz59PsbQNvzBQBhYswRDMHI8/edit#gid=0)
+- [STO Token API Specification](https://docs.google.com/spreadsheets/d/11QYpz07zaBQxM3Y95I2D1aelHpxpmDAeW0zPRtR8IjM/edit#gid=0)
 - [STO Detailed Documentation](https://www.notion.so/STO-Token-Chaincode-Docs-8c9c221728e44c54bdc2723e75990afe)
 - [STO User Scenario](https://www.notion.so/STO-0a653dfe8c9247d5b373495a4fde129e)
 
