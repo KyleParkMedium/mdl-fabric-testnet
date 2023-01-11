@@ -25,6 +25,6 @@
 
 5. ./start.sh 실행
 6. ./stoTokenChaincode.sh or ./long_ver.sh 스크립트 실행   
-   or 웹 서버 api 호출
+   or 웹 서버 api 호출.   
     각 스크립트 내용 참고.
 7. 환경 초기화 ./clear.sh + 필요에 따라 docker volume prune
