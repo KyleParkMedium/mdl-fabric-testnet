@@ -376,7 +376,10 @@ func (s *SmartContract) IssueToken(ctx contractapi.TransactionContextInterface, 
 
 	partition := args[token.FieldPartition].(string)
 
-	newToken := token.PartitionToken{Publisher: address, TokenID: partition}
+	newToken := token.PartitionToken{}
+	newToken.Publisher = address
+	newToken.TokenID = partition
+	newToken.IsLocked = false
 
 	asset, err := token.IssueToken(ctx, newToken)
 	if err != nil {
@@ -593,4 +596,91 @@ func (s *SmartContract) IsIssuable(ctx contractapi.TransactionContextInterface, 
 	}
 
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], retData)
+}
+
+func (s *SmartContract) GetTokenList(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
+
+	err := ccutils.GetMSPID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ccutils.GetID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	requireParameterFields := []string{ledgermanager.PageSize, ledgermanager.Bookmark}
+	err = ccutils.CheckRequireParameter(requireParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	stringParameterFields := []string{ledgermanager.Bookmark}
+	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	int64ParameterFields := []string{ledgermanager.PageSize}
+	err = ccutils.CheckTypeInt64(int64ParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	dateParameterFields := []string{ledgermanager.StartDate, ledgermanager.EndDate}
+	err = ccutils.CheckFormatDate(dateParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	pageSize := int32(args[ledgermanager.PageSize].(float64))
+	bookmark := args[ledgermanager.Bookmark].(string)
+
+	var bytes []byte
+	bytes, err = token.GetTokenList(args, pageSize, bookmark, ctx)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	return ccutils.GenerateSuccessResponseByteArray(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], bytes)
+}
+
+func (s *SmartContract) GetTokenHolderList(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
+
+	requireParameterFields := []string{ledgermanager.PageSize, ledgermanager.Bookmark, ledgermanager.Partition}
+	err := ccutils.CheckRequireParameter(requireParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	stringParameterFields := []string{ledgermanager.Bookmark, ledgermanager.Partition}
+	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	int64ParameterFields := []string{ledgermanager.PageSize}
+	err = ccutils.CheckTypeInt64(int64ParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	dateParameterFields := []string{ledgermanager.StartDate, ledgermanager.EndDate}
+	err = ccutils.CheckFormatDate(dateParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	pageSize := int32(args[ledgermanager.PageSize].(float64))
+	bookmark := args[ledgermanager.Bookmark].(string)
+	partition := args[ledgermanager.Partition].(string)
+
+	var bytes []byte
+	bytes, err = token.GetTokenHolderList(args, partition, pageSize, bookmark, ctx)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	return ccutils.GenerateSuccessResponseByteArray(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], bytes)
 }

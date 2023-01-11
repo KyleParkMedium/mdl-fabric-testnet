@@ -287,7 +287,13 @@ func MintByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 		return err
 	}
 
-	totalSupplyByPartitionBytes, err := ledgermanager.GetState(token.DocType_TotalSupplyByPartition, mintByPartition.Partition, ctx)
+	// totalSupplyByPartition
+	totalKey, err := ctx.GetStub().CreateCompositeKey(token.DocType_TotalSupplyByPartition, []string{mintByPartition.Partition})
+	if err != nil {
+		return fmt.Errorf("failed to create the composite key for prefix %s: %v", token.DocType_TotalSupplyByPartition, err)
+	}
+
+	totalSupplyByPartitionBytes, err := ledgermanager.GetState(token.DocType_TotalSupplyByPartition, totalKey, ctx)
 	if err != nil {
 		return err
 	}
@@ -304,7 +310,7 @@ func MintByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 		return err
 	}
 
-	err = ledgermanager.UpdateState(token.DocType_TotalSupplyByPartition, mintByPartition.Partition, totalSupplyByPartitionMap, ctx)
+	err = ledgermanager.UpdateState(token.DocType_TotalSupplyByPartition, totalKey, totalSupplyByPartitionMap, ctx)
 	if err != nil {
 		return err
 	}
@@ -394,7 +400,12 @@ func BurnByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 		return err
 	}
 
-	totalSupplyByPartitionBytes, err := ledgermanager.GetState(token.DocType_TotalSupplyByPartition, mintByPartition.Partition, ctx)
+	totalKey, err := ctx.GetStub().CreateCompositeKey(token.DocType_TotalSupplyByPartition, []string{mintByPartition.Partition})
+	if err != nil {
+		return fmt.Errorf("failed to create the composite key for prefix %s: %v", token.DocType_TotalSupplyByPartition, err)
+	}
+
+	totalSupplyByPartitionBytes, err := ledgermanager.GetState(token.DocType_TotalSupplyByPartition, totalKey, ctx)
 	if err != nil {
 		return err
 	}
@@ -411,7 +422,7 @@ func BurnByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 		return err
 	}
 
-	err = ledgermanager.UpdateState(token.DocType_TotalSupplyByPartition, mintByPartition.Partition, totalSupplyByPartitionMap, ctx)
+	err = ledgermanager.UpdateState(token.DocType_TotalSupplyByPartition, totalKey, totalSupplyByPartitionMap, ctx)
 	if err != nil {
 		return err
 	}
@@ -422,6 +433,53 @@ func BurnByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 func GetTokenWalletList(args map[string]interface{}, pageSize int32, bookmark string, ctx contractapi.TransactionContextInterface) ([]byte, error) {
 	queryBuilder := ccutils.QueryBuilder{}
 	queryBuilder.AddSelectorGroup(ledgermanager.DocType, DocType_TokenWallet)
+
+	// 공통 필드
+	if value, exist := args[ledgermanager.StartDate]; exist {
+		queryBuilder.AddSelectorGroupCondition(ledgermanager.CreatedDate, "$gte", value)
+	}
+
+	if value, exist := args[ledgermanager.EndDate]; exist {
+		queryBuilder.AddSelectorGroupCondition(ledgermanager.CreatedDate, "$lt", value)
+	}
+
+	// // 고유 필드
+	// stringParameterFields := []string{FieldPublisherAuthWalletId, FieldExpiredDate, FieldTokenId}
+	// for _, stringField := range stringParameterFields {
+	// 	if value, exist := args[stringField]; exist {
+	// 		err := ccutils.CheckRequireTypeString([]string{stringField}, args)
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	// 		queryBuilder.AddSelectorGroup(stringField, value)
+	// 	}
+	// }
+
+	// boolParameterFields := []string{FieldIsLocked, FieldIsTradePossible, FieldIsSettlementPossible, FieldIsChargePossible,
+	// 	FieldIsExchangePossible, FieldIsExtAsstDepositPossible, FieldIsExtAsstWithdrawalPossible}
+	// for _, boolField := range boolParameterFields {
+	// 	if value, exist := args[boolField]; exist {
+	// 		err := ccutils.CheckRequireTypeBool([]string{boolField}, args)
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	// 		queryBuilder.AddSelectorGroup(boolField, value)
+	// 	}
+	// }
+
+	queryString := queryBuilder.MakeQueryString()
+
+	bytes, err := ledgermanager.GetQueryResultWithPagination(queryString, pageSize, bookmark, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes, nil
+}
+
+func GetAdminWallet(args map[string]interface{}, pageSize int32, bookmark string, ctx contractapi.TransactionContextInterface) ([]byte, error) {
+	queryBuilder := ccutils.QueryBuilder{}
+	queryBuilder.AddSelectorGroup(ledgermanager.DocType, DocType_AdminWallet)
 
 	// 공통 필드
 	if value, exist := args[ledgermanager.StartDate]; exist {
@@ -502,11 +560,11 @@ func RedeemToken(ctx contractapi.TransactionContextInterface, redeemToken token.
 		return nil, fmt.Errorf("already redeemed")
 	}
 
-	aaa := token.PartitionToken{}
-	aaa.Amount = test.Amount
+	partitionTokenStruct := token.PartitionToken{}
+	partitionTokenStruct.Amount = test.Amount
 
 	// adminStruct.PartitionTokens = make(map[string]map[string]token.PartitionToken)
-	adminStruct.PartitionTokens[redeemToken.Partition][redeemToken.Holder] = aaa
+	adminStruct.PartitionTokens[redeemToken.Partition][redeemToken.Holder] = partitionTokenStruct
 
 	// a to admin
 	test.Amount = 0 // or

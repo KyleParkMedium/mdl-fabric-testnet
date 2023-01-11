@@ -3,6 +3,7 @@ package distribute
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
@@ -12,10 +13,7 @@ import (
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/wallet"
 )
 
-// , wg *sync.WaitGroup
-func AirDrop(ctx contractapi.TransactionContextInterface, airDrop AirDropStruct, errChan chan error) {
-	// , wg *sync.WaitGroup
-	fmt.Println("check")
+func DistributeToken(ctx contractapi.TransactionContextInterface, airDrop AirDropStruct, errChan chan error, wg *sync.WaitGroup) {
 
 	walletBytes, err := ledgermanager.GetState(wallet.DocType_TokenWallet, airDrop.Recipient, ctx)
 	if err != nil {
@@ -60,22 +58,22 @@ func AirDrop(ctx contractapi.TransactionContextInterface, airDrop AirDropStruct,
 	partitionToken.DocType = token.DocType_Token
 	partitionToken.Amount = airDrop.PartitionToken.Amount
 
-	_, err = ledgermanager.PutState(token.BalanceOfByPartitionPrefix, balanceKey, partitionToken, ctx)
+	// _, err = ledgermanager.PutState(token.BalanceOfByPartitionPrefix, balanceKey, partitionToken, ctx)
+	// if err != nil {
+	// 	errChan <- err
+	// 	return
+	// }
+
+	partitionTokenBytes, err := json.Marshal(partitionToken)
 	if err != nil {
 		errChan <- err
 		return
 	}
-
-	// partitionTokenBytes, err := json.Marshal(partitionToken)
-	// if err != nil {
-	// 	errChan <- err
-	// 	return
-	// }
-	// err = ctx.GetStub().PutState(balanceKey, partitionTokenBytes)
-	// if err != nil {
-	// 	errChan <- err
-	// 	return
-	// }
+	err = ctx.GetStub().PutState(balanceKey, partitionTokenBytes)
+	if err != nil {
+		errChan <- err
+		return
+	}
 
 	// Update the totalSupply, totalSupplyByPartition
 	// 이부분에서 동시성 걸림. 로직 고민을 해봐야함.
@@ -105,7 +103,13 @@ func AirDrop(ctx contractapi.TransactionContextInterface, airDrop AirDropStruct,
 		return
 	}
 
-	totalSupplyByPartitionBytes, err := ledgermanager.GetState(token.DocType_TotalSupplyByPartition, airDrop.PartitionToken.TokenID, ctx)
+	// totalSupplyByPartition
+	totalKey, err := ctx.GetStub().CreateCompositeKey(token.DocType_TotalSupplyByPartition, []string{airDrop.PartitionToken.TokenID})
+	if err != nil {
+		errChan <- err
+	}
+
+	totalSupplyByPartitionBytes, err := ledgermanager.GetState(token.DocType_TotalSupplyByPartition, totalKey, ctx)
 	if err != nil {
 		errChan <- err
 		return
@@ -125,7 +129,7 @@ func AirDrop(ctx contractapi.TransactionContextInterface, airDrop AirDropStruct,
 		return
 	}
 
-	err = ledgermanager.UpdateState(token.DocType_TotalSupplyByPartition, airDrop.PartitionToken.TokenID, totalSupplyByPartitionMap, ctx)
+	err = ledgermanager.UpdateState(token.DocType_TotalSupplyByPartition, totalKey, totalSupplyByPartitionMap, ctx)
 	if err != nil {
 		errChan <- err
 		return
@@ -135,6 +139,131 @@ func AirDrop(ctx contractapi.TransactionContextInterface, airDrop AirDropStruct,
 	errChan <- nil
 
 	// defer wg.Done()
+	wg.Done()
+}
+
+func AirDrop(ctx contractapi.TransactionContextInterface, airDrop AirDropStruct, errChan chan error, wg *sync.WaitGroup) {
+
+	walletBytes, err := ledgermanager.GetState(wallet.DocType_TokenWallet, airDrop.Recipient, ctx)
+	if err != nil {
+		errChan <- err
+		return
+	}
+
+	walletData := wallet.TokenWallet{}
+	err = json.Unmarshal(walletBytes, &walletData)
+	if err != nil {
+		errChan <- err
+		return
+	}
+
+	walletData.PartitionTokens[airDrop.PartitionToken.TokenID][0].Amount += airDrop.PartitionToken.Amount
+
+	walletToMap, err := ccutils.StructToMap(walletData)
+	if err != nil {
+		errChan <- err
+		return
+	}
+
+	err = ledgermanager.UpdateState(wallet.DocType_TokenWallet, airDrop.Recipient, walletToMap, ctx)
+	if err != nil {
+		errChan <- err
+		return
+	}
+
+	// balanceOf
+	balanceKey, err := ctx.GetStub().CreateCompositeKey(token.BalanceOfByPartitionPrefix, []string{airDrop.Recipient, airDrop.PartitionToken.TokenID})
+	if err != nil {
+		errChan <- err
+		return
+	}
+
+	partitionToken := token.PartitionToken{}
+	partitionToken.DocType = token.DocType_Token
+	partitionToken.Amount = airDrop.PartitionToken.Amount
+
+	// _, err = ledgermanager.PutState(token.BalanceOfByPartitionPrefix, balanceKey, partitionToken, ctx)
+	// if err != nil {
+	// 	errChan <- err
+	// 	return
+	// }
+
+	partitionTokenBytes, err := json.Marshal(partitionToken)
+	if err != nil {
+		errChan <- err
+		return
+	}
+	err = ctx.GetStub().PutState(balanceKey, partitionTokenBytes)
+	if err != nil {
+		errChan <- err
+		return
+	}
+
+	// Update the totalSupply, totalSupplyByPartition
+	// 이부분에서 동시성 걸림. 로직 고민을 해봐야함.
+	totalSupplyBytes, err := ledgermanager.GetState(token.DocType_TotalSupply, "TotalSupply", ctx)
+	if err != nil {
+		errChan <- err
+		return
+	}
+
+	totalSupply := token.TotalSupplyStruct{}
+	if err := json.Unmarshal(totalSupplyBytes, &totalSupply); err != nil {
+		errChan <- err
+		return
+	}
+
+	totalSupply.TotalSupply += airDrop.PartitionToken.Amount
+
+	totalSupplyMap, err := ccutils.StructToMap(totalSupply)
+	if err != nil {
+		errChan <- err
+		return
+	}
+
+	err = ledgermanager.UpdateState(token.DocType_TotalSupply, "TotalSupply", totalSupplyMap, ctx)
+	if err != nil {
+		errChan <- err
+		return
+	}
+
+	// totalSupplyByPartition
+	totalKey, err := ctx.GetStub().CreateCompositeKey(token.DocType_TotalSupplyByPartition, []string{airDrop.PartitionToken.TokenID})
+	if err != nil {
+		errChan <- err
+	}
+
+	totalSupplyByPartitionBytes, err := ledgermanager.GetState(token.DocType_TotalSupplyByPartition, totalKey, ctx)
+	if err != nil {
+		errChan <- err
+		return
+	}
+
+	totalSupplyByPartition := token.TotalSupplyByPartitionStruct{}
+	if err := json.Unmarshal(totalSupplyByPartitionBytes, &totalSupplyByPartition); err != nil {
+		errChan <- err
+		return
+	}
+
+	totalSupplyByPartition.TotalSupply += airDrop.PartitionToken.Amount
+
+	totalSupplyByPartitionMap, err := ccutils.StructToMap(totalSupplyByPartition)
+	if err != nil {
+		errChan <- err
+		return
+	}
+
+	err = ledgermanager.UpdateState(token.DocType_TotalSupplyByPartition, totalKey, totalSupplyByPartitionMap, ctx)
+	if err != nil {
+		errChan <- err
+		return
+	}
+
+	// all good - send nil to the error channel
+	errChan <- nil
+
+	// defer wg.Done()
+	wg.Done()
 }
 
 func GetHolderList(ctx contractapi.TransactionContextInterface, partition string) (*token.TokenHolderList, error) {

@@ -335,3 +335,41 @@ func (s *SmartContract) GetTokenWalletList(ctx contractapi.TransactionContextInt
 
 	return ccutils.GenerateSuccessResponseByteArray(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], bytes)
 }
+
+func (s *SmartContract) GetAdminWallet(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
+
+	requireParameterFields := []string{ledgermanager.PageSize, ledgermanager.Bookmark}
+	err := ccutils.CheckRequireParameter(requireParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	stringParameterFields := []string{ledgermanager.Bookmark}
+	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	int64ParameterFields := []string{ledgermanager.PageSize}
+	err = ccutils.CheckTypeInt64(int64ParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	dateParameterFields := []string{ledgermanager.StartDate, ledgermanager.EndDate}
+	err = ccutils.CheckFormatDate(dateParameterFields, args)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	pageSize := int32(args[ledgermanager.PageSize].(float64))
+	bookmark := args[ledgermanager.Bookmark].(string)
+
+	var bytes []byte
+	bytes, err = wallet.GetAdminWallet(args, pageSize, bookmark, ctx)
+	if err != nil {
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	return ccutils.GenerateSuccessResponseByteArray(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], bytes)
+}

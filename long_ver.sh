@@ -587,6 +587,10 @@ function AirDrop() {
 
 function GetTokenWalletList() {
 
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+    org$ORG_NUM
+
     # set query
     echo ${FUNCNAME[0]}
 
@@ -613,7 +617,11 @@ function GetTokenWalletList() {
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
 }
 
-function GetHolderList() {
+function GetAdminWallet() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+    org$ORG_NUM
 
     # set query
     echo ${FUNCNAME[0]}
@@ -633,15 +641,112 @@ function GetHolderList() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetAdminWallet.log
+
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/GetAdminWallet.log
+    cp ${LOG_DIR}/GetAdminWallet.log ${LOG_DIR}/Response.log
+    echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
+}
+
+function GetTokenList() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+    org$ORG_NUM
+
+    # set query
+    echo ${FUNCNAME[0]}
+
+    string=${string%\,}
+    # ,false
+
+    ## query sample
+    # '{"Args":["IssuanceAsset","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
+    echo $param
+
+    # set
+    set -x
+
+    ## set env
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
+
+    echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetTokenList.log
+
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/GetTokenList.log
+    cp ${LOG_DIR}/GetTokenList.log ${LOG_DIR}/Response.log
+    echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
+}
+
+function GetTokenHolderList() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+    org$ORG_NUM
+
+    # set query
+    echo ${FUNCNAME[0]}
+
+    string=${string%\,}
+    # ,false
+
+    ## query sample
+    # '{"Args":["IssuanceAsset","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
+    echo $param
+
+    # set
+    set -x
+
+    ## set env
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
+
+    echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetTokenHolderList.log
+
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/GetTokenHolderList.log
+    cp ${LOG_DIR}/GetTokenHolderList.log ${LOG_DIR}/Response.log
+    echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
+}
+
+function GetHolderList() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+    org$ORG_NUM
+
+    # set query
+    echo ${FUNCNAME[0]}
+
+    string=${string%\,}
+    # ,false
+
+    ## query sample
+    # '{"Args":["IssuanceAsset","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
+    echo $param
+
+    # set
+    set -x
+
+    ## set env
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
+
+    echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
+
     ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetHolderList.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/GetHolderList.log
-    cp ${LOG_DIR}/GetHolderList.log ${LOG_DIR}/GetHolderList.log
+    cp ${LOG_DIR}/GetHolderList.log ${LOG_DIR}/Response.log
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
 }
 
-function DistributeTokenVerA() {
+function DistributeToken() {
 
     org1
 
@@ -677,43 +782,12 @@ function DistributeTokenVerA() {
     echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
 }
 
-function DistributeTokenVerB() {
-
-    org1
-
-    # set query
-    echo ${FUNCNAME[0]}
-
-    string=${string%\,}
-    array=${array%\,}
-
-    ## query sample
-    # '{"Args":["CreateWallet","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
-    # param="{\"Args\":[\"${FUNCNAME[0]}\",\"{\\\"AA\\\":[{$string}]}\"]}"
-    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{\\\"Recipients\\\":{$array},$string}\"]}"
-    # param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
-    echo $param
-
-    # '{"Args":["AirDrop","{\"from\":\"0x47a7a67edf2e0f1e89d1ab7b547dc67d0ce334df\",\"to\":\"0x7eddc225c347da6b844b87baeecdfd7be35eb1c0\",\"partition\":\"mediumToken\",\"amount\":10}"]}'
-    # '{"Args":["AirDrop","{"AA":[\"from\":\"0x47a7a67edf2e0f1e89d1ab7b547dc67d0ce334df\",\"to\":\"0x7eddc225c347da6b844b87baeecdfd7be35eb1c0\",\"partition\":\"mediumToken\",\"amount\":10]}"]}'
-
-    # set
-    set -x
-
-    ## set env
-    # export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/Admin@org${ORG_NUM}.example.com/msp"
-    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-
-    echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode invoke -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} ${PEER_CONN_PARMS[@]} -c $param >&${LOG_DIR}/Check2.log
-
-    { set +x; } 2>/dev/null
-    cat ${LOG_DIR}/Check2.log
-    cp ${LOG_DIR}/Check2.log ${LOG_DIR}/Response.log
-    echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
-}
-
 function RedeemToken() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+
+    org$ORG_NUM
 
     # set query
     echo ${FUNCNAME[0]}
@@ -737,6 +811,132 @@ function RedeemToken() {
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/${who}_Redeem_${partition}.log
     cp ${LOG_DIR}/${who}_Redeem_${partition}.log ${LOG_DIR}/Response.log
+    echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
+}
+
+function IsIssuable() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+    org$ORG_NUM
+
+    # set query
+    echo ${FUNCNAME[0]}
+
+    string=${string%\,}
+    # ,false
+
+    ## query sample
+    # '{"Args":["IssuanceAsset","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
+    echo $param
+
+    # set
+    set -x
+
+    ## set env
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
+
+    echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/${partition}_IsIssuable.log
+
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/${partition}_IsIssuable.log
+    cp ${LOG_DIR}/${partition}_IsIssuable.log ${LOG_DIR}/Response.log
+    echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
+}
+
+function IsOperatorByPartition() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+    org$ORG_NUM
+
+    # set query
+    echo ${FUNCNAME[0]}
+
+    string=${string%\,}
+    # ,false
+
+    ## query sample
+    # '{"Args":["IssuanceAsset","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
+    echo $param
+
+    # set
+    set -x
+
+    ## set env
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
+
+    echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/${operator}_${partition}_IsOperatorByPartition.log
+
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/${operator}_${partition}_IsOperatorByPartition.log
+    cp ${LOG_DIR}/${operator}_${partition}_IsOperatorByPartition.log ${LOG_DIR}/Response.log
+    echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
+}
+
+function AuthorizeOperatorByPartition() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+    org$ORG_NUM
+
+    # set query
+    echo ${FUNCNAME[0]}
+
+    string=${string%\,}
+
+    ## query sample
+    # '{"Args":["MintByPartition","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
+    echo $param
+
+    # set
+    set -x
+
+    ## set env
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
+
+    echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
+    ${BIN_DIR}/peer chaincode invoke -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} ${PEER_CONN_PARMS[@]} -c $param >&${LOG_DIR}/${operator}_${partition}_AuthorizeOperatorByPartition.log
+
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/${operator}_${partition}_AuthorizeOperatorByPartition.log
+    cp ${LOG_DIR}/${operator}_${partition}_AuthorizeOperatorByPartition.log ${LOG_DIR}/Response.log
+    echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
+}
+
+function RevokeOperatorByPartition() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+    org$ORG_NUM
+
+    # set query
+    echo ${FUNCNAME[0]}
+
+    string=${string%\,}
+
+    ## query sample
+    # '{"Args":["MintByPartition","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
+    echo $param
+
+    # set
+    set -x
+
+    ## set env
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
+
+    echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
+    ${BIN_DIR}/peer chaincode invoke -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} ${PEER_CONN_PARMS[@]} -c $param >&${LOG_DIR}/${operator}_${partition}_RevokeOperatorByPartition.log
+
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/${operator}_${partition}_RevokeOperatorByPartition.log
+    cp ${LOG_DIR}/${operator}_${partition}_RevokeOperatorByPartition.log ${LOG_DIR}/Response.log
     echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
 }
 
@@ -774,8 +974,9 @@ Options:
  -X, --request COMMAND   Specify request command to use
  -v, --verbose           Make the operation more talkative
  -F, --Function          Chaincode function name
- -u, --user              체인코드 호출자 혹은 백엔드 호출자 아직 미정
- -h, --tokenHolder            Token holder
+ -c, --caller            체인코드 호출자 혹은 백엔드 호출자 아직 미정
+ -O, --operator          Operator By Partition
+ -h, --tokenHolder       Token holder
  -o, --owner             Token owner
  -s, --spender           Who wants to send token
  -f, --from              Token Spender ( TransferFrom )
@@ -798,7 +999,7 @@ function set_options() {
             shift
             function=$1
             ;;
-        -u | --user)
+        -c | --caller)
             shift
             who=$1
             ;;
@@ -808,6 +1009,13 @@ function set_options() {
             # tokenHolder=$(cat ./log/${tokenHolder0}_Address.log)
             tokenHolder=$(cat /Users/park/code/purefabric/log/${tokenHolder0}_Address.log)
             string+="\\\"tokenHolder\\\":\\\"$tokenHolder\\\","
+            ;;
+        -O | --operator)
+            shift
+            operator0=$1
+            # tokenHolder=$(cat ./log/${tokenHolder0}_Address.log)
+            operator=$(cat /Users/park/code/purefabric/log/${operator0}_Address.log)
+            string+="\\\"operator\\\":\\\"$operator\\\","
             ;;
         -o | --owner)
             shift

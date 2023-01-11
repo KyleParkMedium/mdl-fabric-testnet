@@ -7,6 +7,7 @@ const (
 	DocType_Allowance              = "DOCTYPE_ALLOWANCE"
 	DocType_Test                   = "DOCTYPE_TEST"
 	DocType_TokenHolderList        = "DOCTYPE_TOKENHOLDERLIST"
+	DocType_AirDrop                = "DOCTYPE_AIRDROP"
 
 	// Prefix
 	BalanceOfByPartitionPrefix = "balancePrefix"

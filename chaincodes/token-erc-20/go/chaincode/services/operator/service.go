@@ -2,6 +2,8 @@ package operator
 
 import (
 	"encoding/json"
+	"fmt"
+	"reflect"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
@@ -17,9 +19,15 @@ func IsOperatorByPartition(ctx contractapi.TransactionContextInterface, operator
 	}
 
 	operatorStruct := OperatorsStruct{}
-	err = json.Unmarshal(operatorBytes, &operator)
+	err = json.Unmarshal(operatorBytes, &operatorStruct)
 	if err != nil {
 		return false, err
+	}
+
+	fmt.Println(operatorStruct)
+
+	if reflect.ValueOf(operatorStruct.Operator[partition]).IsZero() {
+		return false, fmt.Errorf("partition's operator data is not exist")
 	}
 
 	if operatorStruct.Operator[partition][operator].Role != "Operator" {
@@ -37,7 +45,7 @@ func AuthorizeOperatorByPartition(ctx contractapi.TransactionContextInterface, o
 	}
 
 	operatorStruct := OperatorsStruct{}
-	err = json.Unmarshal(operatorBytes, &operator)
+	err = json.Unmarshal(operatorBytes, &operatorStruct)
 	if err != nil {
 		return err
 	}
@@ -68,7 +76,7 @@ func RevokeOperatorByPartition(ctx contractapi.TransactionContextInterface, oper
 	}
 
 	operatorStruct := OperatorsStruct{}
-	err = json.Unmarshal(operatorBytes, &operator)
+	err = json.Unmarshal(operatorBytes, &operatorStruct)
 	if err != nil {
 		return err
 	}

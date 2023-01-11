@@ -813,6 +813,59 @@ function AirDrop() {
     echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
 }
 
+function DistributeToken() {
+
+    # set query
+    echo ${FUNCNAME[0]}
+
+    local string
+    local array
+    local OPTIND OPT u r p a
+    while getopts ":u:r:p:" OPT; do
+        case $OPT in
+        u)
+            who=$OPTARG
+            ;;
+        r)
+            recipient0=$OPTARG
+            recipient=$(cat ./log/${recipient0}_Address.log)
+            # array+="\\\"${recipient0}\\\":$amount,"
+            array+="\\\"${recipient}\\\":100,"
+            ;;
+        p)
+            partition=$OPTARG
+            string+="\\\"partition\\\":\\\"$partition\\\","
+            ;;
+        esac
+    done
+    shift "$((OPTIND - 1))"
+    string=${string%\,}
+    array=${array%\,}
+
+    ## query sample
+    # '{"Args":["CreateWallet","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
+    # param="{\"Args\":[\"${FUNCNAME[0]}\",\"{\\\"AA\\\":[{$string}]}\"]}"
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{\\\"Recipients\\\":{$array},$string}\"]}"
+    # param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
+    echo $param
+
+    # '{"Args":["AirDrop","{\"from\":\"0x47a7a67edf2e0f1e89d1ab7b547dc67d0ce334df\",\"to\":\"0x7eddc225c347da6b844b87baeecdfd7be35eb1c0\",\"partition\":\"mediumToken\",\"amount\":10}"]}'
+    # '{"Args":["AirDrop","{"AA":[\"from\":\"0x47a7a67edf2e0f1e89d1ab7b547dc67d0ce334df\",\"to\":\"0x7eddc225c347da6b844b87baeecdfd7be35eb1c0\",\"partition\":\"mediumToken\",\"amount\":10]}"]}'
+
+    # set
+    set -x
+
+    ## set env
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
+
+    echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
+    ${BIN_DIR}/peer chaincode invoke -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} ${PEER_CONN_PARMS[@]} -c $param >&${LOG_DIR}/DistributeToken.log
+
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/DistributeToken.log
+    echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
+}
+
 function GetTokenWalletList() {
 
     # set query
@@ -915,10 +968,14 @@ function main() {
     sleep 3
     CreateWallet -u Org2User2 -p mediumToken -a 50
     sleep 3
-    org1
-    sleep 3
-    IssueToken -u Org1User1 -p mediumToken
-    sleep 3
+    # org1
+    # sleep 3
+    # IssueToken -u Org1User1 -p mediumToken
+    # sleep 3
+    # org1
+    # sleep 3
+    # DistributeToken -u Org1User1 -p mediumToken -r Org1User1 -r Org1User2 -r Org2User1
+    # sleep 3
 
     # # IssueToken -u Org1User1 -p mediumToken
     # # sleep 3
