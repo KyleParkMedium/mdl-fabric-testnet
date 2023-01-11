@@ -5,7 +5,7 @@
 1. install fabric-ca 1.5.5, fabric 2.2.6(2.2~)   
 [How to install - Fabric Docs](https://hyperledger-fabric.readthedocs.io/en/release-2.5/install.html)
 
-2. 필요에 따라 ./config, ./docker config 파일 수정
+2. 필요에 따라 ./config, ./docker config 파일 수정   
    README.md 파일 작성 기준    
    Org1User1, Org1User2, Org1User3, Org2User1, Org2User2, Org2User3 이용 가능
 
