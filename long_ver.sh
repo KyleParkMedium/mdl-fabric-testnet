@@ -459,6 +459,39 @@ function IssueToken() {
     echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
 }
 
+function UndoIssueToken() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+
+    org$ORG_NUM
+
+    # set query
+    echo ${FUNCNAME[0]}
+
+    string=${string%\,}
+
+    ## query sample
+    # '{"Args":["IssuanceAsset","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
+    echo $param
+
+    # set
+    set -x
+
+    ## set env
+    # export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
+
+    echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
+    ${BIN_DIR}/peer chaincode invoke -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} ${PEER_CONN_PARMS[@]} -c $param >&${LOG_DIR}/${who}_Undo_${partition}.log
+
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/${who}_Undo_${partition}.log
+    cp ${LOG_DIR}/${who}_Undo_${partition}.log ${LOG_DIR}/Response.log
+    echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
+}
+
 function CreateWallet() {
     ORG_NUM=${who:3:1}
     User=${who:4:5}
