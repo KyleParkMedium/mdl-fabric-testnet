@@ -40,7 +40,7 @@ export CALIPER_BENCHMARKS=$CALIPER_HOME/benchmarks
 ############ Set core.yaml ############
 PEERID="peer0"
 # export TEST_NETWORK_HOME=$(dirname $(readlink -f $0))
-export TEST_NETWORK_HOME="/Users/park/code/purefabric"
+export TEST_NETWORK_HOME="${TEST_NETWORK_HOME}"
 export FABRIC_CFG_PATH=${TEST_NETWORK_HOME}/config
 
 # ############ Peer Vasic Setting ############
@@ -65,8 +65,8 @@ export LOG_DIR="${TEST_NETWORK_HOME}/log"
 # PEER_CONN_PARMS="${PEER_CONN_PARMS} --peerAddresses ${CORE_PEER_ADDRESS}"
 # TLSINFO=$(eval echo "--tlsRootCertFiles \$CORE_PEER_TLS_ROOTCERT_FILE")
 # # PEER_CONN_PARMS="${PEER_CONN_PARMS} ${TLSINFO}"
-# PEER_CONN_PARMS="${PEER_CONN_PARMS} ${TLSINFO} --peerAddresses localhost:8050 --tlsRootCertFiles /Users/park/code/purefabric/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
-PEER_CONN_PARMS="--peerAddresses peer0.org1.example.com:7050 --tlsRootCertFiles /Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:8050 --tlsRootCertFiles /Users/park/code/purefabric/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
+# PEER_CONN_PARMS="${PEER_CONN_PARMS} ${TLSINFO} --peerAddresses localhost:8050 --tlsRootCertFiles ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
+PEER_CONN_PARMS="--peerAddresses peer0.org1.example.com:7050 --tlsRootCertFiles ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:8050 --tlsRootCertFiles ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
 
 export BIN_DIR="${TEST_NETWORK_HOME}/bin"
 # ${BIN_DIR}/peer chaincode list --installed
@@ -97,7 +97,7 @@ function TotalSupply() {
     # export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/Admin@org${ORG_NUM}.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/TotalSupply.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/TotalSupply.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/TotalSupply.log
@@ -127,7 +127,7 @@ function TotalSupplyByPartition() {
     # export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/Admin@org${ORG_NUM}.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/${partition}_TotalSupplyByPartition.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/${partition}_TotalSupplyByPartition.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/${partition}_TotalSupplyByPartition.log
@@ -156,7 +156,7 @@ function BalanceOfByPartition() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/Admin@org${ORG_NUM}.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/${tokenHolder0}_TotalSupplyByPartition.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/${tokenHolder0}_TotalSupplyByPartition.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/${tokenHolder0}_TotalSupplyByPartition.log
@@ -183,7 +183,7 @@ function AllowanceByPartition() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/${owner0}_${spender0}_${partitiion}_Allowance.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/${owner0}_${spender0}_${partitiion}_Allowance.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/${owner0}_${spender0}_${partitiion}_Allowance.log
@@ -371,7 +371,7 @@ function Init() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/Org1Admin_Address.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/Org1Admin_Address.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Org1Admin_Address.log
@@ -380,7 +380,7 @@ function Init() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Org1User1@org1.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/Org1User1_Address.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/Org1User1_Address.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Org1User1_Address.log
@@ -389,7 +389,7 @@ function Init() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Org1User2@org1.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/Org1User2_Address.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/Org1User2_Address.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Org1User2_Address.log
@@ -401,7 +401,7 @@ function Init() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org2.example.com:8050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/Org2Admin_Address.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org2.example.com:8050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/Org2Admin_Address.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Org2Admin_Address.log
@@ -410,7 +410,7 @@ function Init() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Org2User1@org2.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org2.example.com:8050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/Org2User1_Address.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org2.example.com:8050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/Org2User1_Address.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Org2User1_Address.log
@@ -419,7 +419,7 @@ function Init() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Org2User2@org2.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org2.example.com:8050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/Org2User2_Address.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org2.example.com:8050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/Org2User2_Address.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Org2User2_Address.log
@@ -642,7 +642,7 @@ function GetTokenWalletList() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetTokenWalletList.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetTokenWalletList.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/GetTokenWalletList.log
@@ -674,7 +674,7 @@ function GetAdminWallet() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetAdminWallet.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetAdminWallet.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/GetAdminWallet.log
@@ -706,7 +706,7 @@ function GetTokenList() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetTokenList.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetTokenList.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/GetTokenList.log
@@ -738,7 +738,7 @@ function GetTokenHolderList() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetTokenHolderList.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetTokenHolderList.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/GetTokenHolderList.log
@@ -771,7 +771,7 @@ function GetHolderList() {
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
 
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetHolderList.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetHolderList.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/GetHolderList.log
@@ -871,7 +871,7 @@ function IsIssuable() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/${partition}_IsIssuable.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/${partition}_IsIssuable.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/${partition}_IsIssuable.log
@@ -903,7 +903,7 @@ function IsOperatorByPartition() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
 
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/${operator}_${partition}_IsOperatorByPartition.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/${operator}_${partition}_IsOperatorByPartition.log
 
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/${operator}_${partition}_IsOperatorByPartition.log
@@ -1040,44 +1040,44 @@ function set_options() {
             shift
             tokenHolder0=$1
             # tokenHolder=$(cat ./log/${tokenHolder0}_Address.log)
-            tokenHolder=$(cat /Users/park/code/purefabric/log/${tokenHolder0}_Address.log)
+            tokenHolder=$(cat ${TEST_NETWORK_HOME}/log/${tokenHolder0}_Address.log)
             string+="\\\"tokenHolder\\\":\\\"$tokenHolder\\\","
             ;;
         -O | --operator)
             shift
             operator0=$1
             # tokenHolder=$(cat ./log/${tokenHolder0}_Address.log)
-            operator=$(cat /Users/park/code/purefabric/log/${operator0}_Address.log)
+            operator=$(cat ${TEST_NETWORK_HOME}/log/${operator0}_Address.log)
             string+="\\\"operator\\\":\\\"$operator\\\","
             ;;
         -o | --owner)
             shift
             owner0=$1
-            owner=$(cat /Users/park/code/purefabric/log/${owner0}_Address.log)
+            owner=$(cat ${TEST_NETWORK_HOME}/log/${owner0}_Address.log)
             string+="\\\"owner\\\":\\\"$owner\\\","
             ;;
         -s | --spender)
             shift
             spender0=$1
-            spender=$(cat /Users/park/code/purefabric/log/${spender0}_Address.log)
+            spender=$(cat ${TEST_NETWORK_HOME}/log/${spender0}_Address.log)
             string+="\\\"spender\\\":\\\"$spender\\\","
             ;;
         -f | --from)
             shift
             from0=$1
-            from=$(cat /Users/park/code/purefabric/log/${from0}_Address.log)
+            from=$(cat ${TEST_NETWORK_HOME}/log/${from0}_Address.log)
             string+="\\\"from\\\":\\\"$from\\\","
             ;;
         -t | --to)
             shift
             to0=$1
-            to=$(cat /Users/park/code/purefabric/log/${to0}_Address.log)
+            to=$(cat ${TEST_NETWORK_HOME}/log/${to0}_Address.log)
             string+="\\\"to\\\":\\\"$to\\\","
             ;;
         -r | --recipient)
             shift
             recipient0=$1
-            recipient=$(cat /Users/park/code/purefabric/log/${recipient0}_Address.log)
+            recipient=$(cat ${TEST_NETWORK_HOME}/log/${recipient0}_Address.log)
             string+="\\\"recipient\\\":\\\"$recipient\\\","
             ;;
         -d | --drop)

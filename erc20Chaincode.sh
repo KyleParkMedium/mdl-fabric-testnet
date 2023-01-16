@@ -26,12 +26,10 @@ export CALIPER_SCRIPT=${PWD}
 export CALIPER_HOME=${CALIPER_SCRIPT%/*}
 export CALIPER_BENCHMARKS=$CALIPER_HOME/benchmarks
 
-
 ############ Set core.yaml ############
 PEERID="peer0"
 export TEST_NETWORK_HOME=$(dirname $(readlink -f $0))
 export FABRIC_CFG_PATH=${TEST_NETWORK_HOME}/config
-
 
 ############ Peer Vasic Setting ############
 export CORE_PEER_TLS_ENABLED=true
@@ -52,10 +50,10 @@ export PEERPATH="${TEST_NETWORK_HOME}"
 export LOG_DIR="${TEST_NETWORK_HOME}/log"
 
 ## Invoke
-PEER_CONN_PARMS="${PEER_CONN_PARMS} --peerAddresses ${CORE_PEER_ADDRESS}" 
+PEER_CONN_PARMS="${PEER_CONN_PARMS} --peerAddresses ${CORE_PEER_ADDRESS}"
 TLSINFO=$(eval echo "--tlsRootCertFiles \$CORE_PEER_TLS_ROOTCERT_FILE")
 # PEER_CONN_PARMS="${PEER_CONN_PARMS} ${TLSINFO}"
-PEER_CONN_PARMS="${PEER_CONN_PARMS} ${TLSINFO} --peerAddresses localhost:8050 --tlsRootCertFiles /Users/park/code/purefabric/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
+PEER_CONN_PARMS="${PEER_CONN_PARMS} ${TLSINFO} --peerAddresses localhost:8050 --tlsRootCertFiles ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
 
 export BIN_DIR="${TEST_NETWORK_HOME}/bin"
 # ${BIN_DIR}/peer chaincode list --installed
@@ -75,7 +73,7 @@ function minter() {
     CC_INIT_FCN="Minter"
     CC_ARGS="\"10000\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "invoke fcn call:${fcn_call}"
     echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
@@ -94,7 +92,7 @@ function mint() {
     CC_INIT_FCN="Mint"
     CC_ARGS="\"10000\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "invoke fcn call:${fcn_call}"
     echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
@@ -112,7 +110,7 @@ function client() {
     CC_INIT_FCN="Client"
     CC_ARGS="\"\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "invoke fcn call:${fcn_call}"
     echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
@@ -130,16 +128,15 @@ function clientAccountID() {
     CC_INIT_FCN="ClientAccountID"
     CC_ARGS="\"\""
     set -x
-    
-#     PEER_CONN_PARMS="${PEER_CONN_PARMS} --peerAddresses ${CORE_PEER_ADDRESS}" 
-# TLSINFO=$(eval echo "--tlsRootCertFiles \$CORE_PEER_TLS_ROOTCERT_FILE")
-# PEER_CONN_PARMS="${PEER_CONN_PARMS} ${TLSINFO}"
 
+    #     PEER_CONN_PARMS="${PEER_CONN_PARMS} --peerAddresses ${CORE_PEER_ADDRESS}"
+    # TLSINFO=$(eval echo "--tlsRootCertFiles \$CORE_PEER_TLS_ROOTCERT_FILE")
+    # PEER_CONN_PARMS="${PEER_CONN_PARMS} ${TLSINFO}"
 
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "query fcn call:${fcn_call}"
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/$1_id.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/$1_id.log
     { set +x; } 2>/dev/null
     export $1_ADDRESS=$(cat ${LOG_DIR}/$1_id.log)
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
@@ -153,11 +150,11 @@ function clientAccountBalance() {
     CC_INIT_FCN="ClientAccountBalance"
     CC_ARGS="\"\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "query fcn call:${fcn_call}"
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/$1_balance.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/$1_balance.log
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/$1_balance.log
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
@@ -175,19 +172,18 @@ function totalSupply() {
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "query fcn call:${fcn_call}"
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/TotalSupply.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/TotalSupply.log
     { set +x; } 2>/dev/null
 
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
-
 
 }
 
 function allowance() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$1@org${ORG_NUM}.example.com/msp"
 
-    firstAddress=`cat ./log/$2_Address.log`
-    secondAddress=`cat ./log/$3_Address.log`
+    firstAddress=$(cat ./log/$2_Address.log)
+    secondAddress=$(cat ./log/$3_Address.log)
 
     # while 'peer chaincode' command can get the orderer endpoint from the
     # peer (if join was successful), let's supply it directly as we know
@@ -195,11 +191,11 @@ function allowance() {
     CC_INIT_FCN="Allowance"
     CC_ARGS="\"$firstAddress\",\"$secondAddress\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "query fcn call:${fcn_call}"
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/allowance.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/allowance.log
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/allowance.log
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
@@ -212,12 +208,12 @@ function approve() {
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
 
-    Address=`cat ./log/$2_Address.log`
+    Address=$(cat ./log/$2_Address.log)
 
     CC_INIT_FCN="Approve"
     CC_ARGS="\"$Address\",\"$3\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "invoke fcn call:${fcn_call}"
     echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
@@ -230,8 +226,8 @@ function approve() {
 function transferFrom() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$1@org${ORG_NUM}.example.com/msp"
 
-    firstAddress=`cat ./log/$2_Address.log`
-    secondAddress=`cat ./log/$3_Address.log`
+    firstAddress=$(cat ./log/$2_Address.log)
+    secondAddress=$(cat ./log/$3_Address.log)
 
     # while 'peer chaincode' command can get the orderer endpoint from the
     # peer (if join was successful), let's supply it directly as we know
@@ -239,7 +235,7 @@ function transferFrom() {
     CC_INIT_FCN="TransferFrom"
     CC_ARGS="\"$firstAddress\",\"$secondAddress\",\"$4\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "invoke fcn call:${fcn_call}"
     echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
@@ -257,11 +253,11 @@ function init() {
     CC_INIT_FCN="Init"
     CC_ARGS="\"\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "query fcn call:${fcn_call}"
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/Org1Admin_Address.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/Org1Admin_Address.log
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Org1Admin_Address.log
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
@@ -273,11 +269,11 @@ function init() {
     CC_INIT_FCN="Init"
     CC_ARGS="\"\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "query fcn call:${fcn_call}"
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/Org1User1_address.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/Org1User1_address.log
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Org1User1_address.log
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
@@ -289,15 +285,14 @@ function init() {
     CC_INIT_FCN="Init"
     CC_ARGS="\"\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "query fcn call:${fcn_call}"
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/Org1User2_address.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/Org1User2_address.log
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Org1User2_address.log
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
-
 
     # org2
     ############ Peer Vasic Setting ############
@@ -309,7 +304,6 @@ function init() {
     export CORE_PEER_LOCALMSPID="Org2MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
 
-
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp"
     # while 'peer chaincode' command can get the orderer endpoint from the
     # peer (if join was successful), let's supply it directly as we know
@@ -317,11 +311,11 @@ function init() {
     CC_INIT_FCN="Init"
     CC_ARGS="\"\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "query fcn call:${fcn_call}"
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org2.example.com:8050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/Org2Admin_address.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org2.example.com:8050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/Org2Admin_address.log
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Org2Admin_address.log
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
@@ -333,11 +327,11 @@ function init() {
     CC_INIT_FCN="Init"
     CC_ARGS="\"\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "query fcn call:${fcn_call}"
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org2.example.com:8050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/Org2User1_address.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org2.example.com:8050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/Org2User1_address.log
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Org2User1_address.log
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
@@ -349,11 +343,11 @@ function init() {
     CC_INIT_FCN="Init"
     CC_ARGS="\"\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "query fcn call:${fcn_call}"
     echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
-    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org2.example.com:8050" --tlsRootCertFiles "/Users/park/code/purefabric/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/Org2User2_address.log
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org2.example.com:8050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c ${fcn_call} >&${LOG_DIR}/Org2User2_address.log
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Org2User2_address.log
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
@@ -367,7 +361,7 @@ function imsy() {
     CC_INIT_FCN="Imsy"
     CC_ARGS="\"10000\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "invoke fcn call:${fcn_call}"
     echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
@@ -408,12 +402,12 @@ function increaseAllowance() {
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
 
-    Address=`cat ./log/$2_Address.log`
+    Address=$(cat ./log/$2_Address.log)
 
     CC_INIT_FCN="IncreaseAllowance"
     CC_ARGS="\"$Address\",\"$3\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "invoke fcn call:${fcn_call}"
     echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
@@ -430,12 +424,12 @@ function decreaseAllowance() {
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
 
-    Address=`cat ./log/$2_Address.log`
+    Address=$(cat ./log/$2_Address.log)
 
     CC_INIT_FCN="Approve"
     CC_ARGS="\"$Address\",\"$3\""
     set -x
-    
+
     fcn_call='{"function":"'${CC_INIT_FCN}'","Args":['${CC_ARGS}']}'
     echo "invoke fcn call:${fcn_call}"
     echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
@@ -451,7 +445,7 @@ function main() {
     # clientAccountBalance Admin
     # sleep 3
 
-    ###### example 1 
+    ###### example 1
     imsy
     sleep 3
     init

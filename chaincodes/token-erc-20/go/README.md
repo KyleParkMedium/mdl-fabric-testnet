@@ -19,7 +19,7 @@
 ## Quick Start
 1. 패브릭 네트워크 구성
     
-     [테스트넷 예제 링크 첨부](https://github.com/KyleParkMedium/purefabric)
+     [테스트넷 예제 링크 첨부](https://github.com/KyleParkMedium/mdl-fabric-testnet)
 <br>
 2. 예제 시나리오 체인코드 실행
 

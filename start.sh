@@ -402,7 +402,7 @@ function deployChaincode() {
 
     PEER_CONN_PARMS="${PEER_CONN_PARMS} --peerAddresses ${CORE_PEER_ADDRESS}"
     TLSINFO=$(eval echo "--tlsRootCertFiles \$CORE_PEER_TLS_ROOTCERT_FILE")
-    PEER_CONN_PARMS="${PEER_CONN_PARMS} ${TLSINFO} --peerAddresses localhost:8050 --tlsRootCertFiles /Users/park/code/purefabric/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
+    PEER_CONN_PARMS="${PEER_CONN_PARMS} ${TLSINFO} --peerAddresses localhost:8050 --tlsRootCertFiles ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
     # while 'peer chaincode' command can get the orderer endpoint from the
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
@@ -444,6 +444,10 @@ function deployChaincode() {
 }
 
 function main() {
+    # .gitignore 때문에 한줄 추가해놈 ㅎㅎㅎ.. ㅋ folder check
+    mkdir -p log
+    mkdir -p packages
+
     # startCA
     # echo "waiting for starting fabric-ca-server completely"
     # sleep 5
