@@ -1,6 +1,8 @@
-# purefabric
+# mdl(fabric)-testnet
 
 ### 로컬 테스트 환경 설정 방법
+
+작성일 23-01-16 기준,   
 
 1. install fabric-ca 1.5.5, fabric 2.2.6(2.2~)   
 [How to install - Fabric Docs](https://hyperledger-fabric.readthedocs.io/en/release-2.5/install.html)
