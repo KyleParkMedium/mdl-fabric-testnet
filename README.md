@@ -7,7 +7,8 @@
 1. install fabric-ca 1.5.5, fabric 2.2.6(2.2~)   
 [How to install - Fabric Docs](https://hyperledger-fabric.readthedocs.io/en/release-2.5/install.html)
 
-2. MDL-CORE, Fabric-CA 바이너리 연결
+2. MDL-CORE, Fabric-CA 바이너리 연결.  
+[MDL v2.2 로컬 개발 환경(darwin-arm64) 구성](https://www.notion.so/MDL-v2-2-darwin-arm64-c3e643fa7eb34c11b98645388016bc4b) 참조.   
 
 3. 필요에 따라 ./config, ./docker config 파일 수정   
    README.md 파일 작성 기준    
