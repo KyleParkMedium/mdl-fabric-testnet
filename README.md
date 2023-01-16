@@ -22,7 +22,8 @@
     192.168.2.186 ca ca.org1.example.com peer0.org1.example.com peer1.org1.example.com peer2.org1.example.com orderer0.example.com orderer1.example.com orderer2.example.com peer0 peer1 peer2 orderer0 orderer1 orderer2 cli ca_org1 ca_org2 ca_orderer users orderer peer peer0 ca ca-org1 ca-org2 ca-orderer orderer.example.com peer0.org1.example.com peer0.org2.example.com ca.org1.example.com ca.org2.example.com
     ```
 
-5. ./chaincode/token-erc-20/go 내 체인코드 복사   
+5. 체인코트 테스트 시 ,    
+    ./chaincode/token-erc-20/go 내 체인코드 복사   
     테스트할 체인코드는 mdl-chaincodes 레포지토리 참고.   
     [mdl-chaincodes](https://github.com/the-medium-tech/mdl-chaincodes)   
     23.01.11 기준 최신 sto chaincode는 아래 위치 [dev-kyle-sto_token](https://github.com/the-medium-tech/mdl-chaincodes/tree/develop-kyle-sto_token)
