@@ -392,12 +392,12 @@ Profiles:
             Capabilities:
                 <<: *OrdererCapabilities
         Consortiums:
-            SampleConsortium:
+            SampleConsortium2:
                 Organizations:
                     - *Org3
                     - *Org2
     Org3Make:
-        Consortium: SampleConsortium
+        Consortium: SampleConsortium2
         <<: *ChannelDefaults
         Application:
             <<: *ApplicationDefaults

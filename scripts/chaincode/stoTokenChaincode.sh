@@ -28,7 +28,9 @@ export CALIPER_BENCHMARKS=$CALIPER_HOME/benchmarks
 
 ############ Set core.yaml ############
 PEERID="peer0"
-export TEST_NETWORK_HOME=$(dirname $(readlink -f $0))
+# export TEST_NETWORK_HOME=$(dirname $(readlink -f $0))
+export TEST_NETWORK_HOME="/Users/park/code/mdl-fabric-testnet"
+
 export FABRIC_CFG_PATH=${TEST_NETWORK_HOME}/config
 
 ############ Peer Vasic Setting ############

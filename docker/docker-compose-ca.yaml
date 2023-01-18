@@ -3,14 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-version: '2.1'
+version: "2.1"
 
 networks:
   test:
     name: fabric_test
 
 services:
-
   ca_org1:
     image: hyperledger/fabric-ca:1.5.5
     environment:

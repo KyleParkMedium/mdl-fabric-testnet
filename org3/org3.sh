@@ -19,7 +19,6 @@ VERBOSE="$4"
 : ${VERBOSE:="false"}
 
 # function initEnv() {
-
 # }
 
 function runCaServer() {
@@ -28,10 +27,16 @@ function runCaServer() {
 
 function enroll() {
 
+    mkdir -p ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org3.example.com/
+
     export FABRIC_CA_CLIENT_HOME=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org3.example.com/
 
-    mkdir -p ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org3.example.com/
     Org3_address="fabric-ca/org3/tls-cert.pem"
+
+    echo "Enrolling the CA admin"
+    set -x
+    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://admin:adminpw@localhost:6054 --caname ca-org3 --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org3_address}
+    { set +x; } 2>/dev/null
 
     echo 'NodeOUs:
     Enable: true
@@ -47,11 +52,6 @@ function enroll() {
     OrdererOUIdentifier:
         Certificate: cacerts/localhost-6054-ca-org3.pem
         OrganizationalUnitIdentifier: orderer' >${TEST_NETWORK_HOME}/organizations/peerOrganizations/org3.example.com/msp/config.yaml
-
-    echo "Enrolling the CA admin"
-    set -x
-    ${CA_BIN_DIR}/fabric-ca-client enroll -u https://admin:adminpw@localhost:6054 --caname ca-org3 --tls.certfiles ${TEST_NETWORK_HOME}/organizations/${Org3_address}
-    { set +x; } 2>/dev/null
 
     echo "Registering peer0"
     set -x
@@ -166,30 +166,44 @@ function createChannel() {
     verifyResult $res "Channel creation failed"
 }
 
-function main() {
-    runCaServer
-    echo "finished to run CA-Org3"
-    sleep 1
+function aaa() {
+    while :; do
+        if [ ! -f "../organizations/fabric-ca/org3/tls-cert.pem" ]; then
+            sleep 1
+        else
+            break
+        fi
+    done
 
     enroll
     echo "finished to registerEnroll(create org3)"
     sleep 1
 
-    createGenesisBlock
-    echo "finished to create genesis block(channelTx)"
-    sleep 1
+}
 
-    createChannelTx org3channel
-    echo "finished to create channel tx"
-    sleep 1
-
-    startNode
-    echo "waiting for starting org3"
-    sleep 5
-
-    # createChannel org3channel
-    # echo "finished to create channel(org3이 생성)"
+function main() {
+    # runCaServer
+    # echo "finished to run CA-Org3"
     # sleep 1
+
+    # aaa
+    # sleep3
+
+    # createGenesisBlock
+    # echo "finished to create genesis block(channelTx)"
+    # sleep 1
+
+    # createChannelTx org3channel
+    # echo "finished to create channel tx"
+    # sleep 1
+
+    # startNode
+    # echo "waiting for starting org3"
+    # sleep 5
+
+    createChannel org3channel
+    echo "finished to create channel(org3이 생성)"
+    sleep 1
 
 }
 
