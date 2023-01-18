@@ -8,7 +8,7 @@ MAX_RETRY="$3"
 VERBOSE="$4"
 : ${VERBOSE:="false"}
 CHAINCODE_NAME="$5"
-: ${CHAINCODE_NAME:="token-erc-20"}
+: ${CHAINCODE_NAME:="STO"}
 CHAINCODE_VERSION="$6"
 : ${CHAINCODE_VERSION:="v1"}
 CHAINCODE_SEQUENCE="$7"
@@ -454,33 +454,33 @@ function main() {
     registerEnroll
     echo "finished to registerEnroll(create org1, org2, orderer)"
     sleep 1
-    createGenesisBlock
-    echo "finished to create genesis block(channelTx)"
-    sleep 1
+    # createGenesisBlock
+    # echo "finished to create genesis block(channelTx)"
+    # sleep 1
     startNode
     echo "waiting for starting orderer, peer node completely"
     sleep 5
-    createChannelTx mychannel0
-    echo "finished to create channel tx"
-    sleep 1
-    createChannel mychannel0
-    echo "finished to create channel(org1이 생성)"
-    sleep 1
-    joinChannel1 mychannel0
-    echo "finished to join channel org1"
-    sleep 1
-    joinChannel2 mychannel0
-    echo "finished to join channel org2"
-    sleep 1
-    setAnchorPeer1 1 mychannel0
-    echo "finished to set anchor peer org1"
-    sleep 1
-    setAnchorPeer2 1 mychannel0
-    echo "finished to set anchor peer org2"
-    sleep 1
-    deployChaincode mychannel0 token-erc-20 "\"Org1MSP\": true"
-    echo "finished to deploy chaincode"
-    sleep 5
+    # createChannelTx mychannel0
+    # echo "finished to create channel tx"
+    # sleep 1
+    # createChannel mychannel0
+    # echo "finished to create channel(org1이 생성)"
+    # sleep 1
+    # joinChannel1 mychannel0
+    # echo "finished to join channel org1"
+    # sleep 1
+    # joinChannel2 mychannel0
+    # echo "finished to join channel org2"
+    # sleep 1
+    # setAnchorPeer1 1 mychannel0
+    # echo "finished to set anchor peer org1"
+    # sleep 1
+    # setAnchorPeer2 1 mychannel0
+    # echo "finished to set anchor peer org2"
+    # sleep 1
+    # deployChaincode mychannel0 STO "\"Org1MSP\": true"
+    # echo "finished to deploy chaincode"
+    # sleep 5
 }
 
 function verifyResult() {
