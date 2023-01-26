@@ -53,7 +53,10 @@ function createGenesisBlock() {
     # createChannelTx
     echo "Generating channel genesis block '${CHANNEL_NAME}.block'"
     set -x
-    ${BIN_DIR}/configtxgen -profile TwoOrgsOrdererGenesis -outputBlock ${TEST_NETWORK_HOME}/channel-artifacts/genesis.block -channelID system-channel
+    # ${BIN_DIR}/configtxgen -profile TwoOrgsOrdererGenesis -outputBlock ${TEST_NETWORK_HOME}/channel-artifacts/genesis.block -channelID system-channel
+    ${BIN_DIR}/configtxgen -profile TwoOrgsOrdererGenesis -outputBlock ${TEST_NETWORK_HOME}/channel-artifacts/genesis.block -channelID "system-channel"
+    # ${BIN_DIR}/configtxgen -profile TwoOrgsOrdererGenesis -outputBlock ${TEST_NETWORK_HOME}/channel-artifacts/genesis.block -channelID "system-chann111l"
+
     # ${BIN_DIR}/configtxgen -profile TwoOrgsOrdererGenesis -outputBlock ${TEST_NETWORK_HOME}/system-genesis-block/genesis.block -channelID system-channel
     res=$?
     { set +x; } 2>/dev/null
@@ -151,6 +154,7 @@ function joinChannel2() {
     verifyResult $res "After $MAX_RETRY attempts, peer0.org${ORG} has failed to join channel '$CHANNEL_NAME' "
 }
 
+# 피어 컨테이너에서 불러와서 수정 업데이트 .. ~~
 function setAnchorPeer1() {
     # setGlobalCLI
     export CORE_PEER_TLS_ENABLED=true
@@ -183,6 +187,7 @@ function setAnchorPeer1() {
     HOST="peer0.org1.example.com"
     PORT=7050
 
+    # set Anchor Peer Config
     set -x
     # Modify the configuration to append the anchor peer
     jq '.channel_group.groups.Application.groups.'${CORE_PEER_LOCALMSPID}'.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "'$HOST'","port": '$PORT'}]},"version": "0"}}' ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CORE_PEER_LOCALMSPID}config.json >${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CORE_PEER_LOCALMSPID}modified_config.json
@@ -197,6 +202,8 @@ function setAnchorPeer1() {
     ${BIN_DIR}/configtxlator proto_encode --input ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/config_update_in_envelope.json --type common.Envelope --output "${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/Org1MSPanchors.tx"
     { set +x; } 2>/dev/null
 
+    # channel update
+    # tx파일로 업데이트
     ${BIN_DIR}/peer channel update -o orderer.example.com:9050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL_NAME -f ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CORE_PEER_LOCALMSPID}anchors.tx --tls --cafile $ORDERER_CA >&${LOG_DIR}/${CHANNEL_NAME}.log
     res=$?
     cat ${LOG_DIR}/${CHANNEL_NAME}.log
@@ -317,14 +324,14 @@ function deployChaincode() {
     verifyResult $res "Chaincode installation on peer0.org${ORG} has failed"
     echo "Chaincode is installed on peer0.org2"
 
-    # set -x
-    # ${BIN_DIR}/peer lifecycle chaincode queryinstalled >&${LOG_DIR}/chaincode.log
-    # res=$?
-    # { set +x; } 2>/dev/null
-    # cat ${LOG_DIR}/chaincode.log
-    # PACKAGE_ID=$(sed -n "/${CHAINCODE_NAME}_${CHAINCODE_VERSION}/{s/^Package ID: //; s/, Label:.*$//; p;}" ${LOG_DIR}/chaincode.log)
-    # verifyResult $res "Query installed on peer0.org1 has failed"
-    # echo "Query installed successful on peer0.org1 on channel"
+    set -x
+    ${BIN_DIR}/peer lifecycle chaincode queryinstalled >&${LOG_DIR}/chaincode.log
+    res=$?
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/chaincode.log
+    PACKAGE_ID=$(sed -n "/${CHAINCODE_NAME}_${CHAINCODE_VERSION}/{s/^Package ID: //; s/, Label:.*$//; p;}" ${LOG_DIR}/chaincode.log)
+    verifyResult $res "Query installed on peer0.org2 has failed"
+    echo "Query installed successful on peer0.org2 on channel"
 
     set -x
     ${BIN_DIR}/peer lifecycle chaincode approveformyorg -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA --channelID ${CHANNEL_NAME} --name ${CHAINCODE_NAME} --version ${CHAINCODE_VERSION} --package-id ${PACKAGE_ID} --sequence ${CHAINCODE_SEQUENCE} ${CHAINCODE_INIT_REQUIRED} ${CHAINCODE_END_POLICY} ${CHAINCODE_COLL_CONFIG} >&${LOG_DIR}/chaincode.log
@@ -400,9 +407,17 @@ function deployChaincode() {
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     export CORE_PEER_ADDRESS="localhost:7050"
 
+    # # ORG2
+    # export CORE_PEER_LOCALMSPID="Org2MSP"
+    # export CORE_PEER_TLS_ROOTCERT_FILE="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
+    # export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp"
+    # export CORE_PEER_ADDRESS="localhost:8050"
+
     PEER_CONN_PARMS="${PEER_CONN_PARMS} --peerAddresses ${CORE_PEER_ADDRESS}"
     TLSINFO=$(eval echo "--tlsRootCertFiles \$CORE_PEER_TLS_ROOTCERT_FILE")
     PEER_CONN_PARMS="${PEER_CONN_PARMS} ${TLSINFO} --peerAddresses localhost:8050 --tlsRootCertFiles ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
+
+    # PEER_CONN_PARMS="--peerAddresses peer0.org1.example.com:7050 --tlsRootCertFiles /Users/park/code/mdl-fabric-testnet/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:8050 --tlsRootCertFiles /Users/park/code/mdl-fabric-testnet/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
     # while 'peer chaincode' command can get the orderer endpoint from the
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
@@ -463,24 +478,24 @@ function main() {
     startNode
     echo "waiting for starting orderer, peer node completely"
     sleep 5
-    # createChannel mychannel0
-    # echo "finished to create channel(org1이 생성)"
-    # sleep 1
-    # joinChannel1 mychannel0
-    # echo "finished to join channel org1"
-    # sleep 1
-    # joinChannel2 mychannel0
-    # echo "finished to join channel org2"
-    # sleep 1
-    # setAnchorPeer1 1 mychannel0
-    # echo "finished to set anchor peer org1"
-    # sleep 1
-    # setAnchorPeer2 1 mychannel0
-    # echo "finished to set anchor peer org2"
-    # sleep 1
-    # deployChaincode mychannel0 STO "\"Org1MSP\": true"
-    # echo "finished to deploy chaincode"
-    # sleep 5
+    createChannel mychannel0
+    echo "finished to create channel(org1이 생성)"
+    sleep 1
+    joinChannel1 mychannel0
+    echo "finished to join channel org1"
+    sleep 1
+    joinChannel2 mychannel0
+    echo "finished to join channel org2"
+    sleep 1
+    setAnchorPeer1 1 mychannel0
+    echo "finished to set anchor peer org1"
+    sleep 1
+    setAnchorPeer2 1 mychannel0
+    echo "finished to set anchor peer org2"
+    sleep 1
+    deployChaincode mychannel0 STO "\"Org1MSP\": true"
+    echo "finished to deploy chaincode"
+    sleep 5
 }
 
 function verifyResult() {

@@ -402,7 +402,7 @@ Profiles:
         Application:
             <<: *ApplicationDefaults
             Organizations:
-                - *Org3
+                # - *Org3
                 - *Org2
             Capabilities:
                 <<: *ApplicationCapabilities
