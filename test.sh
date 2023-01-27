@@ -459,16 +459,16 @@ function deployChaincode() {
 }
 
 function main() {
-    # .gitignore 때문에 한줄 추가해놈 ㅎㅎㅎ.. ㅋ folder check
-    mkdir -p log
-    mkdir -p packages
+    # # .gitignore 때문에 한줄 추가해놈 ㅎㅎㅎ.. ㅋ folder check
+    # mkdir -p log
+    # mkdir -p packages
 
     # startCA
     # echo "waiting for starting fabric-ca-server completely"
     # sleep 5
-    registerEnroll
-    echo "finished to registerEnroll(create org1, org2, orderer)"
-    sleep 1
+    # registerEnroll
+    # echo "finished to registerEnroll(create org1, org2, orderer)"
+    # sleep 1
     # createGenesisBlock
     # echo "finished to create genesis block(channelTx)"
     # sleep 1
@@ -478,24 +478,24 @@ function main() {
     # startNode
     # echo "waiting for starting orderer, peer node completely"
     # sleep 5
-    # createChannel mychannel0
-    # echo "finished to create channel(org1이 생성)"
-    # sleep 1
-    # joinChannel1 mychannel0
-    # echo "finished to join channel org1"
-    # sleep 1
-    # joinChannel2 mychannel0
-    # echo "finished to join channel org2"
-    # sleep 1
-    # setAnchorPeer1 1 mychannel0
-    # echo "finished to set anchor peer org1"
-    # sleep 1
-    # setAnchorPeer2 1 mychannel0
-    # echo "finished to set anchor peer org2"
-    # sleep 1
-    # deployChaincode mychannel0 STO "\"Org1MSP\": true"
-    # echo "finished to deploy chaincode"
-    # sleep 5
+    createChannel mychannel0
+    echo "finished to create channel(org1이 생성)"
+    sleep 1
+    joinChannel1 mychannel0
+    echo "finished to join channel org1"
+    sleep 1
+    joinChannel2 mychannel0
+    echo "finished to join channel org2"
+    sleep 1
+    setAnchorPeer1 1 mychannel0
+    echo "finished to set anchor peer org1"
+    sleep 1
+    setAnchorPeer2 1 mychannel0
+    echo "finished to set anchor peer org2"
+    sleep 1
+    deployChaincode mychannel0 STO "\"Org1MSP\": true"
+    echo "finished to deploy chaincode"
+    sleep 5
 }
 
 function verifyResult() {

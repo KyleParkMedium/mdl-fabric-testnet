@@ -235,7 +235,7 @@ function org3() {
 
 function aaa() {
     while :; do
-        if [ ! -f "../organizations/fabric-ca/org3/tls-cert.pem" ]; then
+        if [ ! -f "organizations/fabric-ca/org3/tls-cert.pem" ]; then
             sleep 1
         else
             break
@@ -254,23 +254,23 @@ function main() {
     sleep 1
 
     aaa
-    sleep 3
-
-    createGenesisBlock
-    echo "finished to create genesis block(channelTx)"
     sleep 1
 
-    startNode
-    echo "waiting for starting org3"
-    sleep 5
+    # createGenesisBlock
+    # echo "finished to create genesis block(channelTx)"
+    # sleep 1
 
-    createChannelTx org3channel
-    echo "finished to create channel tx"
-    sleep 1
+    # startNode
+    # echo "waiting for starting org3"
+    # sleep 5
 
-    createChannel org3channel
-    echo "finished to create channel(org3이 생성)"
-    sleep 1
+    # createChannelTx org3channel
+    # echo "finished to create channel tx"
+    # sleep 1
+
+    # createChannel org3channel
+    # echo "finished to create channel(org3이 생성)"
+    # sleep 1
 
     # joinChannel org3channel org1
     # echo "finished to join channel org1"
