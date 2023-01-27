@@ -22,7 +22,7 @@
 
    ```bash
    sudo vim /etc/hosts
-   192.168.2.186 ca ca.org1.example.com peer0.org1.example.com peer1.org1.example.com peer2.org1.example.com orderer0.example.com orderer1.example.com orderer2.example.com peer0 peer1 peer2 orderer0 orderer1 orderer2 cli ca_org1 ca_org2 ca_orderer users orderer peer peer0 ca ca-org1 ca-org2 ca-orderer orderer.example.com peer0.org1.example.com peer0.org2.example.com ca.org1.example.com ca.org2.example.com
+   192.168.98.193 orderer.example.com peer0.org1.example.com peer0.org2.example.com peer0.org3.example.com
    ```
 
 5. 체인코트 테스트 시 ,  
