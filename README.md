@@ -14,7 +14,7 @@
    README.md 파일 작성 기준  
    Org1User1, Org1User2, Org1User3, Org2User1, Org2User2, Org2User3 이용 가능
 
-4. 개인 로컬 환경에 각 노드 주소 개방
+4. (선택) 개인 로컬 환경(localhost)에 각 노드 주소 매핑
 
    ```bash
    ifconfig | grep inet
