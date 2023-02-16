@@ -1,88 +1,37 @@
 package wallet
 
-import "github.com/the-medium-tech/mdl-chaincodes/chaincode/services/token"
+import (
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/token"
+)
 
 const (
 	DocType_TokenWallet = "DOCTYPE_TOKEN_WALLET"
 	DocType_AdminWallet = "DOCTYPE_ADMIN_WALLET"
 )
 
-type TokenWallet struct {
-	DocType string `json:"docType"`
-
-	TokenWalletId string `json:"tokenWalletId"`
-	TxId          string `json:"txId"`
-
-	// Balance           int64 `json:"balance"`
-	// AuthWalletId string `json:"authWalletId"`
-
-	CreatedDate string `json:"createdDate"`
-	UpdatedDate string `json:"updatedDate"`
-	ExpiredDate string `json:"expiredDate"`
-
-	// AA map[string]struct{}
-	// BB []PartitionToken
-	// CC interface{}
-	// // 배열로..?
-	// PartitionToken Partition
-
-	// PartitionTokens map[string][]interface{}
-	PartitionTokens map[string][]token.PartitionToken `json:"partitionTokens"`
-}
-
 type AdminWallet struct {
 	DocType string `json:"docType"`
+
+	AdminName string `json:"adminName"`
 
 	PartitionTokens map[string]map[string]token.PartitionToken `json:"partitionTokens"`
 }
 
-// 리시버 훅은 한번 만들어볼지 고민 중
-// func (t *TokenWallet) SubBalance(amount int64) error {
-// 	if t.Balance < amount {
-// 		return ccutils.CreateError(ccutils.ChaincodeError, fmt.Errorf("not enough balance"))
-// 	}
+// 원장 지갑
+type TokenWallet struct {
+	DocType string `json:"docType"`
 
-// 	t.Balance -= amount
+	// email
+	TokenWalletId string `json:"tokenWalletId"`
+	// 개인(personal), 법인(corporate)
+	Role string `json:"role"`
+	// 계좌번호
+	AccountNumber string `json:"accountNumber"`
 
-// 	return nil
-// }
+	CreatedDate string `json:"createdDate"`
+	UpdatedDate string `json:"updatedDate"`
+	ExpiredDate string `json:"expiredDate"`
+	IsLocked    bool   `json:"islocked"`
 
-// func (t *TokenWallet) SubPayback(amount int64) error {
-// 	if t.Payback < amount {
-// 		return ccutils.CreateError(ccutils.ChaincodeError, fmt.Errorf("not enough payback"))
-// 	}
-
-// 	t.Payback -= amount
-
-// 	return nil
-// }
-
-// func (t *TokenWallet) SubOutPendingBalance(amount int64) error {
-// 	if t.OutPendingBalance < amount {
-// 		return ccutils.CreateError(ccutils.ChaincodeError, fmt.Errorf("not enough OutPnedingBalance"))
-// 	}
-
-// 	t.OutPendingBalance -= amount
-
-// 	return nil
-// }
-
-// func (t *TokenWallet) SubPurchasePayback(amount int64) error {
-// 	if t.PurchasePayback < amount {
-// 		return ccutils.CreateError(ccutils.ChaincodeError, fmt.Errorf("not enough purchasePayback"))
-// 	}
-
-// 	t.PurchasePayback -= amount
-
-// 	return nil
-// }
-
-// func (t *TokenWallet) SubBalanceInsteadOfPayback(amount int64) error {
-// 	if t.Balance < amount {
-// 		return ccutils.CreateError(ccutils.ChaincodeError, fmt.Errorf("not enough balance instead of payback"))
-// 	}
-
-// 	t.Balance -= amount
-
-// 	return nil
-// }
+	PartitionTokens map[string][]token.PartitionToken `json:"partitionTokens"`
+}

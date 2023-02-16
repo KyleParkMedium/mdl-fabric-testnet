@@ -13,9 +13,11 @@ var logger = logging.MustGetLogger("ccutils")
 func CheckRequireParameter(requireParameterFields []string, parameters map[string]interface{}) error {
 	for _, requireParameter := range requireParameterFields {
 		if _, exist := parameters[requireParameter]; !exist {
+			logger.Errorf("check require parameter : parameter key = %v, value = %v", requireParameter, parameters[requireParameter])
 			return CreateError(ChaincodeError, fmt.Errorf("check require parameter : parameter key = %v, value = %v", requireParameter, parameters[requireParameter]))
 		} else {
 			if parameters[requireParameter] == nil {
+				logger.Errorf("check require parameter : parameter key = %v, value = %v", requireParameter, parameters[requireParameter])
 				return CreateError(ChaincodeError, fmt.Errorf("check require parameter : parameter key = %v, value = %v", requireParameter, parameters[requireParameter]))
 			}
 		}
@@ -47,6 +49,7 @@ func CheckRequireTypeInt64(typeParameterFields []string, parameters map[string]i
 		int64Value := int64(value)
 
 		if value != float64(int64Value) {
+			logger.Errorf("check parameter type : parameter field = %v is not int64, value = %v, type = %v", typeParameterField, value, reflect.TypeOf(value))
 			return CreateError(ChaincodeError, fmt.Errorf("check parameter type : parameter field = %v is not int64, value = %v, type = %v", typeParameterField, value, reflect.TypeOf(value)))
 		}
 
@@ -66,15 +69,16 @@ func CheckRequireType(requireType reflect.Kind, typeParameterFields []string, pa
 	for _, typeParameterField := range typeParameterFields {
 		// 해당 파라메터가 있는지 확인
 		if _, exist := parameters[typeParameterField]; !exist {
+			logger.Errorf("check parameter type : parameter field = %v not found", typeParameterField)
 			return CreateError(ChaincodeError, fmt.Errorf("check parameter type : parameter field = %v not found", typeParameterField))
 		} else {
 			// 해당 파라메터가 입력받은 타입인지 확인
 			parameter := parameters[typeParameterField]
 			if reflect.TypeOf(parameter).Kind() != requireType {
+				logger.Errorf("check parameter type : parameter field = %v is not %v, value = %v, type = %v", typeParameterField, requireType, parameter, reflect.TypeOf(parameter))
 				return CreateError(ChaincodeError, fmt.Errorf("check parameter type : parameter field = %v is not %v, value = %v, type = %v", typeParameterField, requireType, parameter, reflect.TypeOf(parameter)))
 			}
 		}
-
 	}
 	return nil
 }
@@ -91,6 +95,7 @@ func CompareFieldType(source interface{}, data map[string]interface{}) error {
 			for key := range data {
 				if _, exist := convSource[key]; exist {
 					if reflect.TypeOf(convSource[key]).Kind() != reflect.TypeOf(data[key]).Kind() {
+						logger.Errorf("check parameter type : [%s] parameter require %v, type = %v\n", key, reflect.TypeOf(convSource[key]), reflect.TypeOf(data[key]))
 						return CreateError(ChaincodeError, fmt.Errorf("check parameter type : [%s] parameter require %v, type = %v\n", key, reflect.TypeOf(convSource[key]), reflect.TypeOf(data[key])))
 					}
 				}
@@ -100,12 +105,14 @@ func CompareFieldType(source interface{}, data map[string]interface{}) error {
 		{
 			convSource, err := StructToMap(source)
 			if err != nil {
+				logger.Error(err)
 				return CreateError(ChaincodeError, err)
 			}
 
 			for key := range data {
 				if _, exist := convSource[key]; exist {
 					if reflect.TypeOf(convSource[key]).Kind() != reflect.TypeOf(data[key]).Kind() {
+						logger.Errorf("check parameter type : [%s] parameter require %v, type = %v\n", key, reflect.TypeOf(convSource[key]), reflect.TypeOf(data[key]))
 						return CreateError(ChaincodeError, fmt.Errorf("check parameter type : [%s] parameter require %v, type = %v\n", key, reflect.TypeOf(convSource[key]), reflect.TypeOf(data[key])))
 					}
 				}
@@ -125,6 +132,7 @@ func CheckType(requireType reflect.Kind, typeParameterFields []string, parameter
 			// 해당 파라메터가 입력받은 타입인지 확인
 			parameter := parameters[typeParameterField]
 			if reflect.TypeOf(parameter).Kind() != requireType {
+				logger.Errorf("check parameter type : parameter field = %v is not %v, value = %v, type = %v", typeParameterField, requireType, parameter, reflect.TypeOf(parameter))
 				return CreateError(ChaincodeError, fmt.Errorf("check parameter type : parameter field = %v is not %v, value = %v, type = %v", typeParameterField, requireType, parameter, reflect.TypeOf(parameter)))
 			}
 		}
@@ -144,6 +152,9 @@ func CheckTypeInt64(typeParameterFields []string, parameters map[string]interfac
 		int64Value := int64(value)
 
 		if value != float64(int64Value) {
+			fmt.Println("ch1")
+			logger.Errorf("check parameter type : parameter field = %v is not int64, value = %v, type = %v", typeParameterField, value, reflect.TypeOf(value))
+			fmt.Println("ch2")
 			return CreateError(ChaincodeError, fmt.Errorf("check parameter type : parameter field = %v is not int64, value = %v, type = %v", typeParameterField, value, reflect.TypeOf(value)))
 		}
 
@@ -153,6 +164,7 @@ func CheckTypeInt64(typeParameterFields []string, parameters map[string]interfac
 
 func CheckFormatDate(fields []string, parameters map[string]interface{}) error {
 	if err := CheckFormatLayout("2006-01-02", fields, parameters); err != nil {
+		logger.Error(err)
 		return err
 	}
 	return nil
@@ -160,6 +172,7 @@ func CheckFormatDate(fields []string, parameters map[string]interface{}) error {
 
 func CheckFormatDateAndSecond(fields []string, parameters map[string]interface{}) error {
 	if err := CheckFormatLayout("2006-01-02 15:04:05", fields, parameters); err != nil {
+		logger.Error(err)
 		return err
 	}
 	return nil

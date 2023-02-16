@@ -23,8 +23,6 @@ func GenerateSuccessResponse(txId string, code int, message string, data interfa
 		Data:    data,
 	}
 
-	//logger.Info("success :: ", response)
-
 	return response, nil
 }
 

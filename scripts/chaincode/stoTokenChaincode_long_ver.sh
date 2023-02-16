@@ -1,4 +1,7 @@
 #!/bin/bash
+export TEST_NETWORK_HOME="/Users/park/code/mdl-fabric-testnet"
+export CHAINCODE_DIR="${TEST_NETWORK_HOME}/scripts/chaincode"
+
 CHANNEL_NAME="mychannel0"
 CHAINCODE_NAME="STO"
 CHAINCODE_VERSION="v1"
@@ -40,7 +43,7 @@ export CALIPER_BENCHMARKS=$CALIPER_HOME/benchmarks
 ############ Set core.yaml ############
 PEERID="peer0"
 # export TEST_NETWORK_HOME=$(dirname $(readlink -f $0))
-export TEST_NETWORK_HOME="${TEST_NETWORK_HOME}"
+# export TEST_NETWORK_HOME="${TEST_NETWORK_HOME}"
 export FABRIC_CFG_PATH=${TEST_NETWORK_HOME}/config
 
 # ############ Peer Vasic Setting ############
@@ -595,7 +598,7 @@ function AirDrop() {
     ## query sample
     # '{"Args":["CreateWallet","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
     # param="{\"Args\":[\"${FUNCNAME[0]}\",\"{\\\"AA\\\":[{$string}]}\"]}"
-    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{\\\"Recipients\\\":{$array},$string}\"]}"
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{\\\"recipients\\\":{$array},$string}\"]}"
     # param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
     echo $param
 
@@ -792,7 +795,7 @@ function DistributeToken() {
     ## query sample
     # '{"Args":["CreateWallet","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
     # param="{\"Args\":[\"${FUNCNAME[0]}\",\"{\\\"AA\\\":[{$string}]}\"]}"
-    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{\\\"Recipients\\\":{$array},$string}\"]}"
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{\\\"recipients\\\":{$array},$string}\"]}"
     # param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
     echo $param
 
@@ -812,6 +815,38 @@ function DistributeToken() {
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/Check.log
     cp ${LOG_DIR}/Check.log ${LOG_DIR}/Response.log
+    echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
+}
+
+function RedeemToken2() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+
+    org$ORG_NUM
+
+    # set query
+    echo ${FUNCNAME[0]}
+
+    string=${string%\,}
+
+    ## query sample
+    # '{"Args":["MintByPartition","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
+    echo $param
+
+    # set
+    set -x
+
+    ## set env
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
+
+    echo "invoke peer connection parameters:${PEER_CONN_PARMS[@]}"
+    ${BIN_DIR}/peer chaincode invoke -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} ${PEER_CONN_PARMS[@]} -c $param >&${LOG_DIR}/${who}_Redeem_${partition}.log
+
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/${who}_Redeem2_${partition}.log
+    cp ${LOG_DIR}/${who}_Redeem2_${partition}.log ${LOG_DIR}/Response.log
     echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
 }
 
@@ -1082,14 +1117,12 @@ function set_options() {
             ;;
         -d | --drop)
             shift
-
             # recipient0=$1
             # recipient=$(cat ./log/${recipient0}_Address.log)
             # array+="\\\"${recipient0}\\\":\\\"$recipient\\\","
             array=$1
             # echo $abcd
             # array += "\"$1\""
-
             ;;
         -p | --partition)
             shift
@@ -1112,6 +1145,62 @@ function set_options() {
             pageSize=$1
             INT=$((pageSize))
             string+="\\\"pageSize\\\":$INT,"
+            ;;
+        -p | --tokenWalletId)
+            shift
+            tokenWalletId=$1
+            string+="\\\"tokenWalletId\\\":\\\"$tokenWalletId\\\","
+            ;;
+        -p | --role)
+            shift
+            role=$1
+            string+="\\\"role\\\":\\\"$role\\\","
+            ;;
+        -p | --accountNumber)
+            shift
+            accountNumber=$1
+            string+="\\\"accountNumber\\\":\\\"$accountNumber\\\","
+            ;;
+        -p | --tokenId)
+            shift
+            tokenId=$1
+            string+="\\\"tokenId\\\":\\\"$tokenId\\\","
+            ;;
+        -p | --publisher)
+            shift
+            publisher=$1
+            string+="\\\"publisher\\\":\\\"$publisher\\\","
+            ;;
+        -p | --ror)
+            shift
+            ror=$1
+            string+="\\\"ror\\\":\\\"$ror\\\","
+            ;;
+        -p | --investmentPeriod)
+            shift
+            investmentPeriod=$1
+            string+="\\\"investmentPeriod\\\":\\\"$investmentPeriod\\\","
+            ;;
+        -p | --grade)
+            shift
+            grade=$1
+            string+="\\\"grade\\\":\\\"$grade\\\","
+            ;;
+        -p | --publicOfferingAmount)
+            shift
+            publicOfferingAmount=$1
+            INT=$((publicOfferingAmount))
+            string+="\\\"publicOfferingAmount\\\":$INT,"
+            ;;
+        -p | --startDate)
+            shift
+            startDate=$1
+            string+="\\\"startDate\\\":\\\"$startDate\\\","
+            ;;
+        -p | --endDate)
+            shift
+            endDate=$1
+            string+="\\\"endDate\\\":\\\"$endDate\\\","
             ;;
         *)
             usage

@@ -22,7 +22,7 @@ func GetMSPID(ctx contractapi.TransactionContextInterface) error {
 
 	_, err := ctx.GetClientIdentity().GetMSPID()
 	if err != nil {
-		return fmt.Errorf("failed to get client id: %v", err)
+		return fmt.Errorf("failed to get client msp id: %v", err)
 	}
 
 	return nil

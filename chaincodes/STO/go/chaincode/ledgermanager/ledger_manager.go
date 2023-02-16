@@ -9,11 +9,8 @@ import (
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"github.com/op/go-logging"
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
 )
-
-var logger = logging.MustGetLogger("ledgermanager")
 
 func PutState(docType string, key string, data interface{}, ctx contractapi.TransactionContextInterface) (string, error) {
 	if reflect.TypeOf(data).Kind() != reflect.Struct {
@@ -37,9 +34,10 @@ func PutState(docType string, key string, data interface{}, ctx contractapi.Tran
 	}
 	dataMap[DocType] = docType
 
-	if value, _ := dataMap[ID]; value == "" {
-		dataMap[ID] = ccutils.GenerateUniqueID(64)
-	}
+	// 이거 엔도서에서 에러날 수 있음
+	// if value, _ := dataMap[ID]; value == "" {
+	// 	dataMap[ID] = ccutils.GenerateUniqueID(64)
+	// }
 
 	// time format binding 문제로 임시 주석 처리
 	// if value, _ := dataMap[CreatedDate]; value == "" {

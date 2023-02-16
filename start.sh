@@ -469,33 +469,33 @@ function main() {
     registerEnroll
     echo "finished to registerEnroll(create org1, org2, orderer)"
     sleep 1
-    # createGenesisBlock
-    # echo "finished to create genesis block(channelTx)"
-    # sleep 1
-    # createChannelTx mychannel0
-    # echo "finished to create channel tx"
-    # sleep
-    # startNode
-    # echo "waiting for starting orderer, peer node completely"
-    # sleep 5
-    # createChannel mychannel0
-    # echo "finished to create channel(org1이 생성)"
-    # sleep 1
-    # joinChannel1 mychannel0
-    # echo "finished to join channel org1"
-    # sleep 1
-    # joinChannel2 mychannel0
-    # echo "finished to join channel org2"
-    # sleep 1
-    # setAnchorPeer1 1 mychannel0
-    # echo "finished to set anchor peer org1"
-    # sleep 1
-    # setAnchorPeer2 1 mychannel0
-    # echo "finished to set anchor peer org2"
-    # sleep 1
-    # deployChaincode mychannel0 STO "\"Org1MSP\": true"
-    # echo "finished to deploy chaincode"
-    # sleep 5
+    createGenesisBlock
+    echo "finished to create genesis block(channelTx)"
+    sleep 1
+    createChannelTx mychannel0
+    echo "finished to create channel tx"
+    sleep
+    startNode
+    echo "waiting for starting orderer, peer node completely"
+    sleep 5
+    createChannel mychannel0
+    echo "finished to create channel(org1이 생성)"
+    sleep 1
+    joinChannel1 mychannel0
+    echo "finished to join channel org1"
+    sleep 1
+    joinChannel2 mychannel0
+    echo "finished to join channel org2"
+    sleep 1
+    setAnchorPeer1 1 mychannel0
+    echo "finished to set anchor peer org1"
+    sleep 1
+    setAnchorPeer2 1 mychannel0
+    echo "finished to set anchor peer org2"
+    sleep 1
+    deployChaincode mychannel0 STO "\"Org1MSP\": true"
+    echo "finished to deploy chaincode"
+    sleep 5
 }
 
 function verifyResult() {

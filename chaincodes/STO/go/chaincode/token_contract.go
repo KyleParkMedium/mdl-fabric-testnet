@@ -2,11 +2,11 @@ package chaincode
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils/flogging"
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/controller"
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ledgermanager"
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/operator"
@@ -14,12 +14,14 @@ import (
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/services/wallet"
 )
 
+var logger = flogging.MustGetLogger("chaincode")
+
 // Changelog
 const (
 	Author           = "Kyle"
-	DateCreated      = "2022/12/20"
+	DateCreated      = "2023/02/10"
 	ChaincodeName    = "STO TOKEN Standard"
-	ChaincodeVersion = "0.0.2"
+	ChaincodeVersion = "0.0.3"
 )
 
 // SmartContract provides functions for transferring tokens between accounts
@@ -38,33 +40,40 @@ type Event struct {
  */
 func (s *SmartContract) IsInit(ctx contractapi.TransactionContextInterface) error {
 
-	log.Printf("Initial Isinit run")
+	logger.Info("Initial Isinit run")
 
 	// Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
 	err := _getMSPID(ctx)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
 	// Initial Isinit run
 	err = ctx.GetStub().PutState("Isinit", []byte("Isinit"))
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
 	// Init totalSupply
+	logger.Info("Init TotalSupply Ledger")
 	_, err = ledgermanager.PutState(token.DocType_TotalSupply, "TotalSupply", token.TotalSupplyStruct{TotalSupply: 0}, ctx)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
 	// Init Admin Wallet
 	walletStruct := wallet.AdminWallet{}
+	walletStruct.AdminName = "medium"
 	partitionTokenMap := make(map[string]map[string]token.PartitionToken)
 	walletStruct.PartitionTokens = partitionTokenMap
 
+	logger.Infof("Init Admin Wallet Ledger : %v", walletStruct.AdminName)
 	_, err = ledgermanager.PutState(wallet.DocType_AdminWallet, "AdminWallet", walletStruct, ctx)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
@@ -73,8 +82,10 @@ func (s *SmartContract) IsInit(ctx contractapi.TransactionContextInterface) erro
 	operatorMap := make(map[string]map[string]operator.OperatorStruct)
 	operatorsStruct.Operator = operatorMap
 
+	logger.Info("Init Operator Ledger")
 	_, err = ledgermanager.PutState(operator.DocType_Operator, "Operator", operatorsStruct, ctx)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
@@ -88,11 +99,13 @@ func (s *SmartContract) Init(ctx contractapi.TransactionContextInterface) (strin
 	// Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
 	err := _getMSPID(ctx)
 	if err != nil {
+		logger.Error(err)
 		return "", err
 	}
 
 	id, err := _msgSender(ctx)
 	if err != nil {
+		logger.Error(err)
 		return "", err
 	}
 
@@ -136,11 +149,13 @@ func (s *SmartContract) ClientAccountID(ctx contractapi.TransactionContextInterf
 	// Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
 	err := _getMSPID(ctx)
 	if err != nil {
+		logger.Error(err)
 		return "", err
 	}
 
 	id, err := _msgSender(ctx)
 	if err != nil {
+		logger.Error(err)
 		return "", err
 	}
 

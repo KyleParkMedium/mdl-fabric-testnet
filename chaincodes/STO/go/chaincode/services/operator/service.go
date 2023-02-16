@@ -8,8 +8,11 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils/flogging"
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ledgermanager"
 )
+
+var logger = flogging.MustGetLogger("operator service")
 
 func IsOperatorByPartition(ctx contractapi.TransactionContextInterface, operator string, partition string) (bool, error) {
 
@@ -41,12 +44,14 @@ func AuthorizeOperatorByPartition(ctx contractapi.TransactionContextInterface, o
 
 	operatorBytes, err := ledgermanager.GetState(DocType_Operator, "Operator", ctx)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
 	operatorStruct := OperatorsStruct{}
 	err = json.Unmarshal(operatorBytes, &operatorStruct)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
@@ -57,11 +62,13 @@ func AuthorizeOperatorByPartition(ctx contractapi.TransactionContextInterface, o
 
 	operatorToMap, err := ccutils.StructToMap(operatorStruct)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
 	err = ledgermanager.UpdateState(DocType_Operator, "Operator", operatorToMap, ctx)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
@@ -72,12 +79,14 @@ func RevokeOperatorByPartition(ctx contractapi.TransactionContextInterface, oper
 
 	operatorBytes, err := ledgermanager.GetState(DocType_Operator, "Operator", ctx)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
 	operatorStruct := OperatorsStruct{}
 	err = json.Unmarshal(operatorBytes, &operatorStruct)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
@@ -88,11 +97,13 @@ func RevokeOperatorByPartition(ctx contractapi.TransactionContextInterface, oper
 
 	operatorToMap, err := ccutils.StructToMap(operatorStruct)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
 	err = ledgermanager.UpdateState(DocType_Operator, "Operator", operatorToMap, ctx)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 

@@ -7,13 +7,17 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
+	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils/flogging"
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ledgermanager"
 )
+
+var logger = flogging.MustGetLogger("token service")
 
 func TotalSupply(ctx contractapi.TransactionContextInterface) (*TotalSupplyStruct, error) {
 
 	totalSupplyBytes, err := ledgermanager.GetState(DocType_TotalSupply, "TotalSupply", ctx)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -30,11 +34,13 @@ func TotalSupplyByPartition(ctx contractapi.TransactionContextInterface, partiti
 	// totalSupplyByPartition
 	totalKey, err := ctx.GetStub().CreateCompositeKey(DocType_TotalSupplyByPartition, []string{partition})
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 
 	totalSupplyBytes, err := ledgermanager.GetState(DocType_TotalSupplyByPartition, totalKey, ctx)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -77,6 +83,7 @@ func AllowanceByPartition(ctx contractapi.TransactionContextInterface, owner str
 
 	allowanceBytes, err := ledgermanager.GetState(DocType_Allowance, allowancePartitionKey, ctx)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -100,6 +107,7 @@ func ApproveByPartition(ctx contractapi.TransactionContextInterface, allowanceBy
 
 	exist, err := ledgermanager.CheckExistState(allowancePartitionKey, ctx)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
@@ -123,8 +131,10 @@ func IssueToken(ctx contractapi.TransactionContextInterface, token PartitionToke
 	// IssueToken
 	_, err := ledgermanager.PutState(DocType_Token, token.TokenID, token, ctx)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
+	logger.Infof("success putstate ledger : %v", token.TokenID)
 
 	// totalSupplyByPartition
 	totalKey, err := ctx.GetStub().CreateCompositeKey(DocType_TotalSupplyByPartition, []string{token.TokenID})
@@ -134,14 +144,20 @@ func IssueToken(ctx contractapi.TransactionContextInterface, token PartitionToke
 
 	_, err = ledgermanager.PutState(DocType_TotalSupplyByPartition, totalKey, TotalSupplyByPartitionStruct{TotalSupply: 0, Partition: token.TokenID}, ctx)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
+	logger.Infof("success putstate totalSupplyByPartition : %v", token.TokenID)
 
 	// Distribute List
 	holderStruct := TokenHolderList{}
+	holderStruct.PartitionToken = token.TokenID
+	holderStruct.TokenInfo = token
 	holderStruct.IsLocked = false
-	partitionTokenMap := make(map[string]PartitionToken)
-	holderStruct.Recipients = partitionTokenMap
+	// partitionTokenMap := make(map[string]PartitionToken)
+	// holderStruct.Recipients = partitionTokenMap
+	aaa := make(map[string]Recipient)
+	holderStruct.Recipient2 = aaa
 
 	// Create allowanceKey
 	listKey, err := ctx.GetStub().CreateCompositeKey(DocType_TokenHolderList, []string{token.TokenID})
@@ -151,8 +167,22 @@ func IssueToken(ctx contractapi.TransactionContextInterface, token PartitionToke
 
 	_, err = ledgermanager.PutState(DocType_TokenHolderList, listKey, holderStruct, ctx)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
+	logger.Infof("success init tokenHolderList : %v", token.TokenID)
+
+	// // Create allowanceKey
+	// listKey2, err := ctx.GetStub().CreateCompositeKey(DocType_AirDrop, []string{token.TokenID})
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to create the composite key for prefix %s: %v", BalanceOfByPartitionPrefix, err)
+	// }
+
+	// _, err = ledgermanager.PutState(DocType_AirDrop, listKey2, holderStruct, ctx)
+	// if err != nil {
+	// 	logger.Error(err)
+	// 	return nil, err
+	// }
 
 	return &token, nil
 }
@@ -162,12 +192,14 @@ func UndoIssueToken(ctx contractapi.TransactionContextInterface, token Partition
 
 	tokenBytes, err := ledgermanager.GetState(DocType_Token, token.TokenID, ctx)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 
 	tokenStruct := PartitionToken{}
 	err = json.Unmarshal(tokenBytes, &tokenStruct)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -179,11 +211,13 @@ func UndoIssueToken(ctx contractapi.TransactionContextInterface, token Partition
 
 	tokenToMap, err := ccutils.StructToMap(tokenStruct)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 
 	err = ledgermanager.UpdateState(DocType_Token, token.TokenID, tokenToMap, ctx)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -194,12 +228,14 @@ func IsIssuable(ctx contractapi.TransactionContextInterface, partition string) e
 
 	tokenBytes, err := ledgermanager.GetState(DocType_Token, partition, ctx)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
 	tokenStruct := PartitionToken{}
 	err = json.Unmarshal(tokenBytes, &tokenStruct)
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
@@ -252,6 +288,7 @@ func GetTokenList(args map[string]interface{}, pageSize int32, bookmark string, 
 
 	bytes, err := ledgermanager.GetQueryResultWithPagination(queryString, pageSize, bookmark, ctx)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -260,14 +297,14 @@ func GetTokenList(args map[string]interface{}, pageSize int32, bookmark string, 
 
 func GetTokenHolderList(args map[string]interface{}, partition string, pageSize int32, bookmark string, ctx contractapi.TransactionContextInterface) ([]byte, error) {
 
-	// Create allowanceKey
-	listKey, err := ctx.GetStub().CreateCompositeKey(DocType_TokenHolderList, []string{partition})
-	if err != nil {
-		return nil, fmt.Errorf("failed to create the composite key for prefix %s: %v", DocType_TokenHolderList, err)
-	}
+	// // Create allowanceKey
+	// listKey, err := ctx.GetStub().CreateCompositeKey(DocType_TokenHolderList, []string{partition})
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to create the composite key for prefix %s: %v", DocType_TokenHolderList, err)
+	// }
 
 	queryBuilder := ccutils.QueryBuilder{}
-	queryBuilder.AddSelectorGroup(ledgermanager.DocType, listKey)
+	queryBuilder.AddSelectorGroup(ledgermanager.DocType, DocType_TokenHolderList)
 
 	// 공통 필드
 	if value, exist := args[ledgermanager.StartDate]; exist {
@@ -306,6 +343,7 @@ func GetTokenHolderList(args map[string]interface{}, partition string, pageSize 
 
 	bytes, err := ledgermanager.GetQueryResultWithPagination(queryString, pageSize, bookmark, ctx)
 	if err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 
