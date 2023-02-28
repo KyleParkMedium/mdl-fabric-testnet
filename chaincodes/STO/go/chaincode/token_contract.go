@@ -36,6 +36,61 @@ type Event struct {
 	Value int
 }
 
+func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
+
+	logger.Info("Initialize Ledger")
+
+	// Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
+	err := _getMSPID(ctx)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	_, err = _msgSender(ctx)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	// Init TotalSupply Ledger
+	logger.Info("Initialize TotalSupply Ledger, db key : TotalSupply")
+	_, err = ledgermanager.PutState(token.DocType_TotalSupply, "TotalSupply", token.TotalSupplyStruct{DocType: token.DocType_TotalSupply, TotalSupply: 0}, ctx)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	// Init Admin Wallet Ledger
+	walletStruct := wallet.AdminWallet{}
+	walletStruct.DocType = wallet.DocType_AdminWallet
+	walletStruct.AdminName = "medium"
+	partitionTokenMap := make(map[string]map[string]token.PartitionToken)
+	walletStruct.PartitionTokens = partitionTokenMap
+
+	logger.Infof("Initialize Admin Wallet Ledger : %v, db key : AdminWallet", walletStruct.AdminName)
+	_, err = ledgermanager.PutState(wallet.DocType_AdminWallet, "AdminWallet", walletStruct, ctx)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	// Init Operator Ledger
+	operatorsStruct := operator.OperatorsStruct{}
+	operatorsStruct.DocType = operator.DocType_Operator
+	operatorMap := make(map[string]map[string]operator.OperatorStruct)
+	operatorsStruct.Operator = operatorMap
+
+	logger.Info("Initialize Operators Ledger, db key : Opearator")
+	_, err = ledgermanager.PutState(operator.DocType_Operator, "Operator", operatorsStruct, ctx)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	return nil
+}
+
 /** 체인코드 init 위해 임시로 코드 작성
  */
 func (s *SmartContract) IsInit(ctx contractapi.TransactionContextInterface) error {
@@ -58,7 +113,7 @@ func (s *SmartContract) IsInit(ctx contractapi.TransactionContextInterface) erro
 
 	// Init totalSupply
 	logger.Info("Init TotalSupply Ledger")
-	_, err = ledgermanager.PutState(token.DocType_TotalSupply, "TotalSupply", token.TotalSupplyStruct{TotalSupply: 0}, ctx)
+	_, err = ledgermanager.PutState(token.DocType_TotalSupply, "TotalSupply", token.TotalSupplyStruct{DocType: token.DocType_TotalSupply, TotalSupply: 0}, ctx)
 	if err != nil {
 		logger.Error(err)
 		return err
@@ -66,6 +121,7 @@ func (s *SmartContract) IsInit(ctx contractapi.TransactionContextInterface) erro
 
 	// Init Admin Wallet
 	walletStruct := wallet.AdminWallet{}
+	walletStruct.DocType = wallet.DocType_AdminWallet
 	walletStruct.AdminName = "medium"
 	partitionTokenMap := make(map[string]map[string]token.PartitionToken)
 	walletStruct.PartitionTokens = partitionTokenMap
@@ -79,6 +135,7 @@ func (s *SmartContract) IsInit(ctx contractapi.TransactionContextInterface) erro
 
 	// Init Operator
 	operatorsStruct := operator.OperatorsStruct{}
+	operatorsStruct.DocType = operator.DocType_Operator
 	operatorMap := make(map[string]map[string]operator.OperatorStruct)
 	operatorsStruct.Operator = operatorMap
 

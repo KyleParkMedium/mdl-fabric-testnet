@@ -20,6 +20,13 @@ if [ -d ${TEST_NETWORK_HOME}/packages ]; then
     rm -rf ${TEST_NETWORK_HOME}/packages
     mkdir -p ${TEST_NETWORK_HOME}/packages
 fi
+if [ -d ${TEST_NETWORK_HOME}/chaincodes/STO ]; then
+    rm -rf ${TEST_NETWORK_HOME}/chaincodes/STO
+    mkdir -p ${TEST_NETWORK_HOME}/chaincodes/STO
+    cp -r "/Users/park/code/mdl-chaincodes" ${TEST_NETWORK_HOME}/chaincodes/STO
+    mv ${TEST_NETWORK_HOME}/chaincodes/STO/mdl-chaincodes ${TEST_NETWORK_HOME}/chaincodes/STO/go
+fi
+
 docker rm -f $(docker ps -aq)
 docker rmi $(docker images -q --filter "reference=dev-*")
 # docker volume prune

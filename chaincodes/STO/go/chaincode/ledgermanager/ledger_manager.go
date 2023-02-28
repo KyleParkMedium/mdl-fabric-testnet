@@ -40,16 +40,17 @@ func PutState(docType string, key string, data interface{}, ctx contractapi.Tran
 	// }
 
 	// time format binding 문제로 임시 주석 처리
-	// if value, _ := dataMap[CreatedDate]; value == "" {
-	// 	dataMap[CreatedDate] = ccutils.CreateKstTimeAndSecond()
-	// } else {
-	// 	err := ccutils.CheckFormatDateAndSecond([]string{CreatedDate}, dataMap)
-	// 	if err != nil {
-	// 		return "", err
-	// 	}
-	// }
+	if value, _ := dataMap[CreatedDate]; value == "" {
+		fmt.Println("check matching")
+		dataMap[CreatedDate] = ccutils.CreateKstTimeAndSecond()
+	} else {
+		err := ccutils.CheckFormatDateAndSecond([]string{CreatedDate}, dataMap)
+		if err != nil {
+			return "", err
+		}
+	}
 
-	// dataMap[UpdatedDate] = dataMap[CreatedDate]
+	dataMap[UpdatedDate] = dataMap[CreatedDate]
 	dataMap[TxId] = ctx.GetStub().GetTxID()
 
 	var dataBytes []byte
@@ -93,11 +94,9 @@ func UpdateState(docType string, key string, data map[string]interface{}, ctx co
 		return err
 	}
 
-	// 이거 일단 주석 처리 해서 경과 파악 필요 없는 코드 인데
-	// // 존재하지 않는 키값
-	// if asIsDataBytes == nil {
-	// 	return ccutils.CreateError(CodeErrorUpdateStateEmptyState, fmt.Errorf(ErrorCodeMessage[CodeErrorUpdateStateEmptyState]+" : "+key))
-	// }
+	if data == nil {
+		return ccutils.CreateError(CodeErrorUpdateStateEmptyState, fmt.Errorf(ErrorCodeMessage[CodeErrorUpdateStateEmptyState]+" : "+key))
+	}
 
 	asIsMap := make(map[string]interface{})
 	err = json.Unmarshal(asIsDataBytes, &asIsMap)
@@ -132,14 +131,12 @@ func UpdateState(docType string, key string, data map[string]interface{}, ctx co
 		asIsMap[DocType] = docType
 	}
 
+	asIsMap[UpdatedDate] = ccutils.CreateKstTimeAndSecond()
 	// // updatedDate가 없으면 입력
 	// if _, exist := toBeMap[UpdatedDate]; !exist {
 	// 	asIsMap[UpdatedDate] = ccutils.CreateKstTimeAndSecond()
 	// } else {
-	// 	err := ccutils.CheckFormatDateAndSecond([]string{UpdatedDate}, asIsMap)
-	// 	if err != nil {
-	// 		return err
-	// 	}
+	// 	asIsMap[UpdatedDate] = toBeMap[UpdatedDate]
 	// }
 
 	if asIsDataBytes, err = json.Marshal(asIsMap); err != nil {

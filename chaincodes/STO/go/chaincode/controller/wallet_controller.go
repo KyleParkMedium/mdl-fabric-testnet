@@ -19,30 +19,45 @@ func (s *SmartContract) CreateWallet(ctx contractapi.TransactionContextInterface
 		return nil, err
 	}
 
-	// id, err := ccutils.GetID(ctx)
-	// if err != nil {
-	// 	logger.Errorf("failed to get client id: %v", err)
-	// 	return nil, err
-	// }
+	_, err = ccutils.GetID(ctx)
+	if err != nil {
+		logger.Errorf("failed to get client id: %v", err)
+		return nil, err
+	}
 
-	// 우선 msp id 로 발급
-	// tokenWalletId := ccutils.GetAddress([]byte(id))
 	// 23-02-14. web server request로 대체
+	// tokenWalletId := ccutils.GetAddress([]byte(id))
 
-	// args Data
+	requireParameterFields := []string{token.FieldTokenWalletId, token.FieldRole, token.FieldAccountNumber}
+	err = ccutils.CheckRequireParameter(requireParameterFields, args)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	stringParameterFields := []string{token.FieldTokenWalletId, token.FieldRole, token.FieldAccountNumber}
+	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
+
+	// args
 	tokenWalletId := args[token.FieldTokenWalletId].(string)
 	role := args[token.FieldRole].(string)
 	accountNumber := args[token.FieldAccountNumber].(string)
 
 	// create wallet
 	walletStruct := wallet.TokenWallet{}
+	walletStruct.DocType = wallet.DocType_TokenWallet
 	walletStruct.TokenWalletId = tokenWalletId
 	walletStruct.Role = role
 	walletStruct.AccountNumber = accountNumber
 	partitionTokenMap := make(map[string][]token.PartitionToken)
 	walletStruct.PartitionTokens = partitionTokenMap
 	walletStruct.IsLocked = false
-	walletStruct.CreatedDate = ccutils.CreateKstTime()
+	walletStruct.CreatedDate = ccutils.CreateKstTimeAndSecond()
+	walletStruct.UpdatedDate = walletStruct.CreatedDate
 
 	newWallet, err := wallet.CreateWallet(ctx, walletStruct)
 	if err != nil {
@@ -56,7 +71,7 @@ func (s *SmartContract) CreateWallet(ctx contractapi.TransactionContextInterface
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	logger.Infof("Success function : CreateWallet")
+	logger.Infof("Success function : CreateWallet \n walletId : %v", tokenWalletId)
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], retData)
 }
 
@@ -95,15 +110,15 @@ func (s *SmartContract) TransferByPartition(ctx contractapi.TransactionContextIn
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	// args Data
+	// args
 	owner := ccutils.GetAddress([]byte(id))
 	recipient := args[token.FieldRecipient].(string)
 	partition := args[token.FieldPartition].(string)
 	amount := int64(args[token.FieldAmount].(float64))
 
 	if amount <= 0 {
-		logger.Errorf("mint amount must be a positive integer")
-		return nil, fmt.Errorf("mint amount must be a positive integer")
+		logger.Errorf("tranfer amount must be a positive integer")
+		return nil, fmt.Errorf("tranfer amount must be a positive integer")
 	}
 
 	err = _transferByPartition(ctx, owner, recipient, partition, amount)
@@ -112,14 +127,14 @@ func (s *SmartContract) TransferByPartition(ctx contractapi.TransactionContextIn
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "Transfer", owner, recipient, partition, amount}
+	transferEvent := ccutils.TransferEvent{ctx.GetStub().GetTxID(), "Transfer", owner, recipient, partition, amount}
 	err = transferEvent.EmitTransferEvent(ctx)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	logger.Infof("Success function : TransferByPartition")
+	logger.Infof("Success function : TransferByPartition \n owner : %v, recipient : %v, token : %v, amount : %v", owner, recipient, partition, amount)
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], nil)
 }
 
@@ -158,7 +173,7 @@ func (s *SmartContract) TransferFromByPartition(ctx contractapi.TransactionConte
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	// args Data
+	// args
 	spender := ccutils.GetAddress([]byte(id))
 	from := args[token.FieldFrom].(string)
 	to := args[token.FieldTo].(string)
@@ -166,8 +181,8 @@ func (s *SmartContract) TransferFromByPartition(ctx contractapi.TransactionConte
 	amount := int64(args[token.FieldAmount].(float64))
 
 	if amount <= 0 {
-		logger.Errorf("mint amount must be a positive integer")
-		return nil, fmt.Errorf("mint amount must be a positive integer")
+		logger.Errorf("transfer amount must be a positive integer")
+		return nil, fmt.Errorf("transfer amount must be a positive integer")
 	}
 
 	allowanceByPartition, err := token.AllowanceByPartition(ctx, from, spender, partition)
@@ -196,14 +211,14 @@ func (s *SmartContract) TransferFromByPartition(ctx contractapi.TransactionConte
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "Transfer", from, to, partition, amount}
+	transferEvent := ccutils.TransferEvent{ctx.GetStub().GetTxID(), "Transfer", from, to, partition, amount}
 	err = transferEvent.EmitTransferEvent(ctx)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	logger.Infof("Success function : TransferFromByPartition")
+	logger.Infof("Success function : TransferFromByPartition \n from : %v, to : %v, token : %v, amount : %v", from, to, partition, amount)
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], nil)
 }
 
@@ -224,133 +239,135 @@ func _transferByPartition(ctx contractapi.TransactionContextInterface, from stri
 	return nil
 }
 
-// func (s *SmartContract) MintByPartition(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
+func (s *SmartContract) MintByPartition(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
 
-// 	err := ccutils.GetMSPID(ctx)
-// 	if err != nil {
-// 		logger.Errorf("failed to get client msp id: %v", err)
-// 		return nil, err
-// 	}
+	err := ccutils.GetMSPID(ctx)
+	if err != nil {
+		logger.Errorf("failed to get client msp id: %v", err)
+		return nil, err
+	}
 
-// 	id, err := ccutils.GetID(ctx)
-// 	if err != nil {
-// 		logger.Errorf("failed to get client id: %v", err)
-// 		return nil, err
-// 	}
+	_, err = ccutils.GetID(ctx)
+	if err != nil {
+		logger.Errorf("failed to get client id: %v", err)
+		return nil, err
+	}
 
-// 	requireParameterFields := []string{token.FieldPartition, token.FieldAmount}
-// 	err = ccutils.CheckRequireParameter(requireParameterFields, args)
-// 	if err != nil {
-// 		logger.Error(err)
-// 		return ccutils.GenerateErrorResponse(err)
-// 	}
+	requireParameterFields := []string{token.FieldCaller, token.FieldPartition, token.FieldAmount}
+	err = ccutils.CheckRequireParameter(requireParameterFields, args)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-// 	stringParameterFields := []string{token.FieldPartition}
-// 	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
-// 	if err != nil {
-// 		logger.Error(err)
-// 		return ccutils.GenerateErrorResponse(err)
-// 	}
+	stringParameterFields := []string{token.FieldCaller, token.FieldPartition}
+	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-// 	int64ParameterFields := []string{token.FieldAmount}
-// 	err = ccutils.CheckRequireTypeInt64(int64ParameterFields, args)
-// 	if err != nil {
-// 		logger.Error(err)
-// 		return ccutils.GenerateErrorResponse(err)
-// 	}
+	int64ParameterFields := []string{token.FieldAmount}
+	err = ccutils.CheckRequireTypeInt64(int64ParameterFields, args)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-// 	// args Data
-// 	minter := ccutils.GetAddress([]byte(id))
-// 	partition := args[token.FieldPartition].(string)
-// 	amount := int64(args[token.FieldAmount].(float64))
+	// args Data
+	// minter := ccutils.GetAddress([]byte(id))
+	minter := args[token.FieldCaller].(string)
+	partition := args[token.FieldPartition].(string)
+	amount := int64(args[token.FieldAmount].(float64))
 
-// 	if amount <= 0 {
-// 		logger.Errorf("mint amount must be a positive integer")
-// 		return nil, fmt.Errorf("mint amount must be a positive integer")
-// 	}
+	if amount <= 0 {
+		logger.Errorf("mint amount must be a positive integer")
+		return nil, fmt.Errorf("mint amount must be a positive integer")
+	}
 
-// 	mintByPartition := token.MintByPartitionStruct{Minter: minter, Partition: partition, Amount: amount}
+	mintByPartition := token.MintByPartitionStruct{Minter: minter, Partition: partition, Amount: amount}
 
-// 	err = wallet.MintByPartition(ctx, mintByPartition)
-// 	if err != nil {
-// 		logger.Error(err)
-// 		return ccutils.GenerateErrorResponse(err)
-// 	}
+	err = wallet.MintByPartition(ctx, mintByPartition)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-// 	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "Transfer", minter, "", partition, amount}
-// 	err = transferEvent.EmitTransferEvent(ctx)
-// 	if err != nil {
-// 		logger.Error(err)
-// 		return ccutils.GenerateErrorResponse(err)
-// 	}
+	transferEvent := ccutils.TransferEvent{ctx.GetStub().GetTxID(), "Transfer", "medium", minter, partition, amount}
+	err = transferEvent.EmitTransferEvent(ctx)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-// 	logger.Infof("Success function : MintByPartition")
-// 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], nil)
-// }
+	logger.Infof("Success function : MintByPartition")
+	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], nil)
+}
 
-// func (s *SmartContract) BurnByPartition(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
+func (s *SmartContract) BurnByPartition(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
 
-// 	err := ccutils.GetMSPID(ctx)
-// 	if err != nil {
-// 		logger.Errorf("failed to get client msp id: %v", err)
-// 		return nil, err
-// 	}
+	err := ccutils.GetMSPID(ctx)
+	if err != nil {
+		logger.Errorf("failed to get client msp id: %v", err)
+		return nil, err
+	}
 
-// 	id, err := ccutils.GetID(ctx)
-// 	if err != nil {
-// 		logger.Errorf("failed to get client id: %v", err)
-// 		return nil, err
-// 	}
+	_, err = ccutils.GetID(ctx)
+	if err != nil {
+		logger.Errorf("failed to get client id: %v", err)
+		return nil, err
+	}
 
-// 	requireParameterFields := []string{token.FieldPartition, token.FieldAmount}
-// 	err = ccutils.CheckRequireParameter(requireParameterFields, args)
-// 	if err != nil {
-// 		logger.Error(err)
-// 		return ccutils.GenerateErrorResponse(err)
-// 	}
+	requireParameterFields := []string{token.FieldCaller, token.FieldPartition, token.FieldAmount}
+	err = ccutils.CheckRequireParameter(requireParameterFields, args)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-// 	stringParameterFields := []string{token.FieldPartition}
-// 	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
-// 	if err != nil {
-// 		logger.Error(err)
-// 		return ccutils.GenerateErrorResponse(err)
-// 	}
+	stringParameterFields := []string{token.FieldCaller, token.FieldPartition}
+	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-// 	int64ParameterFields := []string{token.FieldAmount}
-// 	err = ccutils.CheckRequireTypeInt64(int64ParameterFields, args)
-// 	if err != nil {
-// 		logger.Error(err)
-// 		return ccutils.GenerateErrorResponse(err)
-// 	}
+	int64ParameterFields := []string{token.FieldAmount}
+	err = ccutils.CheckRequireTypeInt64(int64ParameterFields, args)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-// 	// args Data
-// 	minter := ccutils.GetAddress([]byte(id))
-// 	partition := args[token.FieldPartition].(string)
-// 	amount := int64(args[token.FieldAmount].(float64))
+	// args
+	// minter := ccutils.GetAddress([]byte(id))
+	minter := args[token.FieldCaller].(string)
+	partition := args[token.FieldPartition].(string)
+	amount := int64(args[token.FieldAmount].(float64))
 
-// 	if amount <= 0 {
-// 		logger.Errorf("mint amount must be a positive integer")
-// 		return nil, fmt.Errorf("mint amount must be a positive integer")
-// 	}
+	if amount <= 0 {
+		logger.Errorf("burn amount must be a positive integer")
+		return nil, fmt.Errorf("burn amount must be a positive integer")
+	}
 
-// 	burnByPartition := token.MintByPartitionStruct{Minter: minter, Partition: partition, Amount: amount}
+	burnByPartition := token.MintByPartitionStruct{Minter: minter, Partition: partition, Amount: amount}
 
-// 	err = wallet.BurnByPartition(ctx, burnByPartition)
-// 	if err != nil {
-// 		logger.Error(err)
-// 		return ccutils.GenerateErrorResponse(err)
-// 	}
+	err = wallet.BurnByPartition(ctx, burnByPartition)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-// 	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "Transfer", minter, "", partition, amount}
-// 	err = transferEvent.EmitTransferEvent(ctx)
-// 	if err != nil {
-// 		logger.Error(err)
-// 		return ccutils.GenerateErrorResponse(err)
-// 	}
+	transferEvent := ccutils.TransferEvent{ctx.GetStub().GetTxID(), "Transfer", minter, "", partition, amount}
+	err = transferEvent.EmitTransferEvent(ctx)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-// 	logger.Infof("Success function : BurnByPartition")
-// 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], nil)
-// }
+	logger.Infof("Success function : BurnByPartition")
+	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], nil)
+}
 
 func (s *SmartContract) GetTokenWalletList(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
 

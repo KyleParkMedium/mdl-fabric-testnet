@@ -18,13 +18,17 @@ const (
 	FieldRole          string = "role"
 	FieldAccountNumber string = "accountNumber"
 
+	// issueToken
 	FieldTokenId              string = "tokenId"
 	FieldPublisher            string = "publisher"
-	FieldTokenHolderId        string = "tokenHolderId"
 	FieldRor                  string = "ror"
 	FieldInvestmentPeriod     string = "investmentPeriod"
 	FieldGrade                string = "grade"
 	FieldPublicOfferingAmount string = "publicOfferingAmount"
 	FieldStartDate            string = "startDate"
 	FieldEndDate              string = "endDate"
+
+	FieldTokenHolderId string = "tokenHolderId"
+
+	FieldCaller string = "caller"
 )

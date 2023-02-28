@@ -8,6 +8,9 @@ type OperatorsStruct struct {
 	DocType string `json:"docType"`
 
 	Operator map[string]map[string]OperatorStruct `json:"operator"`
+
+	CreatedDate string `json:"createdDate"`
+	UpdatedDate string `json:"updatedDate"`
 }
 
 type OperatorStruct struct {

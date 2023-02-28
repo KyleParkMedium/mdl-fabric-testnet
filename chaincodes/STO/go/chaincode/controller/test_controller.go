@@ -43,7 +43,7 @@ func (s *SmartContract) GetHolderList(ctx contractapi.TransactionContextInterfac
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "tokenHolderList", "", "", partition, 0}
+	transferEvent := ccutils.TransferEvent{ctx.GetStub().GetTxID(), "tokenHolderList", "", "", partition, 0}
 	err = transferEvent.EmitTransferEvent(ctx)
 	if err != nil {
 		logger.Error(err)

@@ -23,6 +23,7 @@ func TotalSupply(ctx contractapi.TransactionContextInterface) (*TotalSupplyStruc
 
 	totalSupply := TotalSupplyStruct{}
 	if err := json.Unmarshal(totalSupplyBytes, &totalSupply); err != nil {
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -55,12 +56,12 @@ func TotalSupplyByPartition(ctx contractapi.TransactionContextInterface, partiti
 func BalanceOfByPartition(ctx contractapi.TransactionContextInterface, _tokenHolder string, _partition string) (int64, error) {
 
 	// Create allowanceKey
-	walletKey, err := ctx.GetStub().CreateCompositeKey(BalanceOfByPartitionPrefix, []string{_tokenHolder, _partition})
+	balanceOfKey, err := ctx.GetStub().CreateCompositeKey(BalanceOfByPartitionPrefix, []string{_tokenHolder, _partition})
 	if err != nil {
 		return 0, fmt.Errorf("failed to create the composite key for prefix %s: %v", BalanceOfByPartitionPrefix, err)
 	}
 
-	partitionTokenBytes, err := ledgermanager.GetState(DocType_Token, walletKey, ctx)
+	partitionTokenBytes, err := ledgermanager.GetState(DocType_Token, balanceOfKey, ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -128,7 +129,7 @@ func ApproveByPartition(ctx contractapi.TransactionContextInterface, allowanceBy
 
 func IssueToken(ctx contractapi.TransactionContextInterface, token PartitionToken) (*PartitionToken, error) {
 
-	// IssueToken
+	// Issue Token
 	_, err := ledgermanager.PutState(DocType_Token, token.TokenID, token, ctx)
 	if err != nil {
 		logger.Error(err)
@@ -142,47 +143,36 @@ func IssueToken(ctx contractapi.TransactionContextInterface, token PartitionToke
 		return nil, fmt.Errorf("failed to create the composite key for prefix %s: %v", DocType_TotalSupplyByPartition, err)
 	}
 
-	_, err = ledgermanager.PutState(DocType_TotalSupplyByPartition, totalKey, TotalSupplyByPartitionStruct{TotalSupply: 0, Partition: token.TokenID}, ctx)
+	_, err = ledgermanager.PutState(DocType_TotalSupplyByPartition, totalKey, TotalSupplyByPartitionStruct{DocType: DocType_TotalSupplyByPartition, TotalSupply: 0, Partition: token.TokenID}, ctx)
 	if err != nil {
 		logger.Error(err)
 		return nil, err
 	}
 	logger.Infof("success putstate totalSupplyByPartition : %v", token.TokenID)
 
-	// Distribute List
+	// initialize token holder ledger
 	holderStruct := TokenHolderList{}
-	holderStruct.PartitionToken = token.TokenID
+	holderStruct.DocType = DocType_TokenHolderList
+	holderStruct.TokenId = token.TokenID
 	holderStruct.TokenInfo = token
 	holderStruct.IsLocked = false
-	// partitionTokenMap := make(map[string]PartitionToken)
-	// holderStruct.Recipients = partitionTokenMap
-	aaa := make(map[string]Recipient)
-	holderStruct.Recipient2 = aaa
+	holderStruct.IsDistributed = false
+	holderStruct.IsRedeemed = false
+	recipients := make(map[string]Recipient)
+	holderStruct.Recipients = recipients
 
-	// Create allowanceKey
-	listKey, err := ctx.GetStub().CreateCompositeKey(DocType_TokenHolderList, []string{token.TokenID})
+	// Create holderList Key
+	holderListKey, err := ctx.GetStub().CreateCompositeKey(DocType_TokenHolderList, []string{token.TokenID})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create the composite key for prefix %s: %v", BalanceOfByPartitionPrefix, err)
 	}
 
-	_, err = ledgermanager.PutState(DocType_TokenHolderList, listKey, holderStruct, ctx)
+	_, err = ledgermanager.PutState(DocType_TokenHolderList, holderListKey, holderStruct, ctx)
 	if err != nil {
 		logger.Error(err)
 		return nil, err
 	}
-	logger.Infof("success init tokenHolderList : %v", token.TokenID)
-
-	// // Create allowanceKey
-	// listKey2, err := ctx.GetStub().CreateCompositeKey(DocType_AirDrop, []string{token.TokenID})
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to create the composite key for prefix %s: %v", BalanceOfByPartitionPrefix, err)
-	// }
-
-	// _, err = ledgermanager.PutState(DocType_AirDrop, listKey2, holderStruct, ctx)
-	// if err != nil {
-	// 	logger.Error(err)
-	// 	return nil, err
-	// }
+	logger.Infof("success initialize tokenHolderList : %v", token.TokenID)
 
 	return &token, nil
 }
@@ -190,6 +180,7 @@ func IssueToken(ctx contractapi.TransactionContextInterface, token PartitionToke
 // 만약 undo 기능이 추가된다면, 투자 모집 진행 중 undo 발생 시 이를 어떻게 처리할거냐에 대한 고려가 들어가야함. 일단 이렇게만 적어놓겠음.
 func UndoIssueToken(ctx contractapi.TransactionContextInterface, token PartitionToken) (*PartitionToken, error) {
 
+	// lock token
 	tokenBytes, err := ledgermanager.GetState(DocType_Token, token.TokenID, ctx)
 	if err != nil {
 		logger.Error(err)
@@ -216,6 +207,38 @@ func UndoIssueToken(ctx contractapi.TransactionContextInterface, token Partition
 	}
 
 	err = ledgermanager.UpdateState(DocType_Token, token.TokenID, tokenToMap, ctx)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+
+	// lock token holder list
+	holderListKey, err := ctx.GetStub().CreateCompositeKey(DocType_TokenHolderList, []string{token.TokenID})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create the composite key for prefix %s: %v", DocType_TokenHolderList, err)
+	}
+
+	holderListBytes, err := ledgermanager.GetState(DocType_TokenHolderList, holderListKey, ctx)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+
+	holderListStruct := TokenHolderList{}
+	err = json.Unmarshal(holderListBytes, &holderListStruct)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+
+	holderListStruct.IsLocked = true
+	holderListToMap, err := ccutils.StructToMap(holderListStruct)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+
+	err = ledgermanager.UpdateState(DocType_TokenHolderList, holderListKey, holderListToMap, ctx)
 	if err != nil {
 		logger.Error(err)
 		return nil, err

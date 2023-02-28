@@ -13,10 +13,9 @@ const (
 	DocType_Allowance              = "DOCTYPE_ALLOWANCE"
 	DocType_Test                   = "DOCTYPE_TEST"
 	DocType_TokenHolderList        = "DOCTYPE_TOKENHOLDERLIST"
-	DocType_AirDrop                = "DOCTYPE_AIRDROP"
 
 	// Prefix
-	BalanceOfByPartitionPrefix = "balancePrefix"
+	BalanceOfByPartitionPrefix = "balanceOfByPartition"
 	allowanceByPartitionPrefix = "allowanceByPartition"
 )
 
@@ -25,6 +24,9 @@ type TotalSupplyStruct struct {
 	DocType string `json:"docType"`
 
 	TotalSupply int64 `json:"totalSupply"`
+
+	CreatedDate string `json:"createdDate"`
+	UpdatedDate string `json:"updatedDate"`
 }
 
 type TotalSupplyByPartitionStruct struct {
@@ -33,6 +35,9 @@ type TotalSupplyByPartitionStruct struct {
 	TotalSupply int64 `json:"totalSupply"`
 	// Partition Address
 	Partition string `json:"partition"`
+
+	CreatedDate string `json:"createdDate"`
+	UpdatedDate string `json:"updatedDate"`
 }
 
 type AllowanceByPartitionStruct struct {
@@ -42,11 +47,12 @@ type AllowanceByPartitionStruct struct {
 	Spender   string `json:"spender"`
 	Partition string `json:"partition"`
 	Amount    int64  `json:"amount"`
+
+	CreatedDate string `json:"createdDate"`
+	UpdatedDate string `json:"updatedDate"`
 }
 
 type TransferByPartitionStruct struct {
-	DocType string `json:"docType"`
-
 	From      string `json:"from"`
 	To        string `json:"to"`
 	Partition string `json:"partition"`
@@ -54,8 +60,6 @@ type TransferByPartitionStruct struct {
 }
 
 type MintByPartitionStruct struct {
-	DocType string `json:"docType"`
-
 	Minter    string `json:"minter"`
 	Partition string `json:"partition"`
 	Amount    int64  `json:"amount"`
@@ -97,27 +101,21 @@ type PartitionToken struct {
 type TokenHolderList struct {
 	DocType string `json:"docType"`
 
-	PartitionToken string `json:"partitionToken"`
-
-	// 여기에 단일 정보 하나 담고
+	TokenId   string         `json:"tokenId"`
 	TokenInfo PartitionToken `json:"tokenInfo"`
 
-	IsLocked bool `json:"isLocked`
-	// distribute 판별요소
+	// bool
+	IsLocked      bool `json:"isLocked`
 	IsDistributed bool `json:"isDistributed"`
-	IsAirDroped   bool `json:"isAirdroped"`
-	// 상환 판별요소
-	IsRedeemed bool `json:"isRedeemed"`
+	IsRedeemed    bool `json:"isRedeemed"`
 
-	Recipient2 map[string]Recipient `json:"recipients2"`
-	// recipient의 변동을 생각해 이도 map으로 짜는게 낫긴 함.
-	// 아래꺼 버리자
-	// Recipients map[string]PartitionToken `json:"recipients"`
+	Recipients map[string]Recipient `json:"recipients"`
+
+	CreatedDate string `json:"createdDate"`
+	UpdatedDate string `json:"updatedDate"`
 }
 
 type Recipient struct {
-	DocType string `json:"docType"`
-
 	TokenWalletId string `json:"tokenWalletId"`
 	TokenId       string `json:"tokenId"`
 	Amount        int64  `json:"amount"`

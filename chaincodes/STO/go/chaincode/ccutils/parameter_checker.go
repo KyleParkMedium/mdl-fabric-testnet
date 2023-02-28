@@ -152,9 +152,7 @@ func CheckTypeInt64(typeParameterFields []string, parameters map[string]interfac
 		int64Value := int64(value)
 
 		if value != float64(int64Value) {
-			fmt.Println("ch1")
 			logger.Errorf("check parameter type : parameter field = %v is not int64, value = %v, type = %v", typeParameterField, value, reflect.TypeOf(value))
-			fmt.Println("ch2")
 			return CreateError(ChaincodeError, fmt.Errorf("check parameter type : parameter field = %v is not int64, value = %v, type = %v", typeParameterField, value, reflect.TypeOf(value)))
 		}
 

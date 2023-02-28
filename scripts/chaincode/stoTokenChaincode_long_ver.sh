@@ -169,6 +169,11 @@ function BalanceOfByPartition() {
 
 function AllowanceByPartition() {
 
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+
+    org$ORG_NUM
+
     # set query
     echo ${FUNCNAME[0]}
 
@@ -249,6 +254,11 @@ function DecreaseAllowanceByPartition() {
 }
 
 function ApproveByPartition() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+
+    org$ORG_NUM
 
     # set query
     echo ${FUNCNAME[0]}
@@ -559,6 +569,11 @@ function MintByPartition() {
 }
 
 function BurnByPartition() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+
+    org$ORG_NUM
 
     # set query
     echo ${FUNCNAME[0]}
@@ -1070,13 +1085,14 @@ function set_options() {
         -c | --caller)
             shift
             who=$1
+            string+="\\\"caller\\\":\\\"$who\\\","
             ;;
         -h | --tokenHolder)
             shift
             tokenHolder0=$1
             # tokenHolder=$(cat ./log/${tokenHolder0}_Address.log)
-            tokenHolder=$(cat ${TEST_NETWORK_HOME}/log/${tokenHolder0}_Address.log)
-            string+="\\\"tokenHolder\\\":\\\"$tokenHolder\\\","
+            # tokenHolder=$(cat ${TEST_NETWORK_HOME}/log/${tokenHolder0}_Address.log)
+            string+="\\\"tokenHolder\\\":\\\"$tokenHolder0\\\","
             ;;
         -O | --operator)
             shift

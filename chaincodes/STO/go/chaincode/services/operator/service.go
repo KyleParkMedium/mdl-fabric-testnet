@@ -27,8 +27,6 @@ func IsOperatorByPartition(ctx contractapi.TransactionContextInterface, operator
 		return false, err
 	}
 
-	fmt.Println(operatorStruct)
-
 	if reflect.ValueOf(operatorStruct.Operator[partition]).IsZero() {
 		return false, fmt.Errorf("partition's operator data is not exist")
 	}

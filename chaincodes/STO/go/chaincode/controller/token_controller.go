@@ -3,7 +3,6 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
@@ -47,9 +46,7 @@ func (s *SmartContract) TotalSupply(ctx contractapi.TransactionContextInterface)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	log.Printf("TotalSupply: %d tokens", totalSupply)
-
-	logger.Infof("Success function : TotalSupply")
+	logger.Infof("Success function : TotalSupply : %v tokens", totalSupply.TotalSupply)
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], retData)
 }
 
@@ -62,7 +59,6 @@ func (s *SmartContract) TotalSupplyByPartition(ctx contractapi.TransactionContex
 	// Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
 	err := ccutils.GetMSPID(ctx)
 	if err != nil {
-		logger.Errorf("failed to get client msp id: %v", err)
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
@@ -81,6 +77,7 @@ func (s *SmartContract) TotalSupplyByPartition(ctx contractapi.TransactionContex
 		return ccutils.GenerateErrorResponse(err)
 	}
 
+	// args
 	partition := args[token.FieldPartition].(string)
 
 	totalSupplyByPartition, err := token.TotalSupplyByPartition(ctx, partition)
@@ -95,7 +92,7 @@ func (s *SmartContract) TotalSupplyByPartition(ctx contractapi.TransactionContex
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	logger.Infof("Success function : TotalSupplyByPartition")
+	logger.Infof("Success function : TotalSupplyByPartition \n token : %v, amount : %v", totalSupplyByPartition.Partition, totalSupplyByPartition.TotalSupply)
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], retData)
 }
 
@@ -122,6 +119,7 @@ func (s *SmartContract) BalanceOfByPartition(ctx contractapi.TransactionContextI
 		return ccutils.GenerateErrorResponse(err)
 	}
 
+	// args
 	_tokenHoler := args[token.FieldTokenHolder].(string)
 	_partition := args[token.FieldPartition].(string)
 
@@ -131,7 +129,7 @@ func (s *SmartContract) BalanceOfByPartition(ctx contractapi.TransactionContextI
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	logger.Infof("Success function : BalanceOfByPartition")
+	logger.Infof("Success function : BalanceOfByPartition \n holder : %v, token : %v, amount : %v", _tokenHoler, _partition, balanceOfByPartition)
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], balanceOfByPartition)
 }
 
@@ -158,6 +156,7 @@ func (s *SmartContract) AllowanceByPartition(ctx contractapi.TransactionContextI
 		return ccutils.GenerateErrorResponse(err)
 	}
 
+	// args
 	owner := args[token.FieldOwner].(string)
 	spender := args[token.FieldSpender].(string)
 	partition := args[token.FieldPartition].(string)
@@ -174,7 +173,7 @@ func (s *SmartContract) AllowanceByPartition(ctx contractapi.TransactionContextI
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	logger.Infof("Success function : AllowanceByPartition")
+	logger.Infof("Success function : AllowanceByPartition \n owner : %v, spender : %v, token : %v, amount : %v", owner, spender, partition, allowanceByPartition.Amount)
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], retData)
 }
 
@@ -188,20 +187,20 @@ func (s *SmartContract) ApproveByPartition(ctx contractapi.TransactionContextInt
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	id, err := ccutils.GetID(ctx)
+	_, err = ccutils.GetID(ctx)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	requireParameterFields := []string{token.FieldSpender, token.FieldPartition, token.FieldAmount}
+	requireParameterFields := []string{token.FieldOwner, token.FieldSpender, token.FieldPartition, token.FieldAmount}
 	err = ccutils.CheckRequireParameter(requireParameterFields, args)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	stringParameterFields := []string{token.FieldSpender, token.FieldPartition}
+	stringParameterFields := []string{token.FieldOwner, token.FieldSpender, token.FieldPartition}
 	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
 	if err != nil {
 		logger.Error(err)
@@ -215,7 +214,9 @@ func (s *SmartContract) ApproveByPartition(ctx contractapi.TransactionContextInt
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	owner := ccutils.GetAddress([]byte(id))
+	// args
+	// owner := ccutils.GetAddress([]byte(id))
+	owner := args[token.FieldOwner].(string)
 	spender := args[token.FieldSpender].(string)
 	partition := args[token.FieldPartition].(string)
 	amount := int64(args[token.FieldAmount].(float64))
@@ -226,14 +227,14 @@ func (s *SmartContract) ApproveByPartition(ctx contractapi.TransactionContextInt
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "Approval", owner, spender, partition, amount}
-	err = transferEvent.EmitTransferEvent(ctx)
+	approveEvent := ccutils.ApprovalEvent{ctx.GetStub().GetTxID(), "Approval", owner, spender, partition, amount}
+	err = approveEvent.EmitApprovalEvent(ctx)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	logger.Infof("Success function : ApproveByPartition")
+	logger.Infof("Success function : ApproveByPartition \n owner : %v, spender : %v, token : %v, amount : %v", owner, spender, partition, amount)
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], nil)
 }
 
@@ -247,20 +248,20 @@ func (s *SmartContract) IncreaseAllowanceByPartition(ctx contractapi.Transaction
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	id, err := ccutils.GetID(ctx)
+	_, err = ccutils.GetID(ctx)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	requireParameterFields := []string{token.FieldSpender, token.FieldPartition, token.FieldAmount}
+	requireParameterFields := []string{token.FieldOwner, token.FieldSpender, token.FieldPartition, token.FieldAmount}
 	err = ccutils.CheckRequireParameter(requireParameterFields, args)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	stringParameterFields := []string{token.FieldSpender, token.FieldPartition}
+	stringParameterFields := []string{token.FieldOwner, token.FieldSpender, token.FieldPartition}
 	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
 	if err != nil {
 		logger.Error(err)
@@ -274,8 +275,9 @@ func (s *SmartContract) IncreaseAllowanceByPartition(ctx contractapi.Transaction
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	// args Data
-	owner := ccutils.GetAddress([]byte(id))
+	// args
+	// owner := ccutils.GetAddress([]byte(id))
+	owner := args[token.FieldOwner].(string)
 	spender := args[token.FieldSpender].(string)
 	partition := args[token.FieldPartition].(string)
 	addedValue := int64(args[token.FieldAmount].(float64))
@@ -298,14 +300,14 @@ func (s *SmartContract) IncreaseAllowanceByPartition(ctx contractapi.Transaction
 		return nil, err
 	}
 
-	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "Approval", owner, spender, partition, addedValue}
-	err = transferEvent.EmitTransferEvent(ctx)
+	approvalEvent := ccutils.ApprovalEvent{ctx.GetStub().GetTxID(), "Approval", owner, spender, partition, addedValue}
+	err = approvalEvent.EmitApprovalEvent(ctx)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	logger.Infof("Success function : IncreaseAllowanceByPartition")
+	logger.Infof("Success function : IncreaseAllowanceByPartition \n owner : %v, spender : %v, token : %v, amount : %v", owner, spender, partition, addedValue)
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], nil)
 }
 
@@ -318,20 +320,20 @@ func (s *SmartContract) DecreaseAllowanceByPartition(ctx contractapi.Transaction
 		return nil, err
 	}
 
-	id, err := ccutils.GetID(ctx)
+	_, err = ccutils.GetID(ctx)
 	if err != nil {
 		logger.Errorf("failed to get client id: %v", err)
 		return nil, err
 	}
 
-	requireParameterFields := []string{token.FieldSpender, token.FieldPartition, token.FieldAmount}
+	requireParameterFields := []string{token.FieldOwner, token.FieldSpender, token.FieldPartition, token.FieldAmount}
 	err = ccutils.CheckRequireParameter(requireParameterFields, args)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	stringParameterFields := []string{token.FieldSpender, token.FieldPartition}
+	stringParameterFields := []string{token.FieldOwner, token.FieldSpender, token.FieldPartition}
 	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
 	if err != nil {
 		logger.Error(err)
@@ -345,8 +347,9 @@ func (s *SmartContract) DecreaseAllowanceByPartition(ctx contractapi.Transaction
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	// args Data
-	owner := ccutils.GetAddress([]byte(id))
+	// args
+	// owner := ccutils.GetAddress([]byte(id))
+	owner := args[token.FieldOwner].(string)
 	spender := args[token.FieldSpender].(string)
 	partition := args[token.FieldPartition].(string)
 	subtractedValue := int64(args[token.FieldAmount].(float64))
@@ -373,20 +376,20 @@ func (s *SmartContract) DecreaseAllowanceByPartition(ctx contractapi.Transaction
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "Approval", owner, spender, partition, subtractedValue}
-	err = transferEvent.EmitTransferEvent(ctx)
+	approvalEvent := ccutils.ApprovalEvent{ctx.GetStub().GetTxID(), "Approval", owner, spender, partition, subtractedValue}
+	err = approvalEvent.EmitApprovalEvent(ctx)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	logger.Infof("Success function : DecreaseAllowanceByPartition")
+	logger.Infof("Success function : DecreaseAllowanceByPartition \n owner : %v, spender : %v, token : %v, amount : %v", owner, spender, partition, subtractedValue)
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], nil)
 }
 
 func _approveByPartition(ctx contractapi.TransactionContextInterface, owner string, spender string, partition string, value int64) error {
 
-	allowanceByPartition := token.AllowanceByPartitionStruct{Owner: owner, Spender: spender, Partition: partition, Amount: value}
+	allowanceByPartition := token.AllowanceByPartitionStruct{DocType: token.DocType_Allowance, Owner: owner, Spender: spender, Partition: partition, Amount: value}
 
 	err := token.ApproveByPartition(ctx, allowanceByPartition)
 	if err != nil {
@@ -405,34 +408,35 @@ func (s *SmartContract) IssueToken(ctx contractapi.TransactionContextInterface, 
 		return nil, err
 	}
 
-	// id, err := ccutils.GetID(ctx)
-	// if err != nil {
-	// 	logger.Errorf("failed to get client id: %v", err)
-	// 	return nil, err
-	// }
+	_, err = ccutils.GetID(ctx)
+	if err != nil {
+		logger.Errorf("failed to get client id: %v", err)
+		return nil, err
+	}
 
-	// // owner Address
-	// address := ccutils.GetAddress([]byte(id))
+	requireParameterFields := []string{token.FieldTokenId, token.FieldPublisher, token.FieldRor, token.FieldInvestmentPeriod, token.FieldGrade, token.FieldPublicOfferingAmount, token.FieldStartDate, token.FieldEndDate}
+	err = ccutils.CheckRequireParameter(requireParameterFields, args)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-	// // Asset.Name, Asset.Partition
-	// requireParameterFields := []string{token.FieldPartition}
+	stringParameterFields := []string{token.FieldTokenId, token.FieldPublisher, token.FieldRor, token.FieldInvestmentPeriod, token.FieldGrade, token.FieldStartDate, token.FieldEndDate}
+	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-	// // codename.FieldCode
-	// err = ccutils.CheckRequireParameter(requireParameterFields, args)
-	// if err != nil {
-	// 	logger.Error(err)
-	// 	return ccutils.GenerateErrorResponse(err)
-	// }
+	int64ParameterFields := []string{token.FieldPublicOfferingAmount}
+	err = ccutils.CheckTypeInt64(int64ParameterFields, args)
+	if err != nil {
+		logger.Error(err)
+		return ccutils.GenerateErrorResponse(err)
+	}
 
-	// stringParameterFields := []string{token.FieldPartition}
-	// err = ccutils.CheckRequireTypeString(stringParameterFields, args)
-	// if err != nil {
-	// 	logger.Error(err)
-	// 	return ccutils.GenerateErrorResponse(err)
-	// }
-
-	// // args Data
-	// // partition := args[token.FieldPartition].(string)
+	// args
+	// partition := args[token.FieldPartition].(string)
 	tokenId := args[token.FieldTokenId].(string)
 	publisher := args[token.FieldPublisher].(string)
 	ror := args[token.FieldRor].(string)
@@ -444,6 +448,7 @@ func (s *SmartContract) IssueToken(ctx contractapi.TransactionContextInterface, 
 
 	// issue Token
 	newToken := token.PartitionToken{}
+	newToken.DocType = token.DocType_Token
 	newToken.TokenID = tokenId
 	newToken.Publisher = publisher
 	newToken.Ror = ror
@@ -453,7 +458,8 @@ func (s *SmartContract) IssueToken(ctx contractapi.TransactionContextInterface, 
 	newToken.StartDate = startDate
 	newToken.EndDate = endDate
 	newToken.IsLocked = false
-	newToken.CreatedDate = ccutils.CreateKstTime()
+	newToken.CreatedDate = ccutils.CreateKstTimeAndSecond()
+	newToken.UpdatedDate = newToken.CreatedDate
 
 	asset, err := token.IssueToken(ctx, newToken)
 	if err != nil {
@@ -461,7 +467,7 @@ func (s *SmartContract) IssueToken(ctx contractapi.TransactionContextInterface, 
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	// 임시 admin wallet
+	// get admin wallet
 	adminBytes, err := ledgermanager.GetState(wallet.DocType_AdminWallet, "AdminWallet", ctx)
 	if err != nil {
 		logger.Error(err)
@@ -488,7 +494,7 @@ func (s *SmartContract) IssueToken(ctx contractapi.TransactionContextInterface, 
 		return nil, err
 	}
 
-	// operator
+	// get operators
 	operatorBytes, err := ledgermanager.GetState(operator.DocType_Operator, "Operator", ctx)
 	if err != nil {
 		logger.Error(err)
@@ -515,8 +521,8 @@ func (s *SmartContract) IssueToken(ctx contractapi.TransactionContextInterface, 
 		return nil, err
 	}
 
-	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "Issue", publisher, "", tokenId, 0}
-	err = transferEvent.EmitTransferEvent(ctx)
+	issueEvent := ccutils.IssueEvent{ctx.GetStub().GetTxID(), "Issue", publisher, tokenId, 0}
+	err = issueEvent.EmitIssueEvent(ctx)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
@@ -528,7 +534,7 @@ func (s *SmartContract) IssueToken(ctx contractapi.TransactionContextInterface, 
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	logger.Infof("Success function : IssueToken")
+	logger.Infof("Success function : IssueToken \n token : %v", tokenId)
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], retData)
 }
 
@@ -541,32 +547,28 @@ func (s *SmartContract) UndoIssueToken(ctx contractapi.TransactionContextInterfa
 		return nil, err
 	}
 
-	id, err := ccutils.GetID(ctx)
+	_, err = ccutils.GetID(ctx)
 	if err != nil {
 		logger.Errorf("failed to get client id: %v", err)
 		return nil, err
 	}
 
-	// owner Address
-	address := ccutils.GetAddress([]byte(id))
-
-	// Asset.Name, Asset.Partition
-	requireParameterFields := []string{token.FieldPartition}
-
-	// codename.FieldCode
+	requireParameterFields := []string{token.FieldCaller, token.FieldPartition}
 	err = ccutils.CheckRequireParameter(requireParameterFields, args)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	stringParameterFields := []string{token.FieldPartition}
+	stringParameterFields := []string{token.FieldCaller, token.FieldPartition}
 	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
 	}
 
+	// args
+	address := args[token.FieldCaller].(string)
 	partition := args[token.FieldPartition].(string)
 
 	tokenStruct := token.PartitionToken{Publisher: address, TokenID: partition}
@@ -577,8 +579,8 @@ func (s *SmartContract) UndoIssueToken(ctx contractapi.TransactionContextInterfa
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "UndoIssue", address, "", partition, 0}
-	err = transferEvent.EmitTransferEvent(ctx)
+	issueEvent := ccutils.IssueEvent{ctx.GetStub().GetTxID(), "UndoIssue", "Locked", partition, 0}
+	err = issueEvent.EmitIssueEvent(ctx)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
@@ -590,65 +592,7 @@ func (s *SmartContract) UndoIssueToken(ctx contractapi.TransactionContextInterfa
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	logger.Infof("Success function : UndoIssueToken")
-	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], retData)
-}
-
-func (s *SmartContract) RedeemToken(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
-
-	// Check minter authorization - this sample assumes Org1 is the central banker with privilege to mint new tokens
-	err := ccutils.GetMSPID(ctx)
-	if err != nil {
-		logger.Errorf("failed to get client msp id: %v", err)
-		return nil, err
-	}
-
-	id, err := ccutils.GetID(ctx)
-	if err != nil {
-		logger.Errorf("failed to get client id: %v", err)
-		return nil, err
-	}
-
-	requireParameterFields := []string{token.FieldPartition}
-	err = ccutils.CheckRequireParameter(requireParameterFields, args)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	stringParameterFields := []string{token.FieldPartition}
-	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	// args Data
-	holder := ccutils.GetAddress([]byte(id))
-	partition := args[token.FieldPartition].(string)
-
-	redeemStruct := token.RedeemTokenStruct{Holder: holder, Partition: partition}
-
-	asset, err := wallet.RedeemToken(ctx, redeemStruct)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "Redeem", holder, "", partition, 0}
-	err = transferEvent.EmitTransferEvent(ctx)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	retData, err := ccutils.StructToMap(asset)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	logger.Infof("Success function : RedeemToken")
+	logger.Infof("Success function : UndoIssueToken \n token : %v", partition)
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], retData)
 }
 
@@ -681,7 +625,7 @@ func (s *SmartContract) IsIssuable(ctx contractapi.TransactionContextInterface, 
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	// args Data
+	// args
 	partition := args[token.FieldPartition].(string)
 
 	err = token.IsIssuable(ctx, partition)
@@ -690,21 +634,8 @@ func (s *SmartContract) IsIssuable(ctx contractapi.TransactionContextInterface, 
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	transferEvent := ccutils.Event{ctx.GetStub().GetTxID(), "IsIssuable", "", "", partition, 0}
-	err = transferEvent.EmitTransferEvent(ctx)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	retData, err := ccutils.StructToMap("true")
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	logger.Infof("Success function : IsIssuable")
-	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], retData)
+	logger.Infof("Success function : IsIssuable \n Issuable : true")
+	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], "true")
 }
 
 func (s *SmartContract) GetTokenList(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {

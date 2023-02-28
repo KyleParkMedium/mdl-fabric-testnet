@@ -15,6 +15,9 @@ type AdminWallet struct {
 	AdminName string `json:"adminName"`
 
 	PartitionTokens map[string]map[string]token.PartitionToken `json:"partitionTokens"`
+
+	CreatedDate string `json:"createdDate"`
+	UpdatedDate string `json:"updatedDate"`
 }
 
 // 원장 지갑
@@ -28,10 +31,12 @@ type TokenWallet struct {
 	// 계좌번호
 	AccountNumber string `json:"accountNumber"`
 
+	// bool
+	IsLocked bool `json:"islocked"`
+
 	CreatedDate string `json:"createdDate"`
 	UpdatedDate string `json:"updatedDate"`
 	ExpiredDate string `json:"expiredDate"`
-	IsLocked    bool   `json:"islocked"`
 
 	PartitionTokens map[string][]token.PartitionToken `json:"partitionTokens"`
 }
