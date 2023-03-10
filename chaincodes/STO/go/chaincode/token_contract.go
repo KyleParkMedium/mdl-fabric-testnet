@@ -2,6 +2,7 @@ package chaincode
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
@@ -113,7 +114,7 @@ func (s *SmartContract) IsInit(ctx contractapi.TransactionContextInterface) erro
 
 	// Init totalSupply
 	logger.Info("Init TotalSupply Ledger")
-	_, err = ledgermanager.PutState(token.DocType_TotalSupply, "TotalSupply", token.TotalSupplyStruct{DocType: token.DocType_TotalSupply, TotalSupply: 0}, ctx)
+	_, err = ledgermanager.PutState(token.DocType_TotalSupply, "TotalSupply", token.TotalSupplyStruct{DocType: token.DocType_TotalSupply, TotalSupply: 0, ToTalSupplyBig: big.NewInt(0)}, ctx)
 	if err != nil {
 		logger.Error(err)
 		return err
@@ -221,3 +222,38 @@ func (s *SmartContract) ClientAccountID(ctx contractapi.TransactionContextInterf
 
 	return clientAccountID, nil
 }
+
+// func (s *SmartContract) SetTotalSupplyBig(ctx contractapi.TransactionContextInterface) (int64, error) {
+
+// 	totalSupplyBytes, err := ledgermanager.GetState(token.DocType_TotalSupply, "TotalSupply", ctx)
+// 	if err != nil {
+// 		logger.Error(err)
+// 		return 0, err
+// 	}
+
+// 	totalSupply := token.TotalSupplyStruct{}
+// 	if err := json.Unmarshal(totalSupplyBytes, &totalSupply); err != nil {
+// 		logger.Error(err)
+// 		return 0, err
+// 	}
+
+// 	imsy := totalSupply.TotalSupply
+
+// 	totalSupply.ToTalSupplyBig = big.NewInt(imsy)
+
+// 	b := make(map[string]interface{})
+// 	b["docType"] = token.DocType_TotalSupply
+// 	b["totalSupply"] = imsy
+// 	b["totalSupplyBig"] = big.NewInt(imsy)
+
+// 	asIsDataBytes, err := json.Marshal(b)
+// 	if err != nil {
+// 		return 0, err
+// 	}
+
+// 	if err := ctx.GetStub().PutState("TotalSupply", asIsDataBytes); err != nil {
+// 		return 0, err
+// 	}
+
+// 	return imsy, nil
+// }

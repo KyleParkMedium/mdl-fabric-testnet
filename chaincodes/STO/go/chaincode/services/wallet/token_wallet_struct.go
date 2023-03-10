@@ -32,7 +32,7 @@ type TokenWallet struct {
 	AccountNumber string `json:"accountNumber"`
 
 	// bool
-	IsLocked bool `json:"islocked"`
+	IsLocked bool `json:"isLocked"`
 
 	CreatedDate string `json:"createdDate"`
 	UpdatedDate string `json:"updatedDate"`

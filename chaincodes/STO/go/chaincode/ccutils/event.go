@@ -3,17 +3,19 @@ package ccutils
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
 type ApprovalEvent struct {
-	TxId      string `json:"txId"`
-	Type      string `json:"type"`
-	Owner     string `json:"owner"`
-	Spender   string `json:"spender"`
-	Partition string `json:"partition"`
-	Amount    int64  `json:"amount"`
+	TxId      string   `json:"txId"`
+	Type      string   `json:"type"`
+	Owner     string   `json:"owner"`
+	Spender   string   `json:"spender"`
+	Partition string   `json:"partition"`
+	Amount    int64    `json:"amount"`
+	AmountBig *big.Int `json:"amountBig"`
 }
 
 func (e *ApprovalEvent) EmitApprovalEvent(ctx contractapi.TransactionContextInterface) error {
@@ -32,11 +34,12 @@ func (e *ApprovalEvent) EmitApprovalEvent(ctx contractapi.TransactionContextInte
 }
 
 type IssueEvent struct {
-	TxId      string `json:"txId"`
-	Type      string `json:"type"`
-	Publisher string `json:"publisher"`
-	Partition string `json:"partition"`
-	Amount    int64  `json:"amount"`
+	TxId      string   `json:"txId"`
+	Type      string   `json:"type"`
+	Publisher string   `json:"publisher"`
+	Partition string   `json:"partition"`
+	Amount    int64    `json:"amount"`
+	AmountBig *big.Int `json:"amountBig"`
 }
 
 func (e *IssueEvent) EmitIssueEvent(ctx contractapi.TransactionContextInterface) error {
@@ -55,12 +58,13 @@ func (e *IssueEvent) EmitIssueEvent(ctx contractapi.TransactionContextInterface)
 }
 
 type TransferEvent struct {
-	TxId      string `json:"txId"`
-	Type      string `json:"type"`
-	From      string `json:"from"`
-	To        string `json:"to"`
-	Partition string `json:"partition"`
-	Amount    int64  `json:"amount"`
+	TxId      string   `json:"txId"`
+	Type      string   `json:"type"`
+	From      string   `json:"from"`
+	To        string   `json:"to"`
+	Partition string   `json:"partition"`
+	Amount    int64    `json:"amount"`
+	AmountBig *big.Int `json:"amountBig"`
 }
 
 func (e *TransferEvent) EmitTransferEvent(ctx contractapi.TransactionContextInterface) error {

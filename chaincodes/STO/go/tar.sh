@@ -1,3 +1,6 @@
+go build
+
+rm -r mdl-chaincodes
 rm -rf STO
 rm -rf STO.tar
 mkdir -p STO

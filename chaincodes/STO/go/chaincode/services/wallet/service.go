@@ -3,6 +3,7 @@ package wallet
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"reflect"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -28,6 +29,68 @@ func CreateWallet(ctx contractapi.TransactionContextInterface, tokenWallet Token
 }
 
 func TransferByPartition(ctx contractapi.TransactionContextInterface, transferByPartition token.TransferByPartitionStruct) error {
+
+	tokenBytes, err := ledgermanager.GetState(token.DocType_Token, transferByPartition.Partition, ctx)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	tokenStruct := token.PartitionToken{}
+	if err := json.Unmarshal(tokenBytes, &tokenStruct); err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	if tokenStruct.IsLocked == true {
+		return fmt.Errorf("%v token is already locked", transferByPartition.Partition)
+	}
+
+	// Get Holder List
+	holderListKey, err := ctx.GetStub().CreateCompositeKey(token.DocType_TokenHolderList, []string{transferByPartition.Partition})
+	if err != nil {
+		logger.Errorf("failed to create the composite key for prefix %s: %v", token.DocType_TokenHolderList, err)
+		return fmt.Errorf("failed to create the composite key for prefix %s: %v", token.DocType_TokenHolderList, err)
+	}
+
+	holderListBytes, err := ledgermanager.GetState(token.DocType_TokenHolderList, holderListKey, ctx)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	holderListStruct := token.TokenHolderList{}
+	err = json.Unmarshal(holderListBytes, &holderListStruct)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	if holderListStruct.IsDistributed == false {
+		return fmt.Errorf("you have to run the distribution first : %v token", transferByPartition.Partition)
+	}
+
+	fromChangeValue := holderListStruct.Recipients[transferByPartition.From]
+	fromChangeValue.Amount -= transferByPartition.Amount
+	fromChangeValue.AmountBig.Sub(fromChangeValue.AmountBig, transferByPartition.AmountBig)
+	holderListStruct.Recipients[transferByPartition.From] = fromChangeValue
+
+	toChangeValue := holderListStruct.Recipients[transferByPartition.To]
+	toChangeValue.Amount += transferByPartition.Amount
+	toChangeValue.AmountBig.Add(toChangeValue.AmountBig, transferByPartition.AmountBig)
+	holderListStruct.Recipients[transferByPartition.To] = toChangeValue
+
+	listToMap, err := ccutils.StructToMap(holderListStruct)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	err = ledgermanager.UpdateState(token.DocType_TokenHolderList, holderListKey, listToMap, ctx)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
 
 	fromBytes, err := ledgermanager.GetState(DocType_TokenWallet, transferByPartition.From, ctx)
 	if err != nil {
@@ -72,20 +135,25 @@ func TransferByPartition(ctx contractapi.TransactionContextInterface, transferBy
 	// Math
 	fromUpdatedBalance := fromCurrentBalance - transferByPartition.Amount
 	fromWallet.PartitionTokens[transferByPartition.Partition][0].Amount = fromUpdatedBalance
+	imsy := fromWallet.PartitionTokens[transferByPartition.Partition][0].AmountBig
+	imsy.Sub(imsy, transferByPartition.AmountBig)
+	fromWallet.PartitionTokens[transferByPartition.Partition][0].AmountBig = imsy
 
 	// toUpdatedBalance := toCurrentBalance + transferByPartition.Amount
 	// toWallet.PartitionTokens[transferByPartition.Partition][0].Amount = toUpdatedBalance
 
-	var toUpdatedBalance int64
+	// token.PartitionToken{Amount: transferByPartition.Amount}
 	// 우선 이렇게 처리
 	if reflect.ValueOf(toWallet.PartitionTokens[transferByPartition.Partition]).IsZero() {
 		partitionTokenMap := make(map[string][]token.PartitionToken)
-		partitionTokenMap[transferByPartition.Partition] = append(partitionTokenMap[transferByPartition.Partition], token.PartitionToken{Amount: transferByPartition.Amount})
+		partitionTokenMap[transferByPartition.Partition] = append(partitionTokenMap[transferByPartition.Partition], fromWallet.PartitionTokens[transferByPartition.Partition][0])
 		toWallet.PartitionTokens = partitionTokenMap
-		toUpdatedBalance = transferByPartition.Amount
+		toWallet.PartitionTokens[transferByPartition.Partition][0].TokenHolderID = toWallet.TokenWalletId
+		toWallet.PartitionTokens[transferByPartition.Partition][0].Amount = transferByPartition.Amount
+		toWallet.PartitionTokens[transferByPartition.Partition][0].AmountBig = transferByPartition.AmountBig
 	} else {
 		toWallet.PartitionTokens[transferByPartition.Partition][0].Amount += transferByPartition.Amount
-		toUpdatedBalance = toWallet.PartitionTokens[transferByPartition.Partition][0].Amount
+		toWallet.PartitionTokens[transferByPartition.Partition][0].AmountBig.Add(toWallet.PartitionTokens[transferByPartition.Partition][0].AmountBig, transferByPartition.AmountBig)
 	}
 
 	fromToMap, err := ccutils.StructToMap(fromWallet)
@@ -111,45 +179,63 @@ func TransferByPartition(ctx contractapi.TransactionContextInterface, transferBy
 	}
 
 	// balanceOf
-	fromBalanceKey, err := ctx.GetStub().CreateCompositeKey(token.BalanceOfByPartitionPrefix, []string{transferByPartition.From, transferByPartition.Partition})
+	fromBalanceOfKey, err := ctx.GetStub().CreateCompositeKey(token.BalanceOfByPartitionPrefix, []string{transferByPartition.From, transferByPartition.Partition})
 	if err != nil {
 		logger.Error(err)
 		return err
 	}
 
-	fromPartitionToken := token.PartitionToken{}
-	fromPartitionToken.DocType = token.DocType_Token
-	fromPartitionToken.Amount = fromUpdatedBalance
-	fromPartitionTokenBytes, err := json.Marshal(fromPartitionToken)
+	fromBalanceOfBytes, err := ledgermanager.GetState(token.DocType_Token, fromBalanceOfKey, ctx)
+	if err != nil {
+		return err
+	}
+
+	fromBalanceOfData := token.PartitionToken{}
+	err = json.Unmarshal(fromBalanceOfBytes, &fromBalanceOfData)
+	if err != nil {
+		return err
+	}
+
+	fromBalanceOfData.SubAmount(transferByPartition.Amount)
+	fromBalanceOfData.AmountBig.Sub(fromBalanceOfData.AmountBig, transferByPartition.AmountBig)
+
+	fromBalanceOfToMap, err := ccutils.StructToMap(fromBalanceOfData)
+	if err != nil {
+		return err
+	}
+
+	err = ledgermanager.UpdateState(token.DocType_Token, fromBalanceOfKey, fromBalanceOfToMap, ctx)
+	if err != nil {
+		return err
+	}
+
+	toBalanceOfKey, err := ctx.GetStub().CreateCompositeKey(token.BalanceOfByPartitionPrefix, []string{transferByPartition.To, transferByPartition.Partition})
 	if err != nil {
 		logger.Error(err)
 		return err
 	}
 
-	err = ctx.GetStub().PutState(fromBalanceKey, fromPartitionTokenBytes)
+	toBalanceOfBytes, err := ledgermanager.GetState(token.DocType_Token, toBalanceOfKey, ctx)
 	if err != nil {
-		logger.Error(err)
 		return err
 	}
 
-	toBalanceKey, err := ctx.GetStub().CreateCompositeKey(token.BalanceOfByPartitionPrefix, []string{transferByPartition.To, transferByPartition.Partition})
+	toBalanceOfData := token.PartitionToken{}
+	err = json.Unmarshal(toBalanceOfBytes, &toBalanceOfData)
 	if err != nil {
-		logger.Error(err)
 		return err
 	}
 
-	toPartitionToken := token.PartitionToken{}
-	toPartitionToken.DocType = token.DocType_Token
-	toPartitionToken.Amount = toUpdatedBalance
-	toPartitionTokenBytes, err := json.Marshal(toPartitionToken)
+	toBalanceOfData.AddAmount(transferByPartition.Amount)
+	toBalanceOfData.AmountBig.Add(toBalanceOfData.AmountBig, transferByPartition.AmountBig)
+
+	toBalanceOfToMap, err := ccutils.StructToMap(toBalanceOfData)
 	if err != nil {
-		logger.Error(err)
 		return err
 	}
 
-	err = ctx.GetStub().PutState(toBalanceKey, toPartitionTokenBytes)
+	err = ledgermanager.UpdateState(token.DocType_Token, toBalanceOfKey, toBalanceOfToMap, ctx)
 	if err != nil {
-		logger.Error(err)
 		return err
 	}
 
@@ -212,6 +298,9 @@ func MintByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 	}
 
 	wallet.PartitionTokens[mintByPartition.Partition][0].AddAmount(mintByPartition.Amount)
+	imsy := wallet.PartitionTokens[mintByPartition.Partition][0].AmountBig
+	imsy.Add(imsy, big.NewInt(mintByPartition.Amount))
+	wallet.PartitionTokens[mintByPartition.Partition][0].AmountBig = imsy
 
 	mintByPartitionToMap, err := ccutils.StructToMap(wallet)
 	if err != nil {
@@ -225,6 +314,7 @@ func MintByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 
 	changeValue := holderListStruct.Recipients[mintByPartition.Minter]
 	changeValue.Amount = wallet.PartitionTokens[mintByPartition.Partition][0].Amount
+	changeValue.AmountBig = wallet.PartitionTokens[mintByPartition.Partition][0].AmountBig
 	holderListStruct.Recipients[mintByPartition.Minter] = changeValue
 
 	listToMap, err := ccutils.StructToMap(holderListStruct)
@@ -259,6 +349,7 @@ func MintByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 	}
 
 	partitionToken.Amount = wallet.PartitionTokens[mintByPartition.Partition][0].Amount
+	partitionToken.AmountBig = wallet.PartitionTokens[mintByPartition.Partition][0].AmountBig
 
 	balanceOfByPartitionToMap, err := ccutils.StructToMap(partitionToken)
 	if err != nil {
@@ -287,6 +378,9 @@ func MintByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 		logger.Error(err)
 		return err
 	}
+	imsy = totalSupply.ToTalSupplyBig
+	imsy.Add(imsy, big.NewInt(mintByPartition.Amount))
+	totalSupply.ToTalSupplyBig = imsy
 
 	totalSupplyMap, err := ccutils.StructToMap(totalSupply)
 	if err != nil {
@@ -318,6 +412,9 @@ func MintByPartition(ctx contractapi.TransactionContextInterface, mintByPartitio
 	}
 
 	totalSupplyByPartition.AddAmount(mintByPartition.Amount)
+	imsy = totalSupplyByPartition.ToTalSupplyBig
+	imsy.Add(imsy, big.NewInt(mintByPartition.Amount))
+	totalSupplyByPartition.ToTalSupplyBig = imsy
 
 	totalSupplyByPartitionMap, err := ccutils.StructToMap(totalSupplyByPartition)
 	if err != nil {
@@ -394,6 +491,9 @@ func BurnByPartition(ctx contractapi.TransactionContextInterface, burnByPartitio
 		logger.Error(err)
 		return err
 	}
+	imsy := wallet.PartitionTokens[burnByPartition.Partition][0].AmountBig
+	imsy.Sub(imsy, burnByPartition.AmountBig)
+	wallet.PartitionTokens[burnByPartition.Partition][0].AmountBig = imsy
 
 	burnByPartitionToMap, err := ccutils.StructToMap(wallet)
 	if err != nil {
@@ -409,6 +509,7 @@ func BurnByPartition(ctx contractapi.TransactionContextInterface, burnByPartitio
 
 	changeValue := holderListStruct.Recipients[burnByPartition.Minter]
 	changeValue.Amount = wallet.PartitionTokens[burnByPartition.Partition][0].Amount
+	changeValue.AmountBig = wallet.PartitionTokens[burnByPartition.Partition][0].AmountBig
 	holderListStruct.Recipients[burnByPartition.Minter] = changeValue
 
 	listToMap, err := ccutils.StructToMap(holderListStruct)
@@ -443,6 +544,7 @@ func BurnByPartition(ctx contractapi.TransactionContextInterface, burnByPartitio
 	}
 
 	partitionToken.Amount = wallet.PartitionTokens[burnByPartition.Partition][0].Amount
+	partitionToken.AmountBig = wallet.PartitionTokens[burnByPartition.Partition][0].AmountBig
 
 	balanceOfByPartitionToMap, err := ccutils.StructToMap(partitionToken)
 	if err != nil {
@@ -467,6 +569,9 @@ func BurnByPartition(ctx contractapi.TransactionContextInterface, burnByPartitio
 	}
 
 	totalSupply.SubAmount(burnByPartition.Amount)
+	imsy = totalSupply.ToTalSupplyBig
+	imsy.Sub(imsy, burnByPartition.AmountBig)
+	totalSupply.ToTalSupplyBig = imsy
 
 	totalSupplyMap, err := ccutils.StructToMap(totalSupply)
 	if err != nil {
@@ -497,6 +602,9 @@ func BurnByPartition(ctx contractapi.TransactionContextInterface, burnByPartitio
 	}
 
 	totalSupplyByPartition.SubAmount(burnByPartition.Amount)
+	imsy = totalSupplyByPartition.ToTalSupplyBig
+	imsy.Sub(imsy, burnByPartition.AmountBig)
+	totalSupplyByPartition.ToTalSupplyBig = imsy
 
 	totalSupplyByPartitionMap, err := ccutils.StructToMap(totalSupplyByPartition)
 	if err != nil {

@@ -2,7 +2,7 @@ package distribute
 
 import (
 	"encoding/json"
-	"fmt"
+	"math/big"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
@@ -62,29 +62,6 @@ func DistributeToken(ctx contractapi.TransactionContextInterface, airDrop AirDro
 	return nil
 }
 
-func GetHolderList(ctx contractapi.TransactionContextInterface, partition string) (*token.TokenHolderList, error) {
-
-	// Create allowanceKey
-	listKey, err := ctx.GetStub().CreateCompositeKey(token.DocType_TokenHolderList, []string{partition})
-	if err != nil {
-		return nil, fmt.Errorf("failed to create the composite key for prefix %s: %v", token.DocType_TokenHolderList, err)
-	}
-
-	listBytes, err := ledgermanager.GetState(token.DocType_TokenHolderList, listKey, ctx)
-	if err != nil {
-		logger.Error(err)
-		return nil, err
-	}
-
-	listStruct := token.TokenHolderList{}
-	if err := json.Unmarshal(listBytes, &listStruct); err != nil {
-		return nil, err
-	}
-
-	return &listStruct, nil
-
-}
-
 func UpdateTotalSupply(ctx contractapi.TransactionContextInterface, partition string, update int64) error {
 
 	totalSupplyBytes, err := ledgermanager.GetState(token.DocType_TotalSupply, "TotalSupply", ctx)
@@ -98,6 +75,10 @@ func UpdateTotalSupply(ctx contractapi.TransactionContextInterface, partition st
 	}
 
 	totalSupply.AddAmount(update)
+
+	imsy := totalSupply.ToTalSupplyBig
+	imsy.Add(imsy, big.NewInt(update))
+	totalSupply.ToTalSupplyBig = imsy
 
 	totalSupplyMap, err := ccutils.StructToMap(totalSupply)
 	if err != nil {
@@ -126,6 +107,9 @@ func UpdateTotalSupply(ctx contractapi.TransactionContextInterface, partition st
 	}
 
 	totalSupplyByPartition.AddAmount(update)
+	imsy = totalSupplyByPartition.ToTalSupplyBig
+	imsy.Add(imsy, big.NewInt(update))
+	totalSupplyByPartition.ToTalSupplyBig = imsy
 
 	totalSupplyByPartitionMap, err := ccutils.StructToMap(totalSupplyByPartition)
 	if err != nil {
@@ -155,6 +139,7 @@ func RedeemToken(ctx contractapi.TransactionContextInterface, airDrop AirDropStr
 	}
 
 	walletData.PartitionTokens[airDrop.PartitionToken.TokenID][0].Amount = 0
+	walletData.PartitionTokens[airDrop.PartitionToken.TokenID][0].AmountBig = big.NewInt(0)
 	walletData.PartitionTokens[airDrop.PartitionToken.TokenID][0].IsLocked = true
 
 	walletToMap, err := ccutils.StructToMap(walletData)
@@ -175,6 +160,7 @@ func RedeemToken(ctx contractapi.TransactionContextInterface, airDrop AirDropStr
 
 	update := airDrop.PartitionToken
 	update.Amount = 0
+	update.AmountBig = big.NewInt(0)
 
 	balanceOfToMap, err := ccutils.StructToMap(update)
 	if err != nil {
@@ -229,12 +215,14 @@ func SetAdminWallet(ctx contractapi.TransactionContextInterface, holderListKey s
 		// token := adminStruct.PartitionTokens[value.TokenId][value.TokenWalletId]
 		token := listStruct.TokenInfo
 		token.Amount = value.Amount
+		token.AmountBig = big.NewInt(value.Amount)
 		adminStruct.PartitionTokens[value.TokenId][value.TokenWalletId] = token
 
 		logger.Infof("success transfer %v token (amount : %v), wallet %v to admin %v", listStruct.TokenId, value.Amount, value.TokenWalletId, adminStruct.AdminName)
 
 		changeValue := value
 		changeValue.Amount = 0
+		changeValue.AmountBig = big.NewInt(0)
 		resultMap.Recipients[key] = changeValue
 	}
 

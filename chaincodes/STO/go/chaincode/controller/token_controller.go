@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
@@ -227,7 +228,7 @@ func (s *SmartContract) ApproveByPartition(ctx contractapi.TransactionContextInt
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	approveEvent := ccutils.ApprovalEvent{ctx.GetStub().GetTxID(), "Approval", owner, spender, partition, amount}
+	approveEvent := ccutils.ApprovalEvent{ctx.GetStub().GetTxID(), "Approval", owner, spender, partition, amount, big.NewInt(amount)}
 	err = approveEvent.EmitApprovalEvent(ctx)
 	if err != nil {
 		logger.Error(err)
@@ -292,15 +293,19 @@ func (s *SmartContract) IncreaseAllowanceByPartition(ctx contractapi.Transaction
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	allowance := allowanceByPartition.Amount
+	allowanceByPartition.AddAmount(addedValue)
 
-	err = _approveByPartition(ctx, owner, spender, partition, allowance+addedValue)
+	imsy := allowanceByPartition.AmountBig
+	imsy.Add(imsy, big.NewInt(addedValue))
+	allowanceByPartition.AmountBig = imsy
+
+	err = token.ApproveByPartition(ctx, *allowanceByPartition)
 	if err != nil {
 		logger.Error(err)
 		return nil, err
 	}
 
-	approvalEvent := ccutils.ApprovalEvent{ctx.GetStub().GetTxID(), "Approval", owner, spender, partition, addedValue}
+	approvalEvent := ccutils.ApprovalEvent{ctx.GetStub().GetTxID(), "Approval", owner, spender, partition, addedValue, big.NewInt(addedValue)}
 	err = approvalEvent.EmitApprovalEvent(ctx)
 	if err != nil {
 		logger.Error(err)
@@ -370,13 +375,19 @@ func (s *SmartContract) DecreaseAllowanceByPartition(ctx contractapi.Transaction
 		return nil, fmt.Errorf("The subtraction is greater than the allowable amount. ERC20: decreased allowance below zero : %v", err)
 	}
 
-	err = _approveByPartition(ctx, owner, spender, partition, allowance-subtractedValue)
+	allowanceByPartition.SubAmount(subtractedValue)
+
+	imsy := allowanceByPartition.AmountBig
+	imsy.Sub(imsy, big.NewInt(subtractedValue))
+	allowanceByPartition.AmountBig = imsy
+
+	err = token.ApproveByPartition(ctx, *allowanceByPartition)
 	if err != nil {
 		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
+		return nil, err
 	}
 
-	approvalEvent := ccutils.ApprovalEvent{ctx.GetStub().GetTxID(), "Approval", owner, spender, partition, subtractedValue}
+	approvalEvent := ccutils.ApprovalEvent{ctx.GetStub().GetTxID(), "Approval", owner, spender, partition, subtractedValue, big.NewInt(subtractedValue)}
 	err = approvalEvent.EmitApprovalEvent(ctx)
 	if err != nil {
 		logger.Error(err)
@@ -389,7 +400,7 @@ func (s *SmartContract) DecreaseAllowanceByPartition(ctx contractapi.Transaction
 
 func _approveByPartition(ctx contractapi.TransactionContextInterface, owner string, spender string, partition string, value int64) error {
 
-	allowanceByPartition := token.AllowanceByPartitionStruct{DocType: token.DocType_Allowance, Owner: owner, Spender: spender, Partition: partition, Amount: value}
+	allowanceByPartition := token.AllowanceByPartitionStruct{DocType: token.DocType_Allowance, Owner: owner, Spender: spender, Partition: partition, Amount: value, AmountBig: big.NewInt(value)}
 
 	err := token.ApproveByPartition(ctx, allowanceByPartition)
 	if err != nil {
@@ -439,6 +450,7 @@ func (s *SmartContract) IssueToken(ctx contractapi.TransactionContextInterface, 
 	// partition := args[token.FieldPartition].(string)
 	tokenId := args[token.FieldTokenId].(string)
 	publisher := args[token.FieldPublisher].(string)
+	publisherUuid := args[token.FieldPublisherUuid].(string)
 	ror := args[token.FieldRor].(string)
 	investmentPeriod := args[token.FieldInvestmentPeriod].(string)
 	grade := args[token.FieldGrade].(string)
@@ -451,15 +463,36 @@ func (s *SmartContract) IssueToken(ctx contractapi.TransactionContextInterface, 
 	newToken.DocType = token.DocType_Token
 	newToken.TokenID = tokenId
 	newToken.Publisher = publisher
+	newToken.PublisherUuid = publisherUuid
 	newToken.Ror = ror
 	newToken.InvestmentPeriod = investmentPeriod
 	newToken.Grade = grade
+	newToken.AmountBig = big.NewInt(0)
 	newToken.PublicOfferingAmount = publicOfferingAmount
+	newToken.PublicOfferingAmountBig = big.NewInt(publicOfferingAmount)
+	newToken.NumberOfTokens = publicOfferingAmount / 5000
+	newToken.NumberOfTokensBig = big.NewInt(publicOfferingAmount / 5000)
 	newToken.StartDate = startDate
 	newToken.EndDate = endDate
 	newToken.IsLocked = false
 	newToken.CreatedDate = ccutils.CreateKstTimeAndSecond()
 	newToken.UpdatedDate = newToken.CreatedDate
+
+	// check publisher role
+	walletBytes, err := ledgermanager.GetState(wallet.DocType_TokenWallet, publisherUuid, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	walletData := wallet.TokenWallet{}
+	err = json.Unmarshal(walletBytes, &walletData)
+	if err != nil {
+		return nil, err
+	}
+
+	if walletData.Role != "ipo" {
+		return nil, fmt.Errorf("publisher's role is not ipo")
+	}
 
 	asset, err := token.IssueToken(ctx, newToken)
 	if err != nil {
@@ -521,7 +554,7 @@ func (s *SmartContract) IssueToken(ctx contractapi.TransactionContextInterface, 
 		return nil, err
 	}
 
-	issueEvent := ccutils.IssueEvent{ctx.GetStub().GetTxID(), "Issue", publisher, tokenId, 0}
+	issueEvent := ccutils.IssueEvent{ctx.GetStub().GetTxID(), "Issue", publisher, tokenId, 0, big.NewInt(0)}
 	err = issueEvent.EmitIssueEvent(ctx)
 	if err != nil {
 		logger.Error(err)
@@ -579,7 +612,7 @@ func (s *SmartContract) UndoIssueToken(ctx contractapi.TransactionContextInterfa
 		return ccutils.GenerateErrorResponse(err)
 	}
 
-	issueEvent := ccutils.IssueEvent{ctx.GetStub().GetTxID(), "UndoIssue", "Locked", partition, 0}
+	issueEvent := ccutils.IssueEvent{ctx.GetStub().GetTxID(), "UndoIssue", "Locked", partition, 0, big.NewInt(0)}
 	err = issueEvent.EmitIssueEvent(ctx)
 	if err != nil {
 		logger.Error(err)
@@ -636,105 +669,4 @@ func (s *SmartContract) IsIssuable(ctx contractapi.TransactionContextInterface, 
 
 	logger.Infof("Success function : IsIssuable \n Issuable : true")
 	return ccutils.GenerateSuccessResponse(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], "true")
-}
-
-func (s *SmartContract) GetTokenList(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
-
-	err := ccutils.GetMSPID(ctx)
-	if err != nil {
-		logger.Errorf("failed to get client msp id: %v", err)
-		return nil, err
-	}
-
-	_, err = ccutils.GetID(ctx)
-	if err != nil {
-		logger.Errorf("failed to get client id: %v", err)
-		return nil, err
-	}
-
-	requireParameterFields := []string{ledgermanager.PageSize, ledgermanager.Bookmark}
-	err = ccutils.CheckRequireParameter(requireParameterFields, args)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	stringParameterFields := []string{ledgermanager.Bookmark}
-	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	int64ParameterFields := []string{ledgermanager.PageSize}
-	err = ccutils.CheckTypeInt64(int64ParameterFields, args)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	dateParameterFields := []string{ledgermanager.StartDate, ledgermanager.EndDate}
-	err = ccutils.CheckFormatDate(dateParameterFields, args)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	pageSize := int32(args[ledgermanager.PageSize].(float64))
-	bookmark := args[ledgermanager.Bookmark].(string)
-
-	var bytes []byte
-	bytes, err = token.GetTokenList(args, pageSize, bookmark, ctx)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	logger.Infof("Success function : GetTokenList")
-	return ccutils.GenerateSuccessResponseByteArray(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], bytes)
-}
-
-func (s *SmartContract) GetTokenHolderList(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
-
-	requireParameterFields := []string{ledgermanager.PageSize, ledgermanager.Bookmark, ledgermanager.Partition}
-	err := ccutils.CheckRequireParameter(requireParameterFields, args)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	stringParameterFields := []string{ledgermanager.Bookmark, ledgermanager.Partition}
-	err = ccutils.CheckRequireTypeString(stringParameterFields, args)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	int64ParameterFields := []string{ledgermanager.PageSize}
-	err = ccutils.CheckTypeInt64(int64ParameterFields, args)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	dateParameterFields := []string{ledgermanager.StartDate, ledgermanager.EndDate}
-	err = ccutils.CheckFormatDate(dateParameterFields, args)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	pageSize := int32(args[ledgermanager.PageSize].(float64))
-	bookmark := args[ledgermanager.Bookmark].(string)
-	partition := args[ledgermanager.Partition].(string)
-
-	var bytes []byte
-	bytes, err = token.GetTokenHolderList(args, partition, pageSize, bookmark, ctx)
-	if err != nil {
-		logger.Error(err)
-		return ccutils.GenerateErrorResponse(err)
-	}
-
-	logger.Infof("Success function : GetTokenHolderList")
-	return ccutils.GenerateSuccessResponseByteArray(ctx.GetStub().GetTxID(), ccutils.ChaincodeSuccess, ccutils.CodeMessage[ccutils.ChaincodeSuccess], bytes)
 }

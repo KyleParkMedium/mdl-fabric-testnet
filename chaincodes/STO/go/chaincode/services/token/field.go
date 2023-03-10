@@ -21,6 +21,7 @@ const (
 	// issueToken
 	FieldTokenId              string = "tokenId"
 	FieldPublisher            string = "publisher"
+	FieldPublisherUuid        string = "publisherUuid"
 	FieldRor                  string = "ror"
 	FieldInvestmentPeriod     string = "investmentPeriod"
 	FieldGrade                string = "grade"
@@ -28,7 +29,12 @@ const (
 	FieldStartDate            string = "startDate"
 	FieldEndDate              string = "endDate"
 
-	FieldTokenHolderId string = "tokenHolderId"
-
 	FieldCaller string = "caller"
+
+	// Query
+	FieldIsLocked      string = "isLocked"
+	FieldIsDistributed string = "isDistributed"
+	FieldIsRedeemed    string = "isRedeemed"
+
+	FieldPartitionTokens string = "partitionTokens"
 )

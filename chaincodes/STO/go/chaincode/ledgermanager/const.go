@@ -3,7 +3,6 @@ package ledgermanager
 const DocType string = "docType"
 const Bookmark string = "bookmark"
 const PageSize string = "pageSize"
-const Partition string = "partition"
 
 const ID string = "id"
 const CreatedDate string = "createdDate"

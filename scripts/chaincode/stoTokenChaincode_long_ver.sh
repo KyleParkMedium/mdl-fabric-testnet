@@ -797,6 +797,39 @@ function GetHolderList() {
     echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
 }
 
+function GetData() {
+
+    ORG_NUM=${who:3:1}
+    User=${who:4:5}
+    org$ORG_NUM
+
+    # set query
+    echo ${FUNCNAME[0]}
+
+    string=${string%\,}
+    # ,false
+
+    ## query sample
+    # '{"Args":["IssuanceAsset","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$string}\"]}"
+    echo $param
+
+    # set
+    set -x
+
+    ## set env
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org${ORG_NUM}.example.com/users/$who@org${ORG_NUM}.example.com/msp"
+
+    echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
+
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/GetHolderList.log
+
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/GetHolderList.log
+    cp ${LOG_DIR}/GetHolderList.log ${LOG_DIR}/Response.log
+    echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
+}
+
 function DistributeToken() {
 
     org1
@@ -1217,6 +1250,21 @@ function set_options() {
             shift
             endDate=$1
             string+="\\\"endDate\\\":\\\"$endDate\\\","
+            ;;
+        -p | --docType)
+            shift
+            docType=$1
+            string+="\\\"docType\\\":\\\"$docType\\\","
+            ;;
+        -p | --partitionTokens)
+            shift
+            partitionTokens=$1
+            string+="\\\"partitionTokens\\\":\\\"$partitionTokens\\\","
+            ;;
+        -p | --tokenHolderId)
+            shift
+            tokenHolderId=$1
+            string+="\\\"tokenHolderId\\\":\\\"$tokenHolderId\\\","
             ;;
         *)
             usage

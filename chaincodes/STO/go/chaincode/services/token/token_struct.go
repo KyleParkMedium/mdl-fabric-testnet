@@ -2,6 +2,7 @@ package token
 
 import (
 	"fmt"
+	"math/big"
 
 	"github.com/the-medium-tech/mdl-chaincodes/chaincode/ccutils"
 )
@@ -23,7 +24,8 @@ const (
 type TotalSupplyStruct struct {
 	DocType string `json:"docType"`
 
-	TotalSupply int64 `json:"totalSupply"`
+	TotalSupply    int64    `json:"totalSupply"`
+	ToTalSupplyBig *big.Int `json:"totalSupplyBig"`
 
 	CreatedDate string `json:"createdDate"`
 	UpdatedDate string `json:"updatedDate"`
@@ -32,7 +34,8 @@ type TotalSupplyStruct struct {
 type TotalSupplyByPartitionStruct struct {
 	DocType string `json:"docType"`
 
-	TotalSupply int64 `json:"totalSupply"`
+	TotalSupply    int64    `json:"totalSupply"`
+	ToTalSupplyBig *big.Int `json:"totalSupplyBig"`
 	// Partition Address
 	Partition string `json:"partition"`
 
@@ -43,26 +46,29 @@ type TotalSupplyByPartitionStruct struct {
 type AllowanceByPartitionStruct struct {
 	DocType string `json:"docType"`
 
-	Owner     string `json:"owner"`
-	Spender   string `json:"spender"`
-	Partition string `json:"partition"`
-	Amount    int64  `json:"amount"`
+	Owner     string   `json:"owner"`
+	Spender   string   `json:"spender"`
+	Partition string   `json:"partition"`
+	Amount    int64    `json:"amount"`
+	AmountBig *big.Int `json:"amountBig"`
 
 	CreatedDate string `json:"createdDate"`
 	UpdatedDate string `json:"updatedDate"`
 }
 
 type TransferByPartitionStruct struct {
-	From      string `json:"from"`
-	To        string `json:"to"`
-	Partition string `json:"partition"`
-	Amount    int64  `json:"amount"`
+	From      string   `json:"from"`
+	To        string   `json:"to"`
+	Partition string   `json:"partition"`
+	Amount    int64    `json:"amount"`
+	AmountBig *big.Int `json:"amountBig"`
 }
 
 type MintByPartitionStruct struct {
-	Minter    string `json:"minter"`
-	Partition string `json:"partition"`
-	Amount    int64  `json:"amount"`
+	Minter    string   `json:"minter"`
+	Partition string   `json:"partition"`
+	Amount    int64    `json:"amount"`
+	AmountBig *big.Int `json:"amountBig"`
 }
 
 // partition Token (상품 정보)
@@ -72,11 +78,13 @@ type PartitionToken struct {
 	// 상품(토큰) ID
 	TokenID string `json:"tokenId"`
 	// 상품(토큰) 발행인
-	Publisher string `json:"publisher"`
+	Publisher     string `json:"publisher"`
+	PublisherUuid string `json:"publisherUuid"`
 	// 소지인
-	TokenHolderID string `json:"tokenHolderId"`
+	TokenHolderID string `json:"tokenHolder"`
 	// 소유량
-	Amount int64 `json:"amount"`
+	Amount    int64    `json:"amount"`
+	AmountBig *big.Int `json:"amountBig"`
 	// 연수익률(Rate or return)
 	Ror string `json:"ror"`
 	// 투자기간
@@ -84,7 +92,11 @@ type PartitionToken struct {
 	// 상품등급
 	Grade string `json:"grade"`
 	// 모집금액(공모금액)
-	PublicOfferingAmount int64 `json:"publicOfferingAmount"`
+	PublicOfferingAmount    int64    `json:"publicOfferingAmount"`
+	PublicOfferingAmountBig *big.Int `json:"publicOfferingAmountBig"`
+	// 모집 완료 토큰 개수
+	NumberOfTokens    int64    `json:"numberOfTokens"`
+	NumberOfTokensBig *big.Int `json:"numberOfTokensBig"`
 	// 모집시작일
 	StartDate string `json:"startDate"`
 	// 모집종료일
@@ -116,9 +128,10 @@ type TokenHolderList struct {
 }
 
 type Recipient struct {
-	TokenWalletId string `json:"tokenWalletId"`
-	TokenId       string `json:"tokenId"`
-	Amount        int64  `json:"amount"`
+	TokenWalletId string   `json:"tokenWalletId"`
+	TokenId       string   `json:"tokenId"`
+	Amount        int64    `json:"amount"`
+	AmountBig     *big.Int `json:"amountBig"`
 }
 
 // 토큰 상환

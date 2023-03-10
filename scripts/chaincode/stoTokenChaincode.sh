@@ -974,10 +974,53 @@ function InitLedger() {
     echo "Invoke transaction successful on peer0 on channel '${CHANNEL_NAME}'"
 }
 
+function GetData() {
+
+    # set query
+    echo ${FUNCNAME[0]}
+
+    ddd='{
+    "selector": {
+        "docType": "DOCTYPE_TOKEN_WALLET"
+    },
+    "fields": [],
+    "sort": [
+        {"docType": "asc"},
+        {"tokenWalletId": "asc"},
+        {"tokenId": "asc"}
+    ],
+    "use_index": [
+        "_design/GetDataDoc",
+        "GetDataIndex"
+    ],
+    "bookmark": "",
+    "pageSize": 10
+}'
+
+    ## query sample
+    # '{"Args":["IssueToken","{\"partition\":\"imsyToken\",\"amount\":100}"]}'
+    param="{\"Args\":[\"${FUNCNAME[0]}\",\"{$ddd}\"]}"
+    echo $param
+
+    # set
+    set -x
+
+    # set env
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+
+    echo "query peer connection parameters:${PEER_CONN_PARMS[@]}"
+    ${BIN_DIR}/peer chaincode query -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "$ORDERER_CA" -C ${CHANNEL_NAME} -n ${CHAINCODE_NAME} --peerAddresses "peer0.org1.example.com:7050" --tlsRootCertFiles "${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" -c $param >&${LOG_DIR}/AAA.log
+
+    { set +x; } 2>/dev/null
+    cat ${LOG_DIR}/AAA.log
+    echo "query transaction successful on peer0 on channel '${CHANNEL_NAME}'"
+}
+
 function main() {
 
-    InitLedger
-    sleep 3
+    GetData
+    # InitLedger
+    # sleep 3
 
     # IsInit
     # sleep 3
@@ -1062,8 +1105,8 @@ function main() {
     # BurnByPartition -u Org1User1 -p mediumToken -a 5
     # sleep 3
 
-    TotalSupply
-    sleep 3
+    # TotalSupply
+    # sleep 3
     # TotalSupplyByPartition -p mediumToken
     # sleep 3
 

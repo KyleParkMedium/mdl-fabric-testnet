@@ -3,6 +3,7 @@ package token
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
@@ -143,7 +144,7 @@ func IssueToken(ctx contractapi.TransactionContextInterface, token PartitionToke
 		return nil, fmt.Errorf("failed to create the composite key for prefix %s: %v", DocType_TotalSupplyByPartition, err)
 	}
 
-	_, err = ledgermanager.PutState(DocType_TotalSupplyByPartition, totalKey, TotalSupplyByPartitionStruct{DocType: DocType_TotalSupplyByPartition, TotalSupply: 0, Partition: token.TokenID}, ctx)
+	_, err = ledgermanager.PutState(DocType_TotalSupplyByPartition, totalKey, TotalSupplyByPartitionStruct{DocType: DocType_TotalSupplyByPartition, TotalSupply: 0, ToTalSupplyBig: big.NewInt(0), Partition: token.TokenID}, ctx)
 	if err != nil {
 		logger.Error(err)
 		return nil, err
@@ -269,6 +270,208 @@ func IsIssuable(ctx contractapi.TransactionContextInterface, partition string) e
 	return nil
 }
 
+func GetData(args map[string]interface{}, pageSize int32, bookmark string, ctx contractapi.TransactionContextInterface) ([]byte, error) {
+
+	queryBuilder := ccutils.QueryBuilder{}
+
+	// condition field
+	if value, exist := args[ledgermanager.StartDate]; exist {
+		queryBuilder.AddSelectorGroupCondition(ledgermanager.CreatedDate, "$gte", value)
+	}
+
+	if value, exist := args[ledgermanager.EndDate]; exist {
+		queryBuilder.AddSelectorGroupCondition(ledgermanager.CreatedDate, "$lt", value)
+	}
+
+	query := ccutils.Query{}
+
+	// selector
+	selector, ok := args["selector"].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("selector is blank")
+	}
+	err := query.AddSelector(selector)
+
+	// // fields
+	// fields, ok := args["fields"].([]interface{})
+	// if !ok {
+	// 	return nil, fmt.Errorf("fields is blank")
+	// }
+	// err = query.AddFields(fields)
+
+	// use_index
+	index, ok := args["use_index"].([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("use_index is blank")
+	}
+	err = query.AddIndex(index)
+
+	// sort
+	sort, ok := args["sort"].(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("sort is blank")
+	}
+	for key, value := range sort {
+		c := make(map[string]string)
+		c[key] = value.(string)
+		err = query.AddSort(c)
+	}
+
+	queryString, err := query.MakeQueryString()
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+
+	bytes, err := ledgermanager.GetQueryResultWithPagination(queryString, pageSize, bookmark, ctx)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+
+	return bytes, nil
+
+	// // 고유 필드
+	// for a, b := range selector {
+	// 	queryBuilder.AddSelectorGroup(a, b)
+	// }
+
+	// stringParameterFields := []string{ledgermanager.DocType, FieldPartition, FieldOwner, FieldSpender, FieldFrom, FieldTo, FieldTokenWalletId, FieldRole, FieldTokenId, FieldPublisher, FieldAccountNumber, FieldRor, FieldInvestmentPeriod, FieldGrade, FieldCaller}
+	// for _, stringField := range stringParameterFields {
+	// 	if value, exist := selector[stringField]; exist {
+	// 		// err := ccutils.CheckRequireTypeString([]string{stringField}, selector)
+	// 		// if err != nil {
+	// 		// 	return nil, err
+	// 		// }
+	// 		queryBuilder.AddSelectorGroup(stringField, value)
+	// 	}
+	// }
+
+	// // sort
+	// sort := args["sort"].(map[string]interface{})
+	// stringParameterFields := []string{ledgermanager.DocType, FieldPartition, FieldOwner, FieldSpender, FieldFrom, FieldTo, FieldTokenWalletId, FieldRole, FieldTokenId, FieldPublisher, FieldAccountNumber, FieldRor, FieldInvestmentPeriod, FieldGrade, FieldCaller}
+	// for _, stringField := range stringParameterFields {
+	// 	if value, exist := sort[stringField]; exist {
+	// 		// err := ccutils.CheckRequireTypeString([]string{stringField}, sort)
+	// 		// if err != nil {
+	// 		// 	return nil, err
+	// 		// }
+	// 		queryBuilder.AddSortField(stringField, value)
+	// 	}
+	// }
+
+	// // fields
+	// field := args["fields"].(map[string]interface{})
+	// stringParameterFields = []string{ledgermanager.DocType, FieldPartition, FieldOwner, FieldSpender, FieldFrom, FieldTo, FieldTokenWalletId, FieldRole, FieldTokenId, FieldPublisher, FieldAccountNumber, FieldRor, FieldInvestmentPeriod, FieldGrade, FieldCaller}
+	// for _, stringField := range stringParameterFields {
+	// 	if _, exist := field[stringField]; exist {
+	// 		// err := ccutils.CheckRequireTypeString([]string{stringField}, field)
+	// 		// if err != nil {
+	// 		// 	return nil, err
+	// 		// }
+	// 		queryBuilder.AddFieldGroup(stringField)
+	// 	}
+	// }
+
+	// // 고유 필드
+
+	// // "partitionTokens": "medium82",
+	// // 객체 내 객체
+	// objectParameterFields := FieldPartitionTokens
+	// if value, exist := args[objectParameterFields]; exist {
+
+	// 	imsy := args[FieldTokenHolder].(string)
+
+	// 	field := fmt.Sprintf("%s.%s.%s", objectParameterFields, value, imsy)
+
+	// 	// var myInterface interface{}
+	// 	// myInterface = field
+	// 	queryBuilder.AddSelectorKey(field)
+	// }
+
+	// boolParameterFields := []string{FieldIsLocked, FieldIsDistributed, FieldIsRedeemed}
+	// for _, boolField := range boolParameterFields {
+	// 	if value, exist := args[boolField]; exist {
+	// 		err := ccutils.CheckRequireTypeBool([]string{boolField}, args)
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	// 		queryBuilder.AddSelectorGroup(boolField, value)
+	// 	}
+	// }
+
+	// int64ParameterFields := []string{FieldAmount, FieldPublicOfferingAmount}
+	// for _, int64Field := range int64ParameterFields {
+	// 	if value, exist := args[int64Field]; exist {
+	// 		err := ccutils.CheckRequireTypeInt64([]string{int64Field}, args)
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	// 		queryBuilder.AddSelectorGroup(int64Field, value)
+	// 	}
+	// }
+
+	// queryString := queryBuilder.MakeQueryString()
+
+	// bytes, err := ledgermanager.GetQueryResultWithPagination(queryString, pageSize, bookmark, ctx)
+	// if err != nil {
+	// 	logger.Error(err)
+	// 	return nil, err
+	// }
+
+	// return bytes, nil
+}
+
+func GetToken(args map[string]interface{}, partition string, pageSize int32, bookmark string, ctx contractapi.TransactionContextInterface) ([]byte, error) {
+
+	queryBuilder := ccutils.QueryBuilder{}
+	queryBuilder.AddSelectorGroup(ledgermanager.DocType, DocType_Token)
+	queryBuilder.AddSelectorGroup("_id", partition)
+
+	// 공통 필드
+	if value, exist := args[ledgermanager.StartDate]; exist {
+		queryBuilder.AddSelectorGroupCondition(ledgermanager.CreatedDate, "$gte", value)
+	}
+
+	if value, exist := args[ledgermanager.EndDate]; exist {
+		queryBuilder.AddSelectorGroupCondition(ledgermanager.CreatedDate, "$lt", value)
+	}
+
+	// // 고유 필드
+	// stringParameterFields := []string{FieldPublisherAuthWalletId, FieldExpiredDate, FieldTokenId}
+	// for _, stringField := range stringParameterFields {
+	// 	if value, exist := args[stringField]; exist {
+	// 		err := ccutils.CheckRequireTypeString([]string{stringField}, args)
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	// 		queryBuilder.AddSelectorGroup(stringField, value)
+	// 	}
+	// }
+
+	// boolParameterFields := []string{FieldIsLocked, FieldIsTradePossible, FieldIsSettlementPossible, FieldIsChargePossible,
+	// 	FieldIsExchangePossible, FieldIsExtAsstDepositPossible, FieldIsExtAsstWithdrawalPossible}
+	// for _, boolField := range boolParameterFields {
+	// 	if value, exist := args[boolField]; exist {
+	// 		err := ccutils.CheckRequireTypeBool([]string{boolField}, args)
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	// 		queryBuilder.AddSelectorGroup(boolField, value)
+	// 	}
+	// }
+
+	queryString := queryBuilder.MakeQueryString()
+
+	bytes, err := ledgermanager.GetQueryResultWithPagination(queryString, pageSize, bookmark, ctx)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+
+	return bytes, nil
+}
+
 func GetTokenList(args map[string]interface{}, pageSize int32, bookmark string, ctx contractapi.TransactionContextInterface) ([]byte, error) {
 
 	queryBuilder := ccutils.QueryBuilder{}
@@ -320,14 +523,15 @@ func GetTokenList(args map[string]interface{}, pageSize int32, bookmark string, 
 
 func GetTokenHolderList(args map[string]interface{}, partition string, pageSize int32, bookmark string, ctx contractapi.TransactionContextInterface) ([]byte, error) {
 
-	// // Create allowanceKey
-	// listKey, err := ctx.GetStub().CreateCompositeKey(DocType_TokenHolderList, []string{partition})
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to create the composite key for prefix %s: %v", DocType_TokenHolderList, err)
-	// }
+	// Create allowanceKey
+	listKey, err := ctx.GetStub().CreateCompositeKey(DocType_TokenHolderList, []string{partition})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create the composite key for prefix %s: %v", DocType_TokenHolderList, err)
+	}
 
 	queryBuilder := ccutils.QueryBuilder{}
 	queryBuilder.AddSelectorGroup(ledgermanager.DocType, DocType_TokenHolderList)
+	queryBuilder.AddSelectorGroup("_id", listKey)
 
 	// 공통 필드
 	if value, exist := args[ledgermanager.StartDate]; exist {

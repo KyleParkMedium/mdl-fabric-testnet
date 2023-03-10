@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 
@@ -153,20 +154,20 @@ func (s *SmartContract) RevokeOperatorByPartition(ctx contractapi.TransactionCon
 
 func (s *SmartContract) DistributeToken(ctx contractapi.TransactionContextInterface, args map[string]interface{}) (*ccutils.Response, error) {
 
-	err := ccutils.GetMSPID(ctx)
-	if err != nil {
-		logger.Errorf("failed to get client msp id: %v", err)
-		return nil, err
-	}
+	// err := ccutils.GetMSPID(ctx)
+	// if err != nil {
+	// 	logger.Errorf("failed to get client msp id: %v", err)
+	// 	return nil, err
+	// }
 
-	_, err = ccutils.GetID(ctx)
-	if err != nil {
-		logger.Errorf("failed to get client id: %v", err)
-		return nil, err
-	}
+	// _, err = ccutils.GetID(ctx)
+	// if err != nil {
+	// 	logger.Errorf("failed to get client id: %v", err)
+	// 	return nil, err
+	// }
 
 	requireParameterFields := []string{operator.FieldTokenId, operator.FieldPublicOfferingAmount, operator.FieldRecipients}
-	err = ccutils.CheckRequireParameter(requireParameterFields, args)
+	err := ccutils.CheckRequireParameter(requireParameterFields, args)
 	if err != nil {
 		logger.Error(err)
 		return ccutils.GenerateErrorResponse(err)
@@ -231,6 +232,7 @@ func (s *SmartContract) DistributeToken(ctx contractapi.TransactionContextInterf
 
 	}
 
+	var checkAmount int64
 	var updateTotalSupplyAmount int64
 
 	if holderListStruct.IsDistributed == true {
@@ -242,13 +244,15 @@ func (s *SmartContract) DistributeToken(ctx contractapi.TransactionContextInterf
 
 		for address, amount := range recipients {
 
-			holderListStruct.Recipients[address] = token.Recipient{TokenWalletId: address, TokenId: tokenId, Amount: int64(amount.(float64)) / 5000}
+			holderListStruct.Recipients[address] = token.Recipient{TokenWalletId: address, TokenId: tokenId, Amount: int64(amount.(float64)) / 5000, AmountBig: big.NewInt(int64(amount.(float64)) / 5000)}
 
 			testData := distribute.AirDropStruct{}
 			testData.Recipient = address
 			testData.PartitionToken = holderListStruct.TokenInfo
 			testData.PartitionToken.TokenHolderID = address
 			testData.PartitionToken.Amount = int64(amount.(float64)) / 5000
+			testData.PartitionToken.AmountBig = big.NewInt(int64(amount.(float64)) / 5000)
+			checkAmount += int64(amount.(float64))
 
 			updateTotalSupplyAmount += testData.PartitionToken.Amount
 
@@ -259,6 +263,10 @@ func (s *SmartContract) DistributeToken(ctx contractapi.TransactionContextInterf
 				logger.Error(err)
 				return nil, err
 			}
+		}
+
+		if checkAmount != publicOfferingAmount {
+			return nil, fmt.Errorf("Recipients Total Supply does not matched PublicOfferingAmount")
 		}
 
 		err = distribute.UpdateTotalSupply(ctx, tokenId, updateTotalSupplyAmount)
@@ -346,6 +354,7 @@ func (s *SmartContract) RedeemToken(ctx contractapi.TransactionContextInterface,
 			testData.PartitionToken = holderListStruct.TokenInfo
 			testData.PartitionToken.TokenHolderID = value.TokenId
 			testData.PartitionToken.Amount = value.Amount
+			testData.PartitionToken.AmountBig = big.NewInt(value.Amount)
 
 			err = distribute.RedeemToken(ctx, testData)
 			if err != nil {

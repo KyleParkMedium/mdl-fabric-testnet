@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
-	"strconv"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -41,7 +40,6 @@ func PutState(docType string, key string, data interface{}, ctx contractapi.Tran
 
 	// time format binding 문제로 임시 주석 처리
 	if value, _ := dataMap[CreatedDate]; value == "" {
-		fmt.Println("check matching")
 		dataMap[CreatedDate] = ccutils.CreateKstTimeAndSecond()
 	} else {
 		err := ccutils.CheckFormatDateAndSecond([]string{CreatedDate}, dataMap)
@@ -188,27 +186,28 @@ func GetQueryResultWithPagination(queryString string, pageSize int32, bookmark s
 		return nil, ccutils.CreateError(ccutils.ChaincodeError, err)
 	}
 
-	var buffer *bytes.Buffer
-	if resultsIterator != nil {
-		buffer, err = constructQueryResponseFromIterator(resultsIterator)
-		if err != nil {
-			return nil, ccutils.CreateError(ccutils.ChaincodeError, err)
-		}
-	} else {
-		retEmptyDataList := `{"` + FieldDatalist + `":[], "` + FieldRecordsCount + `" : ` + strconv.Itoa(int(metadata.FetchedRecordsCount)) + `, "` + FieldBookmark + `" : ""}`
-		return []byte(retEmptyDataList), nil
-	}
+	fmt.Println(resultsIterator, metadata)
+	// var buffer *bytes.Buffer
+	// if resultsIterator != nil {
+	// 	buffer, err = constructQueryResponseFromIterator(resultsIterator)
+	// 	if err != nil {
+	// 		return nil, ccutils.CreateError(ccutils.ChaincodeError, err)
+	// 	}
+	// } else {
+	// 	retEmptyDataList := `{"` + FieldDatalist + `":[], "` + FieldRecordsCount + `" : ` + strconv.Itoa(int(metadata.FetchedRecordsCount)) + `, "` + FieldBookmark + `" : ""}`
+	// 	return []byte(retEmptyDataList), nil
+	// }
 
-	// 원본
-	//retData := `{"datalist":` + buffer.String() + `, "metadata" : {"recordsCount" : ` + strconv.Itoa(int(metadata.FetchedRecordsCount)) + `, "bookmark" : "` + metadata.Bookmark + `"}}`
-	retData := ""
-	if metadata.FetchedRecordsCount < pageSize {
-		retData = `{"` + FieldDatalist + `":` + buffer.String() + `, "` + FieldRecordsCount + `" : ` + strconv.Itoa(int(metadata.FetchedRecordsCount)) + `, "` + FieldBookmark + `" : ""}`
-	} else {
-		retData = `{"` + FieldDatalist + `":` + buffer.String() + `, "` + FieldRecordsCount + `" : ` + strconv.Itoa(int(metadata.FetchedRecordsCount)) + `, "` + FieldBookmark + `" : "` + metadata.Bookmark + `"}`
-	}
+	// // 원본
+	// //retData := `{"datalist":` + buffer.String() + `, "metadata" : {"recordsCount" : ` + strconv.Itoa(int(metadata.FetchedRecordsCount)) + `, "bookmark" : "` + metadata.Bookmark + `"}}`
+	// retData := ""
+	// if metadata.FetchedRecordsCount < pageSize {
+	// 	retData = `{"` + FieldDatalist + `":` + buffer.String() + `, "` + FieldRecordsCount + `" : ` + strconv.Itoa(int(metadata.FetchedRecordsCount)) + `, "` + FieldBookmark + `" : ""}`
+	// } else {
+	// 	retData = `{"` + FieldDatalist + `":` + buffer.String() + `, "` + FieldRecordsCount + `" : ` + strconv.Itoa(int(metadata.FetchedRecordsCount)) + `, "` + FieldBookmark + `" : "` + metadata.Bookmark + `"}`
+	// }
 
-	return []byte(retData), nil
+	return []byte("hi"), nil
 }
 
 // ===========================================================================================
