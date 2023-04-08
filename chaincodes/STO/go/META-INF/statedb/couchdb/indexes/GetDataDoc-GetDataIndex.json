@@ -1,8 +1,0 @@
-{
-  "index": {
-    "fields": ["docType", "tokenWalletId", "tokenId"]
-  },
-  "ddoc": "GetDataDoc",
-  "name": "GetDataIndex",
-  "type": "json"
-}
