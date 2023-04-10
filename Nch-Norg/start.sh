@@ -324,6 +324,10 @@ function deployChaincode() {
     done
 }
 
+function runBlockExplorer() {
+    ${TEST_NETWORK_HOME}/scripts/utils/runBlockExplorer.sh
+}
+
 function org1() {
     export FABRIC_CFG_PATH=${TEST_NETWORK_HOME}/config/org1
     export HOST="peer0.org1.example.com"
@@ -461,6 +465,7 @@ function main() {
     # deployChaincode --cc Dev --ch mychannel-b --ap org1 --ap org3 --check org1 --check org3 --c org3
     # echo "finished to deploy chaincode"
     # sleep 5
+    runBlockExplorer
 }
 
 function verifyResult() {

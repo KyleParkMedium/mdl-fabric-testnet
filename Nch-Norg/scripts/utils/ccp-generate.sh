@@ -38,5 +38,3 @@ PEERPEM=organizations/peerOrganizations/org${ORG}.example.com/tlsca/tlsca.org${O
 CAPEM=organizations/peerOrganizations/org${ORG}.example.com/ca/ca.org${ORG}.example.com-cert.pem
 
 echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" >organizations/peerOrganizations/org${ORG}.example.com/connection-org${ORG}.json
-
-cp ${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/connection-org1.json /Users/park/test/test/org1.json

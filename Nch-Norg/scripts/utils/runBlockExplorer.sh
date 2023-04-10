@@ -13,7 +13,6 @@ if ! echo "$IMAGE_LIST" | grep -q "$EXPLORER_DB_NAME.*$EXPLORER_DB_TAG"; then
     docker pull hyperledger/explorer-db
 fi
 
-export TEST_NETWORK_HOME=$(dirname $(readlink -f $0))
 export EXPLORER_CONFIG_FILE_PATH=${TEST_NETWORK_HOME}/blockExplorer/config.json
 export EXPLORER_PROFILE_DIR_PATH=${TEST_NETWORK_HOME}/blockExplorer/connection-profile
 export FABRIC_CRYPTO_PATH=${TEST_NETWORK_HOME}/organizations

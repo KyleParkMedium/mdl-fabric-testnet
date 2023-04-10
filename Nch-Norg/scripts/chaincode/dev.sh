@@ -27,8 +27,7 @@ export CALIPER_HOME=${CALIPER_SCRIPT%/*}
 export CALIPER_BENCHMARKS=$CALIPER_HOME/benchmarks
 
 ############ Set core.yaml ############
-# export TEST_NETWORK_HOME=$(dirname $(readlink -f $0))
-export TEST_NETWORK_HOME="/Users/park/test/mdl-fabric-testnet"
+export TEST_NETWORK_HOME=$(dirname $(readlink -f $0))/../..
 
 echo "chaincode invoke"
 export PEERPATH="${TEST_NETWORK_HOME}"

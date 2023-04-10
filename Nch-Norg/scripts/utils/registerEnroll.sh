@@ -431,7 +431,8 @@ function main() {
   done
   createOrderer
 
-  ./ccp-generate.sh
+  ${TEST_NETWORK_HOME}/scripts/utils/ccp-generate.sh
+  ${TEST_NETWORK_HOME}/blockExplorer/profile-generate.sh
 }
 
 main

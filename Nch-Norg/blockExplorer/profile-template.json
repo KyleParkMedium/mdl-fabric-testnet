@@ -1,0 +1,48 @@
+{
+  "name": "test-network-org${ORG}",
+  "version": "1.0.0",
+  "client": {
+    "tlsEnable": true,
+    "adminCredential": {
+      "id": "admin",
+      "password": "adminpw"
+    },
+    "enableAuthentication": true,
+    "organization": "Org${ORG}MSP",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        },
+        "orderer": "300"
+      }
+    }
+  },
+  "channels": {
+    "mychannel-all": {
+      "peers": {
+        "peer0.org${ORG}.example.com": {}
+      }
+    }
+  },
+  "organizations": {
+    "Org${ORG}MSP": {
+      "mspid": "Org${ORG}MSP",
+      "adminPrivateKey": {
+        "path": "/tmp/crypto/peerOrganizations/org${ORG}.example.com/users/Admin@org${ORG}.example.com/msp/keystore/${ADMIN_PK}"
+      },
+      "peers": ["peer0.org${ORG}.example.com"],
+      "signedCert": {
+        "path": "/tmp/crypto/peerOrganizations/org${ORG}.example.com/users/Admin@org${ORG}.example.com/msp/signcerts/cert.pem"
+      }
+    }
+  },
+  "peers": {
+    "peer0.org${ORG}.example.com": {
+      "tlsCACerts": {
+        "path": "/tmp/crypto/peerOrganizations/org${ORG}.example.com/peers/peer0.org${ORG}.example.com/tls/ca.crt"
+      },
+      "url": "grpcs://peer0.org${ORG}.example.com:${P0PORT}"
+    }
+  }
+}
