@@ -456,16 +456,17 @@ function main() {
     # deployChaincode --cc STO --ch mychannel-b --ap org1 --ap org3 --check org1 --check org3 --c org3
     # echo "finished to deploy chaincode"
     # sleep 5
-    deployChaincode --cc Dev --ch mychannel-all --i org1 --i org2 --i org3 --ap org1 --ap org2 --ap org3 --check org1 --check org2 --check org3 --c org1
-    echo "finished to deploy chaincode"
-    sleep 5
+    # deployChaincode --cc Dev --ch mychannel-all --i org1 --i org2 --i org3 --ap org1 --ap org2 --ap org3 --check org1 --check org2 --check org3 --c org1
+    # echo "finished to deploy chaincode"
+    # sleep 5
     # deployChaincode --cc Dev --ch mychannel-a --ap org1 --ap org2 --check org1 --check org2 --c org1
     # echo "finished to deploy chaincode"
     # sleep 5
     # deployChaincode --cc Dev --ch mychannel-b --ap org1 --ap org3 --check org1 --check org3 --c org3
     # echo "finished to deploy chaincode"
     # sleep 5
-    runBlockExplorer
+
+    # runBlockExplorer
 }
 
 function verifyResult() {

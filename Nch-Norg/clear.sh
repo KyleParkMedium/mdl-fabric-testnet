@@ -36,11 +36,11 @@ fi
 if [ -d ${TEST_NETWORK_HOME}/chaincodes/STO ]; then
     rm -rf ${TEST_NETWORK_HOME}/chaincodes/STO
     mkdir -p ${TEST_NETWORK_HOME}/chaincodes/STO
-    cp -r "/Users/park/test/mdl-chaincodes" ${TEST_NETWORK_HOME}/chaincodes/STO
+    cp -r "/Users/park/code/mdl-chaincodes" ${TEST_NETWORK_HOME}/chaincodes/STO
     mv ${TEST_NETWORK_HOME}/chaincodes/STO/mdl-chaincodes ${TEST_NETWORK_HOME}/chaincodes/STO/go
 else
     mkdir -p ${TEST_NETWORK_HOME}/chaincodes/STO
-    cp -r "/Users/park/test/mdl-chaincodes" ${TEST_NETWORK_HOME}/chaincodes/STO
+    cp -r "/Users/park/code/mdl-chaincodes" ${TEST_NETWORK_HOME}/chaincodes/STO
     mv ${TEST_NETWORK_HOME}/chaincodes/STO/mdl-chaincodes ${TEST_NETWORK_HOME}/chaincodes/STO/go
 fi
 if [ -d ${TEST_NETWORK_HOME}/chaincodes/Dev ]; then
