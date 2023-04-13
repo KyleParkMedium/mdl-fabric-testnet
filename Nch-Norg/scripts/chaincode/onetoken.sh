@@ -226,7 +226,7 @@ function flag() {
             shift 2
             ;;
         --caller)
-            string+="\\\"caller\\\":\\\"$2\\\","
+            string+="\\\"_caller\\\":\\\"$2\\\","
             shift 2
             ;;
         --tokenHolder)
@@ -234,7 +234,11 @@ function flag() {
             shift 2
             ;;
         --partition)
-            string+="\\\"_partition\\\":\\\"\\\","
+            if [ "$2" == "-" ]; then
+                string+="\\\"_partition\\\":\\\"\\\","
+            else
+                string+="\\\"_partition\\\":\\\"$2\\\","
+            fi
             shift 2
             ;;
         --value)
@@ -243,6 +247,18 @@ function flag() {
             ;;
         --data)
             string+="\\\"_data\\\":\\\"$2\\\","
+            shift 2
+            ;;
+        --from)
+            string+="\\\"_from\\\":\\\"$2\\\","
+            shift 2
+            ;;
+        --to)
+            string+="\\\"_to\\\":\\\"$2\\\","
+            shift 2
+            ;;
+        --operator)
+            string+="\\\"_operator\\\":\\\"$2\\\","
             shift 2
             ;;
         --tokenWalletId)
@@ -273,6 +289,10 @@ function flag() {
             string+="\\\"recipients\\\":{\\\"Kyle1\\\":\\\"5000\\\"},"
             shift 2
             ;;
+        --spender)
+            string+="\\\"_spender\\\":\\\"$2\\\","
+            shift 2
+            ;;
         --p)
             $2
             export PEER_CONN_PARMS="${PEER_CONN_PARMS} --peerAddresses ${CORE_PEER_ADDRESS}"
@@ -290,37 +310,71 @@ function flag() {
 }
 
 function main() {
-    # Constructor --cc STO --ch mychannel-all --p org2 --p org3 --p org1
-    # sleep 3
-
-    # Invoke --func CreateWallet --cc STO --ch mychannel-all --tokenWalletId Kyle1 --role ipo --accountNumber 100 --channelNm dev --p org2 --p org3 --p org1
-    # sleep 5
-    Invoke --func DistributeToken --cc STO --ch mychannel-all --tokenId AA --publicOfferingAmount 5000 --partition 1a --recipients AA --p org2 --p org3 --p org1
+    Constructor --cc STO --ch mychannel-all --p org2 --p org3 --p org1
     sleep 3
-    # Invoke --func Issue --cc STO --ch mychannel-all --caller Kyle --tokenHolder Kyle3 --value 100 --data 1a --p org2 --p org3 --p org1
-    # sleep 3
+    Invoke --func CreateWallet --cc STO --ch mychannel-all --tokenWalletId Kyle --role ipo --accountNumber 100 --channelNm dev --p org2 --p org3 --p org1
+    sleep 5
+    Invoke --func CreateWallet --cc STO --ch mychannel-all --tokenWalletId Tom --role ipo --accountNumber 100 --channelNm dev --p org2 --p org3 --p org1
+    sleep 5
+    Invoke --func Issue --cc STO --ch mychannel-all --caller Kyle --tokenHolder Kyle --value 1000 --data 1a --p org2 --p org3 --p org1
+    sleep 3
+    Invoke --func IssueByPartition --cc STO --ch mychannel-all --caller Kyle --tokenHolder Kyle --partition 0x4ab21cd45c038f9b3d96c64ec46196774d762129989175922a6f01d71c3bb19e --value 100 --data 1a --p org2 --p org3 --p org1
+    sleep 3
+    Query --func BalanceOfByPartition --cc STO --ch mychannel-all --partition - --tokenHolder Kyle --p org1
+    sleep 3
+    Query --func BalanceOfByPartition --cc STO --ch mychannel-all --partition 0x4ab21cd45c038f9b3d96c64ec46196774d762129989175922a6f01d71c3bb19e --tokenHolder Kyle --p org1
+    sleep 3
+    Query --func TotalSupply --cc STO --ch mychannel-all --p org1
+    sleep 3
+    Query --func PartitionsOf --cc STO --ch mychannel-all --tokenHolder Kyle --p org1
+    sleep 3
 
-    # SetTotalSupply --cc STO --ch mychannel-a --n 3000 --p org2 --p org1
-    # sleep 3
-    # SetTotalSupply --cc STO --ch mychannel-b --n 1000 --p org1 --p org3
-    # sleep 3
+    Invoke --func Redeem --cc STO --ch mychannel-all --caller Kyle --tokenHolder Kyle --value 1000 --data 1a --p org2 --p org3 --p org1
+    sleep 3
+    Invoke --func RedeemByPartition --cc STO --ch mychannel-all --caller Kyle --tokenHolder Kyle --partition 0x4ab21cd45c038f9b3d96c64ec46196774d762129989175922a6f01d71c3bb19e --value 300 --data 1a --p org2 --p org3 --p org1
+    sleep 3
+    Invoke --func ApproveByPartition --cc STO --ch mychannel-all --caller Kyle --spender Kyle --tokenHolder Kyle --partition - --value 300 --data 1a --p org2 --p org3 --p org1
+    sleep 3
+    Invoke --func RedeemFrom --cc STO --ch mychannel-all --caller Kyle --tokenHolder Kyle --partition - --value 1000 --data 1a --p org2 --p org3 --p org1
+    sleep 3
 
-    # # TotalSupply --cc STO --ch mychannel-all --p org2 --p org1 --p org3
-    # # sleep 3
-    # # TotalSupply --cc STO --ch mychannel-a --p org2 --p org1
-    # # sleep 3
-    # # TotalSupply --cc STO --ch mychannel-b --p org1 --p org3
-    # # sleep 3
+    Query --func CanTransfer --cc STO --ch mychannel-all --caller Kyle --to Kyle --value 100 --data 1a --p org1
+    sleep 3
+    Query --func CanTransferFrom --cc STO --ch mychannel-all --caller Kyle --from Kyle --to Kyle1 --value 100 --data 1a --p org1
+    sleep 3
+    Query --func CanTransferByPartition --cc STO --ch mychannel-all --caller Kyle --to Kyle --partition 0x4ab21cd45c038f9b3d96c64ec46196774d762129989175922a6f01d71c3bb19e --value 100 --data 1a --p org1
+    sleep 3
 
-    # PutData --cc STO --ch mychannel-all --key channelName --value All --p org1 --p org3 --p org2
-    # sleep 3
-    # GetData --cc STO --ch mychannel-all --key channelName --p org1 --p org2 --p org3
-    # sleep 3
-    # # PutData --cc STO --ch mychannel-a --key channelName --value A --p org1 --p org2
-    # # sleep 3
-    # GetData --cc STO --ch mychannel-a --key channelName --p org1 --p org2
-    # sleep 3
+    Invoke --func AuthorizeOperator --cc STO --ch mychannel-all --caller Kyle --operator Kyle --partition - --p org2 --p org1 --p org3
+    sleep 3
+    Invoke --func RevokeOperatorByPartition --cc STO --ch mychannel-all --caller Kyle --operator Kyle --partition 0x4ab21cd45c038f9b3d96c64ec46196774d762129989175922a6f01d71c3bb19e --p org2 --p org1 --p org3
+    sleep 3
+    Query --func IsControllable --cc STO --ch mychannel-all --p org1
+    sleep 3
+    Query --func IsOperator --cc STO --ch mychannel-all --operator Kyle --tokenHolder Kyle --p org1
+    sleep 3
+    Query --func IsOperatorForPartition --cc STO --ch mychannel-all --operator Kyle --tokenHolder Kyle --partition 0x4ab21cd45c038f9b3d96c64ec46196774d762129989175922a6f01d71c3bb19e --p org1
+    sleep 3
 
+    Invoke --func TransferWithData --cc STO --ch mychannel-all --caller Kyle --to Kyle --value 800 --data 1a --p org2 --p org3 --p org1
+    sleep 3
+    Invoke --func TransferFromWithData --cc STO --ch mychannel-all --caller Kyle --from Kyle --to Tom --value 100 --data 1a --p org2 --p org3 --p org1
+    sleep 3
+    Query --func BalanceOfByPartition --cc STO --ch mychannel-all --partition - --tokenHolder Kyle --p org1
+    sleep 3
+    Query --func BalanceOfByPartition --cc STO --ch mychannel-all --partition - --tokenHolder Tom --p org1
+    sleep 3
+
+    Invoke --func AuthorizeOperator --cc STO --ch mychannel-all --caller Kyle --operator Kyle --partition 0x4ab21cd45c038f9b3d96c64ec46196774d762129989175922a6f01d71c3bb19e --p org2 --p org1 --p org3
+    sleep 3
+    Invoke --func IssueByPartition --cc STO --ch mychannel-all --caller Kyle --tokenHolder Tom --partition 0x4ab21cd45c038f9b3d96c64ec46196774d762129989175922a6f01d71c3bb19e --value 100 --data 1a --p org2 --p org3 --p org1
+    sleep 3
+    Invoke --func ApproveByPartition --cc STO --ch mychannel-all --caller Kyle --spender Kyle --tokenHolder Kyle --partition 0x4ab21cd45c038f9b3d96c64ec46196774d762129989175922a6f01d71c3bb19e --value 3000 --data 1a --p org2 --p org3 --p org1
+    sleep 3
+    Invoke --func OperatorTransferByPartition --cc STO --ch mychannel-all --caller Kyle --from Kyle --to Tom --partition 0x4ab21cd45c038f9b3d96c64ec46196774d762129989175922a6f01d71c3bb19e --value 800 --data 1a --p org2 --p org3 --p org1
+    sleep 3
+    Query --func BalanceOfByPartition --cc STO --ch mychannel-all --partition 0x4ab21cd45c038f9b3d96c64ec46196774d762129989175922a6f01d71c3bb19e --tokenHolder Tom --p org1
+    sleep 3
 }
 
 main
