@@ -45,11 +45,11 @@ COMPOSE_FILE_BASE=docker/docker-compose-test-net.yaml
 COMPOSE_FILE_COUCH=docker/docker-compose-couch.yaml
 
 function registerEnroll() {
-    export CHANNEL_NAME=$1
 
     docker-compose -f $COMPOSE_FILE_CA up -d 2>&1
 
     ${TEST_NETWORK_HOME}/scripts/utils/registerEnroll.sh
+    # ${TEST_NETWORK_HOME}/aa.sh
 }
 
 function createGenesisBlock() {
@@ -88,9 +88,13 @@ function createChannel() {
     while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ]; do
         sleep $DELAY
         set -x
-        ${BIN_DIR}/peer channel create -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL_NAME -f ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.tx --outputBlock ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.block --tls --cafile $ORDERER_CA >&${LOG_DIR}/${CHANNEL_NAME}.log
-        res=$?
+        # ${BIN_DIR}/peer channel create -o localhost:9050 --ordererTLSHostnameOverride orderer1.example.com -c $CHANNEL_NAME -f ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.tx --outputBlock ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.block --tls --cafile $ORDERER_CA >&${LOG_DIR}/${CHANNEL_NAME}.log
+        # ${BIN_DIR}/peer channel create -o localhost:9050 -o localhost:5050 --ordererTLSHostnameOverride orderer1.example.com --ordererTLSHostnameOverride orderer2.example.com -c $CHANNEL_NAME -f ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.tx --outputBlock ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.block --tls --cafile $ORDERER_CA --cafile $ORDERER_CA2 >&${LOG_DIR}/${CHANNEL_NAME}.log
+        # ${BIN_DIR}/peer channel create -o orderer1.example.com:9050 --ordererTLSHostnameOverride orderer1.example.com -o orderer2.example.com:5050 --ordererTLSHostnameOverride orderer2.example.com -c $CHANNEL_NAME -f ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.tx --outputBlock ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.block --tls --cafile $ORDERER_CA --cafile $ORDERER_CA2 >&${LOG_DIR}/${CHANNEL_NAME}.log
+        ${BIN_DIR}/peer channel create -o localhost:9050 --ordererTLSHostnameOverride orderer1.example.com -o localhost:5050 --ordererTLSHostnameOverride orderer2.example.com -c $CHANNEL_NAME -f ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.tx --outputBlock ${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}/${CHANNEL_NAME}.block --tls --cafile $ORDERER_CA --cafile $ORDERER_CA2 >&${LOG_DIR}/${CHANNEL_NAME}.log
+
         { set +x; } 2>/dev/null
+        res=$?
         let rc=$res
         COUNTER=$(expr $COUNTER + 1)
     done
@@ -343,7 +347,8 @@ function org1() {
     export CORE_PEER_LOCALMSPID="Org1MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt"
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    export ORDERER_CA="${TEST_NETWORK_HOME}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/ca.crt"
+    export ORDERER_CA="${TEST_NETWORK_HOME}/organizations/ordererOrganizations/org1.example.com/orderers/orderer1.example.com/tls/ca.crt"
+    export ORDERER_CA2="${TEST_NETWORK_HOME}/organizations/ordererOrganizations/org2.example.com/orderers/orderer2.example.com/tls/ca.crt"
 }
 
 function org2() {
@@ -360,7 +365,8 @@ function org2() {
     export CORE_PEER_LOCALMSPID="Org2MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp"
-    export ORDERER_CA="${TEST_NETWORK_HOME}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/ca.crt"
+    export ORDERER_CA="${TEST_NETWORK_HOME}/organizations/ordererOrganizations/org1.example.com/orderers/orderer1.example.com/tls/ca.crt"
+    export ORDERER_CA2="${TEST_NETWORK_HOME}/organizations/ordererOrganizations/org2.example.com/orderers/orderer2.example.com/tls/ca.crt"
 }
 
 function org3() {
@@ -385,89 +391,89 @@ function main() {
     mkdir -p log
     mkdir -p packages
 
-    registerEnroll mychannel-all
+    registerEnroll
     echo "finished to registerEnroll(create org1, org2, orderer)"
     sleep 1
-    createGenesisBlock Org1Org2Org3OrdererGenesis
-    echo "finished to create genesis block"
-    sleep 1
+    # # createGenesisBlock Org1Org2Org3OrdererGenesis
+    # # echo "finished to create genesis block"
+    # # sleep 1
     createGenesisBlock Org1Org2OrdererGenesis
     echo "finished to create genesis block"
     sleep 1
-    createGenesisBlock Org1Org3OrdererGenesis
-    echo "finished to create genesis block"
-    sleep 1
-    createChannelTx mychannel-all Org1Org2Org3Channel
-    echo "finished to create channel tx"
-    sleep 1
+    # # # createGenesisBlock Org1Org3OrdererGenesis
+    # # # echo "finished to create genesis block"
+    # # # sleep 1
+    # # # createChannelTx mychannel-all Org1Org2Org3Channel
+    # # # echo "finished to create channel tx"
+    # # # sleep 1
     createChannelTx mychannel-a Org1Org2Channel
     echo "finished to create channel tx"
     sleep 1
-    createChannelTx mychannel-b Org1Org3Channel
-    echo "finished to create channel tx"
-    sleep 1
+    # # # createChannelTx mychannel-b Org1Org3Channel
+    # # # echo "finished to create channel tx"
+    # # # sleep 1
     startNode
     echo "waiting for starting orderer, peer node completely"
     sleep 5
-    createChannel mychannel-all org1
+    # # # createChannel mychannel-all org1
+    # # # echo "finished to create channel(org1이 생성)"
+    # # # sleep 1
+    createChannel mychannel-a org1
     echo "finished to create channel(org1이 생성)"
     sleep 1
-    # createChannel mychannel-a org1
-    # echo "finished to create channel(org1이 생성)"
-    # sleep 1
-    # createChannel mychannel-b org1
-    # echo "finished to create channel(org1이 생성)"
-    # sleep 1
-    joinChannel mychannel-all org1
+    # # # # createChannel mychannel-b org1
+    # # # # echo "finished to create channel(org1이 생성)"
+    # # # # sleep 1
+    # # # joinChannel mychannel-all org1
+    # # # echo "finished to join channel org1"
+    # # # sleep 1
+    # # # joinChannel mychannel-all org2
+    # # # echo "finished to join channel org2"
+    # # # sleep 1
+    # # # joinChannel mychannel-all org3
+    # # # echo "finished to join channel org3"
+    # # # sleep 1
+    joinChannel mychannel-a org1
     echo "finished to join channel org1"
     sleep 1
-    joinChannel mychannel-all org2
+    joinChannel mychannel-a org2
     echo "finished to join channel org2"
     sleep 1
-    joinChannel mychannel-all org3
-    echo "finished to join channel org3"
-    sleep 1
-    # joinChannel mychannel-a org1
-    # echo "finished to join channel org1"
-    # sleep 1
-    # joinChannel mychannel-a org2
-    # echo "finished to join channel org2"
-    # sleep 1
-    # joinChannel mychannel-b org1
-    # echo "finished to join channel org1"
-    # sleep 1
-    # joinChannel mychannel-b org3
-    # echo "finished to join channel org3"
-    # sleep 1
-    setAnchorPeer mychannel-all org1
-    echo "finished to set anchor peer org1"
-    sleep 1
-    # setAnchorPeer mychannel-a org2
-    # echo "finished to set anchor peer org2"
-    # sleep 1
-    # setAnchorPeer mychannel-b org3
-    # echo "finished to set anchor peer org3"
-    # sleep 1
-    deployChaincode --cc STO --ch mychannel-all --i org1 --i org2 --i org3 --ap org1 --ap org2 --ap org3 --check org1 --check org2 --check org3 --c org1
-    echo "finished to deploy chaincode"
-    sleep 5
-    # deployChaincode --cc STO --ch mychannel-a --ap org1 --ap org2 --check org1 --check org2 --c org1
-    # echo "finished to deploy chaincode"
-    # sleep 5
-    # deployChaincode --cc STO --ch mychannel-b --ap org1 --ap org3 --check org1 --check org3 --c org3
-    # echo "finished to deploy chaincode"
-    # sleep 5
-    # deployChaincode --cc Dev --ch mychannel-all --i org1 --i org2 --i org3 --ap org1 --ap org2 --ap org3 --check org1 --check org2 --check org3 --c org1
-    # echo "finished to deploy chaincode"
-    # sleep 5
-    # deployChaincode --cc Dev --ch mychannel-a --ap org1 --ap org2 --check org1 --check org2 --c org1
-    # echo "finished to deploy chaincode"
-    # sleep 5
-    # deployChaincode --cc Dev --ch mychannel-b --ap org1 --ap org3 --check org1 --check org3 --c org3
-    # echo "finished to deploy chaincode"
-    # sleep 5
+    # # # # joinChannel mychannel-b org1
+    # # # # echo "finished to join channel org1"
+    # # # # sleep 1
+    # # # # joinChannel mychannel-b org3
+    # # # # echo "finished to join channel org3"
+    # # # # sleep 1
+    # # # setAnchorPeer mychannel-all org1
+    # # # echo "finished to set anchor peer org1"
+    # # # sleep 1
+    # # setAnchorPeer mychannel-a org2
+    # # echo "finished to set anchor peer org2"
+    # # sleep 1
+    # # # # setAnchorPeer mychannel-b org3
+    # # # # echo "finished to set anchor peer org3"
+    # # # # sleep 1
+    # # # deployChaincode --cc STO --ch mychannel-all --i org1 --i org2 --i org3 --ap org1 --ap org2 --ap org3 --check org1 --check org2 --check org3 --c org1
+    # # # echo "finished to deploy chaincode"
+    # # # sleep 5
+    # # # # deployChaincode --cc STO --ch mychannel-a --ap org1 --ap org2 --check org1 --check org2 --c org1
+    # # # # echo "finished to deploy chaincode"
+    # # # # sleep 5
+    # # # # deployChaincode --cc STO --ch mychannel-b --ap org1 --ap org3 --check org1 --check org3 --c org3
+    # # # # echo "finished to deploy chaincode"
+    # # # # sleep 5
+    # # # # deployChaincode --cc Dev --ch mychannel-all --i org1 --i org2 --i org3 --ap org1 --ap org2 --ap org3 --check org1 --check org2 --check org3 --c org1
+    # # # # echo "finished to deploy chaincode"
+    # # # # sleep 5
+    # # # # deployChaincode --cc Dev --ch mychannel-a --ap org1 --ap org2 --check org1 --check org2 --c org1
+    # # # # echo "finished to deploy chaincode"
+    # # # # sleep 5
+    # # # # deployChaincode --cc Dev --ch mychannel-b --ap org1 --ap org3 --check org1 --check org3 --c org3
+    # # # # echo "finished to deploy chaincode"
+    # # # # sleep 5
 
-    runBlockExplorer
+    # # # runBlockExplorer
 }
 
 function verifyResult() {

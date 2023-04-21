@@ -19,7 +19,7 @@
     }
   },
   "channels": {
-    "${CHANNEL_NAME}": {
+    "mychannel-all": {
       "peers": {
         "peer0.org${ORG}.example.com": {}
       }

@@ -19,7 +19,7 @@
     }
   },
   "channels": {
-    "mychannel-a": {
+    "mychannel-all": {
       "peers": {
         "peer0.org1.example.com": {}
       }
@@ -29,7 +29,7 @@
     "Org1MSP": {
       "mspid": "Org1MSP",
       "adminPrivateKey": {
-        "path": "/tmp/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/54bed56791e67f1034fc47c242997b6f7a7b608edaeaed1e61607648d6b29566_sk"
+        "path": "/tmp/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/"
       },
       "peers": ["peer0.org1.example.com"],
       "signedCert": {
