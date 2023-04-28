@@ -18,58 +18,54 @@ CHAINCODE_END_POLICY="$8"
 CHAINCODE_COLL_CONFIG="$9"
 : ${CHAINCODE_COLL_CONFIG:=""}
 
-export TEST_NETWORK_HOME=$(dirname $(readlink -f $0))/../..
+export TEST_NETWORK_HOME=$(dirname $(readlink -f $0))
 export BIN_DIR="${TEST_NETWORK_HOME}/bin"
 export LOG_DIR="${TEST_NETWORK_HOME}/log"
 
 function org1() {
-    export FABRIC_CFG_PATH=${TEST_NETWORK_HOME}/config/org1
+    export FABRIC_CFG_PATH=${TEST_NETWORK_HOME}/config
     export HOST="peer0.org1.example.com"
-    export PORT=7050
     export ORG="Org1"
     ############ Peer Vasic Setting ############
     export CORE_PEER_TLS_ENABLED=true
     export CORE_PEER_ID="peer0.org1.example.com"
     export CORE_PEER_ENDORSER_ENABLED=true
-    export CORE_PEER_ADDRESS="peer0.org1.example.com:7050"
-    # export CORE_PEER_ADDRESS="localhost:7050"
+    export CORE_PEER_ADDRESS="peer0.org1.example.com:7051"
     export CORE_PEER_LOCALMSPID="Org1MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt"
     export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     export ORDERER_CA="${TEST_NETWORK_HOME}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/ca.crt"
 }
 
-function org2() {
-    export FABRIC_CFG_PATH=${TEST_NETWORK_HOME}/config/org2
-    export HOST="peer0.org2.example.com"
-    export PORT=8050
-    export ORG="Org2"
-    ############ Peer Vasic Setting ############
-    export CORE_PEER_TLS_ENABLED=true
-    export CORE_PEER_ID="peer0.org2.example.com"
-    export CORE_PEER_ENDORSER_ENABLED=true
-    export CORE_PEER_ADDRESS="peer0.org2.example.com:8050"
-    # export CORE_PEER_ADDRESS="localhost:7050"
-    export CORE_PEER_LOCALMSPID="Org2MSP"
-    export CORE_PEER_TLS_ROOTCERT_FILE="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
-    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp"
-    export ORDERER_CA="${TEST_NETWORK_HOME}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/ca.crt"
-}
+function changePeer() {
+    peer=$1
 
-function org3() {
-    export FABRIC_CFG_PATH=${TEST_NETWORK_HOME}/config/org3
-    export HOST="peer0.org3.example.com"
-    export PORT=6050
-    export ORG="Org3"
+    if [ "${peer}" = "peer0" ]; then
+        export PORT=7051
+    elif [ "${peer}" = "peer1" ]; then
+        export PORT=6051
+    elif [ "${peer}" = "peer2" ]; then
+        export PORT=5051
+    elif [ "${peer}" = "peer3" ]; then
+        export PORT=4051
+    elif [ "${peer}" = "peer4" ]; then
+        export PORT=3051
+    elif [ "${peer}" = "peer5" ]; then
+        export PORT=2051
+    fi
+
+    export FABRIC_CFG_PATH=${TEST_NETWORK_HOME}/config
+    export HOST="${peer}.org1.example.com"
+    export ORG="Org1"
+
     ############ Peer Vasic Setting ############
     export CORE_PEER_TLS_ENABLED=true
-    export CORE_PEER_ID="peer0.org3.example.com"
+    export CORE_PEER_ID="${peer}.org1.example.com"
     export CORE_PEER_ENDORSER_ENABLED=true
-    export CORE_PEER_ADDRESS="peer0.org3.example.com:6050"
-    # export CORE_PEER_ADDRESS="localhost:7050"
-    export CORE_PEER_LOCALMSPID="Org3MSP"
-    export CORE_PEER_TLS_ROOTCERT_FILE="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org3.example.com/peers/peer0.org3.example.com/tls/ca.crt"
-    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org3.example.com/users/Admin@org3.example.com/msp"
+    export CORE_PEER_ADDRESS="${peer}.org1.example.com:${PORT}"
+    export CORE_PEER_LOCALMSPID="Org1MSP"
+    export CORE_PEER_TLS_ROOTCERT_FILE="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/peers/${peer}.org1.example.com/tls/ca.crt"
+    export CORE_PEER_MSPCONFIGPATH="${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     export ORDERER_CA="${TEST_NETWORK_HOME}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/ca.crt"
 }
 
@@ -114,7 +110,7 @@ function approve() {
     echo "Query installed successful on peer0.org1 on channel"
 
     set -x
-    ${BIN_DIR}/peer lifecycle chaincode approveformyorg -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA --channelID ${CHANNEL_NAME} --name ${CHAINCODE_NAME} --version ${CHAINCODE_VERSION} --package-id ${PACKAGE_ID} --sequence ${CHAINCODE_SEQUENCE} ${CHAINCODE_INIT_REQUIRED} ${CHAINCODE_END_POLICY} ${CHAINCODE_COLL_CONFIG} >&${LOG_DIR}/${ORG}-${CHANNEL_NAME}-chaincode.log
+    ${BIN_DIR}/peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA --channelID ${CHANNEL_NAME} --name ${CHAINCODE_NAME} --version ${CHAINCODE_VERSION} --package-id ${PACKAGE_ID} --sequence ${CHAINCODE_SEQUENCE} ${CHAINCODE_INIT_REQUIRED} ${CHAINCODE_END_POLICY} ${CHAINCODE_COLL_CONFIG} >&${LOG_DIR}/${ORG}-${CHANNEL_NAME}-chaincode.log
     res=$?
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/${ORG}-${CHANNEL_NAME}-chaincode.log
@@ -155,7 +151,7 @@ function commit() {
     # peer (if join was successful), let's supply it directly as we know
     # it using the "-o" option
     set -x
-    ${BIN_DIR}/peer lifecycle chaincode commit -o localhost:9050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA --channelID ${CHANNEL_NAME} --name ${CHAINCODE_NAME} $PEER_CONN_PARMS --version ${CHAINCODE_VERSION} --sequence ${CHAINCODE_SEQUENCE} ${CHAINCODE_INIT_REQUIRED} ${CHAINCODE_END_POLICY} ${CHAINCODE_COLL_CONFIG} >&${LOG_DIR}/${ORG}-${CHANNEL_NAME}-chaincode.log
+    ${BIN_DIR}/peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA --channelID ${CHANNEL_NAME} --name ${CHAINCODE_NAME} $PEER_CONN_PARMS --version ${CHAINCODE_VERSION} --sequence ${CHAINCODE_SEQUENCE} ${CHAINCODE_INIT_REQUIRED} ${CHAINCODE_END_POLICY} ${CHAINCODE_COLL_CONFIG} >&${LOG_DIR}/${ORG}-${CHANNEL_NAME}-chaincode.log
     res=$?
     { set +x; } 2>/dev/null
     cat ${LOG_DIR}/${ORG}-${CHANNEL_NAME}-chaincode.log
@@ -228,7 +224,7 @@ function deployChaincode() {
             shift 2
             ;;
         --i)
-            $2
+            changePeer $2
             install
             sleep 1
             shift 2
@@ -263,7 +259,7 @@ function main() {
     # setChaincode
     # sleep 3
 
-    deployChaincode --v v3 --s 1 --cc Dev --ch mychannel-a --i org1 --i org2 --ap org1 --ap org2 --check org1 --check org2 --c org1
+    deployChaincode --v v7 --s 2 --cc Dev --ch mychannel0 --i peer0 --i peer1 --ap org1 --check org1 --c org1
     echo "finished to deploy chaincode"
     sleep 5
 
